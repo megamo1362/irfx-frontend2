@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { LoginBackgroundClient } from '@/components/effects/login-bg-client';
 
 export const metadata: Metadata = {
-  title: 'ورود | IRFX',
-  description: 'ورود به پلتفرم معاملاتی IRFX',
+  title: 'ورود | Zenvora',
+  description: 'ورود به پلتفرم Zenvora',
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

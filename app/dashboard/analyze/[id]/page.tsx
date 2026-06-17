@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { AnalysisPage } from '@/components/analysis';
 
-export const metadata: Metadata = { title: 'آنالیز حساب | IRFX' };
+export const metadata: Metadata = { title: 'آنالیز حساب | Zenvora' };
 
 interface Props {
   params: Promise<{ id: string }>;

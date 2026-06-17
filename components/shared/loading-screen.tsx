@@ -22,7 +22,7 @@ export function LoadingScreen({
         className,
       )}
     >
-      <span className="text-4xl font-black neon-text tracking-widest">IRFX</span>
+      <img src="/logo.png" alt="Zenvora" className="h-16 w-auto object-contain" />
       <Spinner size="lg" />
       {label && (
         <p className="text-sm text-[var(--color-text-muted)] animate-pulse">{label}</p>

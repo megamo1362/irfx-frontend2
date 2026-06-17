@@ -59,7 +59,7 @@ export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: 
       {/* Logo */}
       <div className="flex-shrink-0 px-5 py-4 border-b border-[var(--color-border)]">
         <Link href={variant === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-2 group">
-          <img src="/logo.png" alt="Zenvora" className="h-10 w-auto object-contain" />
+          <img src="/logo.png" alt="Zenvora" className="h-14 w-auto object-contain" />
         </Link>
       </div>
 
