@@ -42,11 +42,16 @@ export interface SaveJournalInput extends Journal {
   symbol: string;
   trade_type: 'buy' | 'sell';
   profit: number;
+  journal_id?: number;
 }
 
 export function useSaveJournal() {
   return useMutation({
-    mutationFn: (data: SaveJournalInput) =>
-      apiFetch('/journal/create', { method: 'POST', body: data }),
+    mutationFn: ({ journal_id, ...data }: SaveJournalInput) => {
+      if (journal_id) {
+        return apiFetch(`/journal/${journal_id}`, { method: 'PUT', body: data });
+      }
+      return apiFetch('/journal/create', { method: 'POST', body: data });
+    },
   });
 }

@@ -1,23 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Trash2, Pencil, Plus } from 'lucide-react';
+import { BookOpen, Pencil } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { JournalModal } from './JournalModal';
-import type { JournalEntry, MT5Account } from '@/types';
+import type { JournalEntry, MT5Account, Trade } from '@/types';
 
 export default function JournalPage() {
   const [accounts, setAccounts] = useState<MT5Account[]>([]);
   const [accountId, setAccountId] = useState('');
+  const [trades, setTrades] = useState<Trade[]>([]);
   const [journals, setJournals] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editEntry, setEditEntry] = useState<JournalEntry | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
 
   useEffect(() => {
     apiFetch<{ accounts: MT5Account[] }>('/accounts/list')
@@ -28,47 +28,47 @@ export default function JournalPage() {
       });
   }, []);
 
-  const fetchJournals = () => {
+  const fetchData = () => {
     if (!accountId) return;
     setLoading(true);
-    apiFetch<JournalEntry[]>(`/journal/list/${accountId}`)
-      .then(setJournals)
+    Promise.all([
+      apiFetch<{ trades: Trade[] }>(`/trades/list/${accountId}`),
+      apiFetch<JournalEntry[]>(`/journal/list/${accountId}`),
+    ])
+      .then(([tradesResp, journalsResp]) => {
+        setTrades(tradesResp.trades ?? []);
+        setJournals(journalsResp ?? []);
+      })
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchJournals(); }, [accountId]);
+  useEffect(() => { fetchData(); }, [accountId]);
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    setDeleting(true);
-    try {
-      await apiFetch(`/journal/${deleteId}`, { method: 'DELETE' });
-      setDeleteId(null);
-      fetchJournals();
-    } finally {
-      setDeleting(false);
-    }
+  // map ticket → journal
+  const journalMap = new Map<number, JournalEntry>();
+  journals.forEach(j => { if (j.ticket != null) journalMap.set(j.ticket, j); });
+
+  const openModal = (trade: Trade) => {
+    const existing = journalMap.get(trade.ticket) ?? null;
+    setSelectedTrade(trade);
+    setSelectedEntry(existing);
+    setModalOpen(true);
   };
 
-  const profitColor = (p?: number) => {
-    if (p === undefined || p === null) return 'text-[var(--color-text-muted)]';
-    return p >= 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-status-error)]';
-  };
+  const profitColor = (p: number) =>
+    p >= 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-status-error)]';
+
+  const realTrades = trades.filter(t => [0, 1].includes(t.type) && t.volume > 0 && t.profit !== 0);
 
   return (
     <div dir="rtl">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">ژورنال معاملاتی</h1>
-          <p className="text-sm text-[var(--color-text-muted)] mt-1">ثبت و پیگیری معاملات</p>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">برای هر معامله ژورنال ثبت کن</p>
         </div>
-        <Button onClick={() => { setEditEntry(null); setModalOpen(true); }} disabled={!accountId}>
-          <Plus className="w-4 h-4 ml-1" />
-          ثبت ژورنال جدید
-        </Button>
       </div>
 
-      {/* Account selector */}
       <div className="mb-5 w-64">
         <Select value={accountId} onValueChange={setAccountId}>
           <SelectTrigger><SelectValue placeholder="انتخاب حساب" /></SelectTrigger>
@@ -82,88 +82,70 @@ export default function JournalPage() {
         </Select>
       </div>
 
-      {/* List */}
       {loading ? (
-        <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="skeleton h-28 rounded-2xl" />)}</div>
-      ) : journals.length === 0 ? (
+        <div className="space-y-3">{[...Array(6)].map((_, i) => <div key={i} className="skeleton h-16 rounded-2xl" />)}</div>
+      ) : realTrades.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center border border-[var(--color-border)]">
-          <p className="text-[var(--color-text-muted)] text-sm">هنوز ژورنالی ثبت نشده است.</p>
+          <p className="text-[var(--color-text-muted)] text-sm">هنوز معامله‌ای همگام‌سازی نشده است.</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {journals.map(j => (
-            <div key={j.id} className="glass rounded-2xl p-5 border border-[var(--color-border)] hover:border-[var(--color-border-hover)] transition-colors">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-2">
-                    {j.symbol && <span className="font-mono font-bold text-[var(--color-cyan)] text-sm">{j.symbol}</span>}
-                    {j.trade_type && (
-                      <Badge variant={j.trade_type === 'buy' ? 'green' : 'red'} dot>
-                        {j.trade_type === 'buy' ? 'خرید' : 'فروش'}
-                      </Badge>
-                    )}
-                    {j.post_followed_plan !== undefined && j.post_followed_plan !== null && (
-                      <Badge variant={j.post_followed_plan ? 'green' : 'red'}>
-                        {j.post_followed_plan ? '✓ پایبند' : '✗ پایبند نبود'}
-                      </Badge>
-                    )}
-                    {j.post_rating && (
-                      <span className="text-xs text-[var(--color-text-muted)]">امتیاز: {j.post_rating}/10</span>
-                    )}
-                  </div>
-                  <div className="flex gap-4 text-xs text-[var(--color-text-muted)] flex-wrap">
-                    {j.pre_emotion && <span>قبل: <span className="text-[var(--color-text-secondary)]">{j.pre_emotion}</span></span>}
-                    {j.post_emotion && <span>بعد: <span className="text-[var(--color-text-secondary)]">{j.post_emotion}</span></span>}
-                    {j.tags && <span>تگ: <span className="text-[var(--color-text-secondary)]">{j.tags}</span></span>}
-                  </div>
-                  {j.pre_reason && (
-                    <p className="text-xs text-[var(--color-text-muted)] mt-2 line-clamp-1">{j.pre_reason}</p>
+        <div className="space-y-2">
+          {realTrades.map(trade => {
+            const hasJournal = journalMap.has(trade.ticket);
+            return (
+              <div
+                key={trade.ticket}
+                className="glass rounded-2xl px-5 py-3 border border-[var(--color-border)] hover:border-[var(--color-border-hover)] transition-colors flex items-center gap-4"
+              >
+                <div className="flex-1 min-w-0 flex items-center gap-3 flex-wrap">
+                  <span className="font-mono font-bold text-[var(--color-cyan)] text-sm">{trade.symbol}</span>
+                  <Badge variant={trade.type === 0 ? 'green' : 'red'}>
+                    {trade.type === 0 ? 'خرید' : 'فروش'}
+                  </Badge>
+                  <span className={`font-bold text-sm tabular-nums ${profitColor(trade.profit)}`}>
+                    {trade.profit >= 0 ? '+' : ''}{trade.profit.toFixed(2)}$
+                  </span>
+                  <span className="text-xs text-[var(--color-text-muted)] tabular-nums hidden sm:inline">
+                    {trade.time?.slice(0, 10)}
+                  </span>
+                  {hasJournal && (
+                    <Badge variant="cyan">
+                      <BookOpen className="w-3 h-3 ml-0.5" />
+                      ژورنال ثبت شده
+                    </Badge>
                   )}
                 </div>
-                <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                  <span className={`font-bold text-sm ${profitColor(j.profit)}`}>
-                    {j.profit !== undefined && j.profit !== null ? `${j.profit >= 0 ? '+' : ''}$${j.profit}` : '—'}
-                  </span>
-                  <span className="text-[10px] text-[var(--color-text-muted)]">
-                    {new Date(j.created_at).toLocaleDateString('fa-IR')}
-                  </span>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon-sm" onClick={() => { setEditEntry(j); setModalOpen(true); }}>
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon-sm" onClick={() => setDeleteId(j.id)}>
-                      <Trash2 className="w-3.5 h-3.5 text-[var(--color-status-error)]" />
-                    </Button>
-                  </div>
-                </div>
+                <Button
+                  variant={hasJournal ? 'secondary' : 'primary'}
+                  size="sm"
+                  onClick={() => openModal(trade)}
+                  className="flex-shrink-0"
+                >
+                  {hasJournal ? (
+                    <><Pencil className="w-3.5 h-3.5 ml-1" />ویرایش</>
+                  ) : (
+                    <><BookOpen className="w-3.5 h-3.5 ml-1" />ثبت ژورنال</>
+                  )}
+                </Button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* Journal Modal */}
       <JournalModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSaved={fetchJournals}
+        onSaved={fetchData}
         accountId={Number(accountId)}
-        entry={editEntry}
+        entry={selectedEntry}
+        trade={selectedTrade ? {
+          ticket: selectedTrade.ticket,
+          symbol: selectedTrade.symbol,
+          type: selectedTrade.type,
+          profit: selectedTrade.profit,
+        } : null}
       />
-
-      {/* Delete Confirm */}
-      {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="glass rounded-2xl p-6 border border-[var(--color-border)] max-w-sm w-full mx-4 text-center" dir="rtl">
-            <p className="text-[var(--color-text-primary)] font-semibold mb-2">حذف ژورنال</p>
-            <p className="text-sm text-[var(--color-text-muted)] mb-5">آیا مطمئنی؟ این عمل قابل بازگشت نیست.</p>
-            <div className="flex gap-3 justify-center">
-              <Button variant="secondary" onClick={() => setDeleteId(null)}>انصراف</Button>
-              <Button onClick={handleDelete} loading={deleting} className="bg-[var(--color-status-error)] hover:bg-red-600">حذف</Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

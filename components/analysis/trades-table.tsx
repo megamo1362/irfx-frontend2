@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckSquare, XSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { apiFetch } from '@/lib/api';
 import { useSaveJournal } from '@/hooks/use-analysis';
-import type { Trade, Journal } from '@/types';
+import type { Trade, Journal, JournalEntry } from '@/types';
 
 // ── Journal modal ──────────────────────────────────────────
 
@@ -37,7 +38,33 @@ function JournalModal({
   onClose: () => void;
 }) {
   const [j, setJ] = useState<Journal>({});
+  const [journalId, setJournalId] = useState<number | null>(null);
+  const [loadingExisting, setLoadingExisting] = useState(true);
   const { mutate: save, isPending, isSuccess } = useSaveJournal();
+
+  useEffect(() => {
+    setLoadingExisting(true);
+    setJournalId(null);
+    setJ({});
+    apiFetch<JournalEntry | null>(`/journal/by-ticket/${accountId}/${trade.ticket}`)
+      .then(existing => {
+        if (existing?.id) {
+          setJournalId(existing.id);
+          setJ({
+            pre_emotion: existing.pre_emotion,
+            pre_reason: existing.pre_reason,
+            post_emotion: existing.post_emotion,
+            post_lesson: existing.post_lesson,
+            post_rating: existing.post_rating,
+            post_followed_plan: existing.post_followed_plan,
+            tags: existing.tags,
+          });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingExisting(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trade.ticket]);
 
   const handleSave = () => {
     save({
@@ -47,6 +74,7 @@ function JournalModal({
       trade_type: trade.type === 0 ? 'buy' : 'sell',
       profit: trade.profit,
       ...j,
+      ...(journalId ? { journal_id: journalId } : {}),
     }, { onSuccess: () => setTimeout(onClose, 1200) });
   };
 
@@ -70,7 +98,9 @@ function JournalModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-[var(--color-text-primary)]">ژورنال معامله</h3>
+          <h3 className="font-bold text-[var(--color-text-primary)]">
+            {loadingExisting ? 'بارگذاری...' : journalId ? 'ویرایش ژورنال' : 'ژورنال معامله'}
+          </h3>
           <button onClick={onClose} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors">
             <X className="h-4 w-4" />
           </button>

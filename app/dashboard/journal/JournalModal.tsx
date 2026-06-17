@@ -11,12 +11,20 @@ import type { JournalEntry } from '@/types';
 
 const EMOTIONS = ['ترس', 'طمع', 'هیجان', 'انضباط', 'خنثی', 'اعتماد به نفس کاذب', 'انتقام'];
 
+interface TradeRef {
+  ticket: number;
+  symbol: string;
+  type: number;
+  profit: number;
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
   onSaved: () => void;
   accountId: number;
   entry?: JournalEntry | null;
+  trade?: TradeRef | null;
 }
 
 const EMPTY = {
@@ -25,7 +33,7 @@ const EMPTY = {
   tags: '', profit: '',
 };
 
-export function JournalModal({ open, onClose, onSaved, accountId, entry }: Props) {
+export function JournalModal({ open, onClose, onSaved, accountId, entry, trade }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -44,11 +52,13 @@ export function JournalModal({ open, onClose, onSaved, accountId, entry }: Props
         tags: entry.tags ?? '',
         profit: entry.profit?.toString() ?? '',
       });
+    } else if (trade) {
+      setForm({ ...EMPTY, profit: trade.profit?.toString() ?? '' });
     } else {
       setForm(EMPTY);
     }
     setError('');
-  }, [entry, open]);
+  }, [entry, trade, open]);
 
   const save = async () => {
     setSaving(true);
@@ -56,6 +66,9 @@ export function JournalModal({ open, onClose, onSaved, accountId, entry }: Props
     try {
       const body = {
         account_id: accountId,
+        ticket: entry?.ticket ?? trade?.ticket ?? null,
+        symbol: entry?.symbol ?? trade?.symbol ?? null,
+        trade_type: entry?.trade_type ?? (trade ? (trade.type === 0 ? 'buy' : 'sell') : null),
         pre_emotion: form.pre_emotion || null,
         pre_reason: form.pre_reason || null,
         pre_strategy: form.pre_strategy || null,
