@@ -12,8 +12,11 @@ export default function NotFound() {
       <p className="text-sm text-[var(--color-text-muted)] mb-8 max-w-xs">
         صفحه‌ای که دنبالش می‌گردی وجود ندارد یا منتقل شده.
       </p>
-      <Link href="/dashboard" className="btn-primary px-6 py-2.5 rounded-xl text-sm font-medium">
-        بازگشت به داشبورد
+      <Link href="/admin" className="btn-primary px-6 py-2.5 rounded-xl text-sm font-medium ml-3">
+        پنل ادمین
+      </Link>
+      <Link href="/dashboard" className="btn-primary px-6 py-2.5 rounded-xl text-sm font-medium opacity-60 mt-3">
+        داشبورد
       </Link>
     </div>
   );
