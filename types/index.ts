@@ -266,6 +266,55 @@ export interface UserFeatures {
   [key: string]: boolean;
 }
 
+// ── Journal ────────────────────────────────────────────────
+export interface JournalEntry {
+  id: number;
+  account_id: number;
+  ticket?: number;
+  symbol?: string;
+  trade_type?: string;
+  pre_emotion?: string;
+  pre_reason?: string;
+  pre_strategy?: string;
+  pre_risk?: number;
+  post_emotion?: string;
+  post_lesson?: string;
+  post_rating?: number;
+  post_followed_plan?: boolean;
+  tags?: string;
+  profit?: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface EmotionPnL {
+  emotion: string;
+  avg_profit: number;
+  count: number;
+}
+
+export interface JournalAnalysisData {
+  total_journals: number;
+  avg_post_rating: number | null;
+  plan_followed_pct: number | null;
+  emotion_distribution: Record<string, number>;
+  post_emotion_distribution: Record<string, number>;
+  emotion_pnl: EmotionPnL[];
+  rating_pnl_correlation: { rating: number; avg_profit: number; count: number }[];
+  plan_followed_pnl: {
+    followed: { avg_profit: number; count: number };
+    not_followed: { avg_profit: number; count: number };
+  };
+  top_tags: { tag: string; count: number }[];
+  monthly_journal_count: { month: string; count: number }[];
+}
+
+export interface JournalPermission {
+  coach_id: number;
+  coach_name: string;
+  allow_journal_view: boolean;
+}
+
 // ── API ────────────────────────────────────────────────────
 export interface ApiError {
   detail: string;

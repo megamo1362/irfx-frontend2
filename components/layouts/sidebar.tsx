@@ -4,7 +4,7 @@
 
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
-import { BarChart2, Users, UserPlus, LayoutDashboard, UserCheck, KeyRound, CreditCard } from 'lucide-react';
+import { BarChart2, Users, UserPlus, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield } from 'lucide-react';
 import { NavItem } from './nav-item';
 import { UserMenu } from './user-menu';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,9 @@ interface NavEntry {
 
 const DASHBOARD_NAV: NavEntry[] = [
   { href: '/dashboard', label: 'حساب‌ها', icon: BarChart2, exact: true },
+  { href: '/dashboard/journal', label: 'ژورنال', icon: BookOpen },
+  { href: '/dashboard/journal/analysis', label: 'آنالیز ژورنال', icon: TrendingUp, roles: ['client'] },
+  { href: '/dashboard/settings/journal-permissions', label: 'دسترسی کوچ', icon: Shield, roles: ['client'] },
   { href: '/dashboard/coach/clients', label: 'کلاینت‌های من', icon: Users, roles: ['coach'] },
   { href: '/dashboard/connect-coach', label: 'اتصال به کوچ', icon: UserPlus, roles: ['client'] },
 ];
