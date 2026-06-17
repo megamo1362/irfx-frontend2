@@ -42,7 +42,7 @@ export function Topbar({ user, className }: TopbarProps) {
         </button>
 
         {/* Logo on mobile (hidden on desktop where sidebar shows it) */}
-        <span className="lg:hidden text-lg font-black neon-text tracking-widest">IRFX</span>
+        <img src="/logo.png" alt="Zenvora" className="lg:hidden h-8 w-auto object-contain" />
       </div>
 
       {/* Left side: notifications + user avatar */}

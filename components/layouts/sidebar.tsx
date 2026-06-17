@@ -57,17 +57,9 @@ export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: 
       )}
     >
       {/* Logo */}
-      <div className="flex-shrink-0 px-6 py-5 border-b border-[var(--color-border)]">
-        <Link href={variant === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-3 group">
-          <div className="relative flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--color-cyan)] to-[var(--color-blue)] flex items-center justify-center shadow-[var(--shadow-glow-cyan)]">
-            <span className="text-sm font-black text-[var(--color-void)]">IR</span>
-          </div>
-          <div>
-            <p className="text-base font-black neon-text tracking-widest leading-none">IRFX</p>
-            <p className="text-[10px] text-[var(--color-text-muted)] tracking-wider mt-0.5">
-              Trading Psychology
-            </p>
-          </div>
+      <div className="flex-shrink-0 px-5 py-4 border-b border-[var(--color-border)]">
+        <Link href={variant === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-2 group">
+          <img src="/logo.png" alt="Zenvora" className="h-10 w-auto object-contain" />
         </Link>
       </div>
 

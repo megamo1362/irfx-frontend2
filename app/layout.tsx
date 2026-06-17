@@ -17,13 +17,13 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'IRFX | Trading Psychology Platform',
-    template: '%s | IRFX',
+    default: 'Zenvora | AI-Powered Trading Journal',
+    template: '%s | Zenvora',
   },
-  description: 'Premium trading psychology and performance intelligence platform',
-  keywords: ['trading', 'psychology', 'performance', 'MT5', 'forex', 'coaching'],
-  authors: [{ name: 'IRFX' }],
-  creator: 'IRFX',
+  description: 'AI-Powered Trading Intelligence Platform',
+  keywords: ['trading', 'journal', 'AI', 'MT5', 'forex', 'coaching'],
+  authors: [{ name: 'Zenvora' }],
+  creator: 'Zenvora',
   icons: {
     icon: '/favicon.ico',
     apple: '/icons/icon-192.png',

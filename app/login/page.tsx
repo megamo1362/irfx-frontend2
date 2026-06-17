@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { LoginForm } from '@/components/auth/login-form';
@@ -16,16 +17,14 @@ export default function LoginPage() {
       {/* Logo */}
       <div className="text-center mb-8">
         <motion.div
-          className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-cyan)] to-[var(--color-blue)] mb-4 shadow-[var(--shadow-glow-cyan)]"
-          animate={{ boxShadow: ['var(--shadow-glow-cyan)', '0 0 30px rgba(0,212,255,0.4)', 'var(--shadow-glow-cyan)'] }}
+          className="flex justify-center mb-2"
+          animate={{ filter: ['drop-shadow(0 0 12px rgba(0,212,255,0.4))', 'drop-shadow(0 0 24px rgba(0,212,255,0.7))', 'drop-shadow(0 0 12px rgba(0,212,255,0.4))'] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <span className="text-2xl font-black text-[var(--color-void)]">IR</span>
+          <Image src="/logo.png" alt="Zenvora" width={180} height={180} className="object-contain" priority />
         </motion.div>
-
-        <h1 className="text-3xl font-black neon-text tracking-widest">IRFX</h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-2">
-          پلتفرم تحلیل رفتار معاملاتی
+        <p className="text-sm text-[var(--color-text-muted)] mt-1">
+          AI-Powered Trading Journal
         </p>
       </div>
 
@@ -49,7 +48,7 @@ export default function LoginPage() {
 
       {/* Footer */}
       <p className="text-center text-xs text-[var(--color-text-muted)] mt-6">
-        IRFX Trading Psychology Platform
+        Zenvora · AI-Powered Trading Intelligence
       </p>
     </motion.div>
   );
