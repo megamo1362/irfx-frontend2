@@ -113,7 +113,7 @@ export function AnalysisPage({ id }: { id: string }) {
   return (
     <div className="space-y-5 max-w-4xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Link href={ROUTES.dashboard} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors">

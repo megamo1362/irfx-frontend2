@@ -21,7 +21,7 @@ export default function LoginPage() {
           animate={{ filter: ['drop-shadow(0 0 12px rgba(0,212,255,0.4))', 'drop-shadow(0 0 24px rgba(0,212,255,0.7))', 'drop-shadow(0 0 12px rgba(0,212,255,0.4))'] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <Image src="/logo.png" alt="Zenvora" width={260} height={260} className="object-contain" priority />
+          <Image src="/logo.png" alt="Zenvora" width={260} height={260} className="object-contain w-36 sm:w-48 lg:w-64" priority />
         </motion.div>
         <p className="text-sm text-[var(--color-text-muted)] mt-1">
           AI-Powered Trading Journal

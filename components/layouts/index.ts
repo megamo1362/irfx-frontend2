@@ -1,6 +1,7 @@
 export * from './auth-guard';
 export * from './sidebar';
 export * from './mobile-nav';
+export * from './bottom-nav';
 export * from './topbar';
 export * from './user-menu';
 export * from './nav-item';

@@ -4,6 +4,7 @@ import { AuthGuard, useCurrentUser } from './auth-guard';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { MobileNav } from './mobile-nav';
+import { BottomNav } from './bottom-nav';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -25,10 +26,13 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0 lg:mr-[280px]">
         <Topbar user={user} />
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
+        <main className="flex-1 p-4 md:p-6 pb-24 lg:pb-6 overflow-auto">
           {children}
         </main>
       </div>
+
+      {/* Bottom nav — mobile only */}
+      <BottomNav user={user} variant="admin" />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { AuthGuard, useCurrentUser } from './auth-guard';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { MobileNav } from './mobile-nav';
+import { BottomNav } from './bottom-nav';
 import { PageTransition } from './page-transition';
 import { Toaster } from '@/components/shared/toaster';
 import { CommandPalette } from '@/components/shared/command-palette';
@@ -39,10 +40,13 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       {/* Main content — offset from right sidebar on desktop */}
       <div className="flex flex-col flex-1 min-w-0 lg:mr-[280px]">
         <Topbar user={user} />
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
+        <main className="flex-1 p-4 md:p-6 pb-24 lg:pb-6 overflow-auto">
           <PageTransition>{children}</PageTransition>
         </main>
       </div>
+
+      {/* Bottom nav — mobile only */}
+      <BottomNav user={user} variant="dashboard" />
 
       {/* Global UI layers */}
       <CommandPalette />
