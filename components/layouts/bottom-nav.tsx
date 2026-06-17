@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart2, BookOpen, TrendingUp, Users, UserPlus, LayoutDashboard, KeyRound, CreditCard, UserCheck } from 'lucide-react';
+import { BarChart2, BookOpen, TrendingUp, Users, LayoutDashboard, KeyRound, CreditCard, UserCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { User } from '@/types';
 
@@ -18,7 +18,6 @@ const DASHBOARD_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'حساب‌ها', icon: BarChart2, exact: true },
   { href: '/dashboard/journal', label: 'ژورنال', icon: BookOpen },
   { href: '/dashboard/journal/analysis', label: 'آنالیز', icon: TrendingUp, roles: ['client'] },
-  { href: '/dashboard/connect-coach', label: 'کوچ', icon: UserPlus, roles: ['client'] },
   { href: '/dashboard/coach/clients', label: 'کلاینت‌ها', icon: Users, roles: ['coach'] },
 ];
 
