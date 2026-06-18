@@ -1,17 +1,53 @@
 'use client';
 
+import { useState } from 'react';
+import { Globe } from 'lucide-react';
 import { useLang } from './LangContext';
 
 export function LangToggle() {
-  const { lang, setLang } = useLang();
+  const { lang, setLang, isRTL } = useLang();
+  const [open, setOpen] = useState(false);
+
+  const positionClass = isRTL ? 'right-5' : 'left-5';
+  const menuAlignClass = isRTL ? 'right-0' : 'left-0';
 
   return (
-    <button
-      onClick={() => setLang(lang === 'fa' ? 'en' : 'fa')}
-      className="fixed bottom-6 left-6 z-50 w-12 h-12 rounded-full bg-[var(--color-cyan)] text-[var(--color-void)] font-black text-sm shadow-lg hover:scale-110 transition-transform select-none"
-      title={lang === 'fa' ? 'Switch to English' : 'تغییر به فارسی'}
+    <div
+      className={`fixed bottom-5 ${positionClass} z-50`}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
     >
-      {lang === 'fa' ? 'EN' : 'FA'}
-    </button>
+      {/* Dropdown menu */}
+      {open && (
+        <div className={`absolute bottom-10 ${menuAlignClass} mb-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-elevated)] shadow-xl overflow-hidden min-w-[120px]`}>
+          <button
+            onClick={() => { setLang('fa'); setOpen(false); }}
+            className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--color-cyan-dim)] ${
+              lang === 'fa' ? 'text-[var(--color-cyan)] font-bold' : 'text-[var(--color-text-secondary)]'
+            }`}
+          >
+            {lang === 'fa' && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-cyan)] flex-shrink-0" />}
+            فارسی
+          </button>
+          <button
+            onClick={() => { setLang('en'); setOpen(false); }}
+            className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--color-cyan-dim)] ${
+              lang === 'en' ? 'text-[var(--color-cyan)] font-bold' : 'text-[var(--color-text-secondary)]'
+            }`}
+          >
+            {lang === 'en' && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-cyan)] flex-shrink-0" />}
+            English
+          </button>
+        </div>
+      )}
+
+      {/* Globe button */}
+      <button
+        className="w-9 h-9 rounded-full bg-[var(--color-elevated)] border border-[var(--color-border)] hover:border-[var(--color-cyan)] hover:text-[var(--color-cyan)] text-[var(--color-text-muted)] shadow-lg transition-all flex items-center justify-center"
+        aria-label="Change language"
+      >
+        <Globe className="w-4 h-4" />
+      </button>
+    </div>
   );
 }
