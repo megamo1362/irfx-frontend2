@@ -16,11 +16,7 @@ echo ">>> [Backend] Installing dependencies..."
 pip3 install -r requirements.txt -q
 
 echo ">>> [Backend] Restarting..."
-if pm2 list | grep -q "irfx-backend"; then
-  pm2 restart irfx-backend
-else
-  pm2 start "$FRONTEND_DIR/ecosystem.config.js" --only irfx-backend
-fi
+pm2 startOrRestart "$FRONTEND_DIR/ecosystem.config.js" --only irfx-backend
 
 # ── Frontend ───────────────────────────────────────────────
 echo ">>> [Frontend] Fixing permissions..."
@@ -37,11 +33,7 @@ echo ">>> [Frontend] Building..."
 npm run build
 
 echo ">>> [Frontend] Restarting..."
-if pm2 list | grep -q "irfx-frontend2"; then
-  pm2 restart irfx-frontend2
-else
-  pm2 start "$FRONTEND_DIR/ecosystem.config.js" --only irfx-frontend2
-fi
+pm2 startOrRestart "$FRONTEND_DIR/ecosystem.config.js" --only irfx-frontend2
 
 pm2 save
 echo ">>> Deploy complete!"
