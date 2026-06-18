@@ -13,6 +13,29 @@ export const translations = {
     error_generic: 'خطا',
     loading: 'در حال بارگذاری...',
     password_min: 'حداقل ۸ کاراکتر',
+    yes: 'بله',
+    no: 'خیر',
+    no_data_available: 'داده‌ای موجود نیست',
+
+    // ── Trades table ───────────────────────────────────────
+    trades_filter_all: 'همه',
+    trades_no_results: 'معامله‌ای یافت نشد',
+    trades_col_symbol: 'نماد',
+    trades_col_type: 'نوع',
+    trades_col_volume: 'حجم',
+    trades_col_price: 'قیمت',
+    trades_col_pnl: 'سود/ضرر',
+    trades_col_time: 'زمان',
+    trades_prev: 'قبلی',
+    trades_next: 'بعدی',
+    trades_journal_btn: 'ژورنال',
+    journal_saved: 'ژورنال ذخیره شد!',
+    journal_save_btn: 'ذخیره ژورنال',
+
+    // ── Time / Symbol analysis ─────────────────────────────
+    time_section_title: 'آنالیز ساعت معامله',
+    symbol_section_title: 'آنالیز نمادها',
+    symbol_trades_unit: 'معامله',
 
     // ── Time ───────────────────────────────────────────────
     time_just_now: 'همین الان',
@@ -403,6 +426,29 @@ export const translations = {
     error_generic: 'Error',
     loading: 'Loading...',
     password_min: 'Min 8 characters',
+    yes: 'Yes',
+    no: 'No',
+    no_data_available: 'No data available',
+
+    // ── Trades table ───────────────────────────────────────
+    trades_filter_all: 'All',
+    trades_no_results: 'No trades found',
+    trades_col_symbol: 'Symbol',
+    trades_col_type: 'Type',
+    trades_col_volume: 'Volume',
+    trades_col_price: 'Price',
+    trades_col_pnl: 'P/L',
+    trades_col_time: 'Time',
+    trades_prev: 'Prev',
+    trades_next: 'Next',
+    trades_journal_btn: 'Journal',
+    journal_saved: 'Journal saved!',
+    journal_save_btn: 'Save Journal',
+
+    // ── Time / Symbol analysis ─────────────────────────────
+    time_section_title: 'Trade Hour Analysis',
+    symbol_section_title: 'Symbol Analysis',
+    symbol_trades_unit: 'trades',
 
     // ── Time ───────────────────────────────────────────────
     time_just_now: 'Just now',

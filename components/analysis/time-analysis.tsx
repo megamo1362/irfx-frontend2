@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { TimeAnalysisPoint } from '@/types';
+import { useLang } from '@/app/i18n/LangContext';
 
 function HourBar({ point, maxTrades, delay }: { point: TimeAnalysisPoint; maxTrades: number; delay: number }) {
   const barWidth = maxTrades > 0 ? (point.trades / maxTrades) * 100 : 0;
@@ -38,8 +39,10 @@ function HourBar({ point, maxTrades, delay }: { point: TimeAnalysisPoint; maxTra
 }
 
 export function TimeAnalysis({ data }: { data: TimeAnalysisPoint[] }) {
+  const { t } = useLang();
+
   if (!data?.length) {
-    return <p className="text-sm text-[var(--color-text-muted)] text-center py-8">داده‌ای موجود نیست</p>;
+    return <p className="text-sm text-[var(--color-text-muted)] text-center py-8">{t.no_data_available}</p>;
   }
 
   const maxTrades = Math.max(...data.map(p => p.trades));
@@ -49,7 +52,7 @@ export function TimeAnalysis({ data }: { data: TimeAnalysisPoint[] }) {
       <div className="card-surface rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-5">
           <div className="w-1 h-4 rounded-full bg-[var(--color-cyan)]/60" />
-          <h3 className="font-bold text-[var(--color-text-primary)] text-sm">آنالیز ساعت معامله</h3>
+          <h3 className="font-bold text-[var(--color-text-primary)] text-sm">{t.time_section_title}</h3>
         </div>
         <div className="space-y-2">
           {data.map((p, i) => (

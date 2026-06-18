@@ -7,24 +7,25 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { apiFetch } from '@/lib/api';
 import { useSaveJournal } from '@/hooks/use-analysis';
+import { useLang } from '@/app/i18n/LangContext';
 import type { Trade, Journal, JournalEntry } from '@/types';
 
 // ── Journal modal ──────────────────────────────────────────
 
 const PRE_EMOTIONS = [
   { en: 'confident', fa: 'اطمینان' },
-  { en: 'fearful', fa: 'ترس' },
-  { en: 'greedy', fa: 'طمع' },
-  { en: 'calm', fa: 'آرامش' },
-  { en: 'revenge', fa: 'انتقام' },
-  { en: 'FOMO', fa: 'FOMO' },
+  { en: 'fearful',   fa: 'ترس'    },
+  { en: 'greedy',    fa: 'طمع'    },
+  { en: 'calm',      fa: 'آرامش'  },
+  { en: 'revenge',   fa: 'انتقام' },
+  { en: 'FOMO',      fa: 'FOMO'   },
 ];
 const POST_EMOTIONS = [
-  { en: 'satisfied', fa: 'رضایت' },
-  { en: 'regret', fa: 'پشیمانی' },
-  { en: 'neutral', fa: 'خنثی' },
-  { en: 'frustrated', fa: 'ناامیدی' },
-  { en: 'happy', fa: 'خوشحالی' },
+  { en: 'satisfied',   fa: 'رضایت'    },
+  { en: 'regret',      fa: 'پشیمانی'  },
+  { en: 'neutral',     fa: 'خنثی'     },
+  { en: 'frustrated',  fa: 'ناامیدی'  },
+  { en: 'happy',       fa: 'خوشحالی'  },
 ];
 const TAGS = ['FOMO', 'Revenge', 'GoodSetup', 'Overtrading', 'EarlyExit', 'LateEntry'];
 
@@ -37,6 +38,7 @@ function JournalModal({
   accountId: string;
   onClose: () => void;
 }) {
+  const { t, lang } = useLang();
   const [j, setJ] = useState<Journal>({});
   const [journalId, setJournalId] = useState<number | null>(null);
   const [loadingExisting, setLoadingExisting] = useState(true);
@@ -80,7 +82,7 @@ function JournalModal({
 
   const toggleTag = (tag: string) => {
     const current = j.tags ? j.tags.split(',').filter(Boolean) : [];
-    const next = current.includes(tag) ? current.filter(t => t !== tag) : [...current, tag];
+    const next = current.includes(tag) ? current.filter(tg => tg !== tag) : [...current, tag];
     setJ(prev => ({ ...prev, tags: next.join(',') }));
   };
 
@@ -99,7 +101,7 @@ function JournalModal({
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-[var(--color-text-primary)]">
-            {loadingExisting ? 'بارگذاری...' : journalId ? 'ویرایش ژورنال' : 'ژورنال معامله'}
+            {loadingExisting ? t.loading : journalId ? t.journal_modal_edit : t.journal_modal_create}
           </h3>
           <button onClick={onClose} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors">
             <X className="h-4 w-4" />
@@ -119,7 +121,7 @@ function JournalModal({
         <div className="space-y-5">
           {/* Pre emotion */}
           <div>
-            <p className="text-sm text-[var(--color-text-muted)] mb-2">احساس قبل از معامله</p>
+            <p className="text-sm text-[var(--color-text-muted)] mb-2">{t.journal_pre_label}</p>
             <div className="flex flex-wrap gap-2">
               {PRE_EMOTIONS.map(e => (
                 <button
@@ -132,8 +134,7 @@ function JournalModal({
                       : 'bg-[rgba(255,255,255,0.04)] border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
                   }`}
                 >
-                  <div>{e.fa}</div>
-                  <div className="text-[9px] opacity-60">{e.en}</div>
+                  <div>{lang === 'fa' ? e.fa : e.en}</div>
                 </button>
               ))}
             </div>
@@ -141,19 +142,19 @@ function JournalModal({
 
           {/* Pre reason */}
           <div>
-            <p className="text-sm text-[var(--color-text-muted)] mb-2">دلیل ورود</p>
+            <p className="text-sm text-[var(--color-text-muted)] mb-2">{t.journal_entry_reason_label}</p>
             <textarea
               value={j.pre_reason ?? ''}
               onChange={e => setJ(prev => ({ ...prev, pre_reason: e.target.value }))}
               rows={3}
-              placeholder="چرا وارد این معامله شدی؟"
+              placeholder={t.journal_reason_placeholder}
               className="input-dark w-full rounded-xl px-3 py-2.5 text-sm resize-none"
             />
           </div>
 
           {/* Post emotion */}
           <div>
-            <p className="text-sm text-[var(--color-text-muted)] mb-2">احساس بعد از معامله</p>
+            <p className="text-sm text-[var(--color-text-muted)] mb-2">{t.journal_post_label}</p>
             <div className="flex flex-wrap gap-2">
               {POST_EMOTIONS.map(e => (
                 <button
@@ -166,8 +167,7 @@ function JournalModal({
                       : 'bg-[rgba(255,255,255,0.04)] border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
                   }`}
                 >
-                  <div>{e.fa}</div>
-                  <div className="text-[9px] opacity-60">{e.en}</div>
+                  <div>{lang === 'fa' ? e.fa : e.en}</div>
                 </button>
               ))}
             </div>
@@ -175,19 +175,19 @@ function JournalModal({
 
           {/* Post lesson */}
           <div>
-            <p className="text-sm text-[var(--color-text-muted)] mb-2">درس گرفته</p>
+            <p className="text-sm text-[var(--color-text-muted)] mb-2">{t.journal_lesson_label}</p>
             <textarea
               value={j.post_lesson ?? ''}
               onChange={e => setJ(prev => ({ ...prev, post_lesson: e.target.value }))}
               rows={2}
-              placeholder="چه چیزی یاد گرفتی؟"
+              placeholder={t.journal_lesson_placeholder}
               className="input-dark w-full rounded-xl px-3 py-2.5 text-sm resize-none"
             />
           </div>
 
           {/* Rating */}
           <div>
-            <p className="text-sm text-[var(--color-text-muted)] mb-2">امتیاز</p>
+            <p className="text-sm text-[var(--color-text-muted)] mb-2">{t.journal_rating_label}</p>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map(r => (
                 <button
@@ -208,7 +208,7 @@ function JournalModal({
 
           {/* Followed plan */}
           <div>
-            <p className="text-sm text-[var(--color-text-muted)] mb-2">به پلن عمل کردی؟</p>
+            <p className="text-sm text-[var(--color-text-muted)] mb-2">{t.journal_followed_plan_q}</p>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -219,7 +219,7 @@ function JournalModal({
                     : 'border-[var(--color-border)] text-[var(--color-text-muted)]'
                 }`}
               >
-                <CheckSquare className="h-3.5 w-3.5" /> بله
+                <CheckSquare className="h-3.5 w-3.5" /> {t.yes}
               </button>
               <button
                 type="button"
@@ -230,14 +230,14 @@ function JournalModal({
                     : 'border-[var(--color-border)] text-[var(--color-text-muted)]'
                 }`}
               >
-                <XSquare className="h-3.5 w-3.5" /> خیر
+                <XSquare className="h-3.5 w-3.5" /> {t.no}
               </button>
             </div>
           </div>
 
           {/* Tags */}
           <div>
-            <p className="text-sm text-[var(--color-text-muted)] mb-2">تگ‌ها</p>
+            <p className="text-sm text-[var(--color-text-muted)] mb-2">{t.journal_tags_label}</p>
             <div className="flex flex-wrap gap-2">
               {TAGS.map(tag => (
                 <button
@@ -259,12 +259,12 @@ function JournalModal({
           {/* Success */}
           {isSuccess && (
             <div className="rounded-xl px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm text-center">
-              ژورنال ذخیره شد!
+              {t.journal_saved}
             </div>
           )}
 
           <Button variant="primary" size="md" className="w-full" onClick={handleSave} loading={isPending} disabled={isPending}>
-            ذخیره ژورنال
+            {t.journal_save_btn}
           </Button>
         </div>
       </motion.div>
@@ -285,32 +285,33 @@ interface TradesTableProps {
 const PAGE_SIZE = 50;
 
 export function TradesTable({ trades, accountId, showJournal = true }: TradesTableProps) {
+  const { t } = useLang();
   const [filter, setFilter] = useState<Filter>('all');
   const [page, setPage] = useState(0);
   const [journalTrade, setJournalTrade] = useState<Trade | null>(null);
 
-  const realTrades = trades.filter(t => [0, 1].includes(t.type) && t.volume > 0 && t.profit !== 0);
+  const realTrades = trades.filter(tr => [0, 1].includes(tr.type) && tr.volume > 0 && tr.profit !== 0);
 
   const filtered = filter === 'all'
     ? realTrades
     : filter === 'win'
-    ? realTrades.filter(t => t.profit > 0)
-    : realTrades.filter(t => t.profit < 0);
+    ? realTrades.filter(tr => tr.profit > 0)
+    : realTrades.filter(tr => tr.profit < 0);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const wins = realTrades.filter(t => t.profit > 0).length;
-  const losses = realTrades.filter(t => t.profit < 0).length;
+  const wins = realTrades.filter(tr => tr.profit > 0).length;
+  const losses = realTrades.filter(tr => tr.profit < 0).length;
 
   return (
     <>
       {/* Filter bar */}
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         {([
-          { key: 'all', label: `همه (${realTrades.length})` },
-          { key: 'win', label: `برنده (${wins})` },
-          { key: 'loss', label: `بازنده (${losses})` },
+          { key: 'all',  label: `${t.trades_filter_all} (${realTrades.length})` },
+          { key: 'win',  label: `${t.stat_wins} (${wins})`   },
+          { key: 'loss', label: `${t.stat_losses} (${losses})` },
         ] as { key: Filter; label: string }[]).map(f => (
           <button
             key={f.key}
@@ -330,20 +331,20 @@ export function TradesTable({ trades, accountId, showJournal = true }: TradesTab
       {/* Table */}
       <div className="card-surface rounded-2xl overflow-hidden">
         {filtered.length === 0 ? (
-          <p className="text-center text-[var(--color-text-muted)] text-sm p-10">معامله‌ای یافت نشد</p>
+          <p className="text-center text-[var(--color-text-muted)] text-sm p-10">{t.trades_no_results}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm irfx-table">
               <thead>
                 <tr>
-                  <th className="px-4 py-3 text-right">نماد</th>
-                  <th className="px-4 py-3 text-center">نوع</th>
-                  <th className="px-4 py-3 text-center">حجم</th>
-                  <th className="px-4 py-3 text-center">قیمت</th>
-                  <th className="px-4 py-3 text-center">سود/ضرر</th>
+                  <th className="px-4 py-3 text-right">{t.trades_col_symbol}</th>
+                  <th className="px-4 py-3 text-center">{t.trades_col_type}</th>
+                  <th className="px-4 py-3 text-center">{t.trades_col_volume}</th>
+                  <th className="px-4 py-3 text-center">{t.trades_col_price}</th>
+                  <th className="px-4 py-3 text-center">{t.trades_col_pnl}</th>
                   <th className="px-4 py-3 text-center text-orange-400 hidden md:table-cell">MAE$</th>
                   <th className="px-4 py-3 text-center text-blue-400 hidden md:table-cell">MFE$</th>
-                  <th className="px-4 py-3 text-left hidden sm:table-cell">زمان</th>
+                  <th className="px-4 py-3 text-left hidden sm:table-cell">{t.trades_col_time}</th>
                   {showJournal && <th className="px-4 py-3 text-center w-12" />}
                 </tr>
               </thead>
@@ -393,7 +394,7 @@ export function TradesTable({ trades, accountId, showJournal = true }: TradesTab
                             onClick={() => setJournalTrade(trade)}
                             className="text-[10px] text-[var(--color-text-muted)] hover:text-[var(--color-cyan)] transition-colors px-2 py-1 rounded-md hover:bg-[var(--color-cyan-dim)] border border-transparent hover:border-[rgba(0,212,255,0.2)]"
                           >
-                            ژورنال
+                            {t.trades_journal_btn}
                           </button>
                         </td>
                       )}
@@ -415,7 +416,7 @@ export function TradesTable({ trades, accountId, showJournal = true }: TradesTab
             disabled={page === 0}
             className="px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] text-[var(--color-text-muted)] disabled:opacity-30 hover:text-[var(--color-text-secondary)] transition-colors"
           >
-            قبلی
+            {t.trades_prev}
           </button>
           <span className="text-xs text-[var(--color-text-muted)]">
             {page + 1} / {totalPages}
@@ -426,7 +427,7 @@ export function TradesTable({ trades, accountId, showJournal = true }: TradesTab
             disabled={page >= totalPages - 1}
             className="px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] text-[var(--color-text-muted)] disabled:opacity-30 hover:text-[var(--color-text-secondary)] transition-colors"
           >
-            بعدی
+            {t.trades_next}
           </button>
         </div>
       )}
