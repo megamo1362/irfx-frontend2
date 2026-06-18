@@ -315,6 +315,21 @@ export interface JournalPermission {
   allow_journal_view: boolean;
 }
 
+// ── Charts ─────────────────────────────────────────────────
+export interface ChartPt { time: string; value: number; }
+
+export interface ChartsData {
+  account_id: number;
+  initial_balance: number | null;
+  series: {
+    growth:   { balance_growth: ChartPt[]; equity_growth: ChartPt[]; };
+    balance:  { balance: ChartPt[];        equity: ChartPt[]; };
+    profit:   { profit: ChartPt[]; };
+    drawdown: { drawdown: ChartPt[]; };
+    margin:   { margin: ChartPt[]; };
+  };
+}
+
 // ── API ────────────────────────────────────────────────────
 export interface ApiError {
   detail: string;

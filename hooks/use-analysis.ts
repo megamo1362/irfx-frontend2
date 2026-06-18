@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/constants';
-import type { SnapshotResponse, UserFeatures, Journal, Trade, Analysis } from '@/types';
+import type { SnapshotResponse, UserFeatures, Journal, Trade, Analysis, ChartsData } from '@/types';
 
 export function useCheckAndRun() {
   return useMutation({
@@ -43,6 +43,14 @@ export interface SaveJournalInput extends Journal {
   trade_type: 'buy' | 'sell';
   profit: number;
   journal_id?: number;
+}
+
+export function useCharts(accountId: string | number) {
+  return useQuery({
+    queryKey: ['charts', accountId],
+    queryFn: () => apiFetch<ChartsData>(`/charts/${accountId}`),
+    enabled: !!accountId,
+  });
 }
 
 export function useSaveJournal() {

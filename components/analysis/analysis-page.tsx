@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { InlineLoader } from '@/components/shared';
 import { WarningCards } from './warning-cards';
 import { SummaryStats } from './summary-stats';
-import { EquityChart } from './equity-chart';
+import { ChartTabs } from './chart-tabs';
 import { TradesTable } from './trades-table';
 import { TimeAnalysis } from './time-analysis';
 import { SymbolAnalysis } from './symbol-analysis';
@@ -256,7 +256,7 @@ export function AnalysisPage({ id }: { id: string }) {
                   )}
 
                   {activeTab === 'equity' && (
-                    <EquityChart data={data.analysis.equity_curve_realtime ?? []} />
+                    <ChartTabs accountId={id} />
                   )}
                 </motion.div>
               </AnimatePresence>
