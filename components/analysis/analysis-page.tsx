@@ -107,7 +107,7 @@ export function AnalysisPage({ id }: { id: string }) {
     { key: 'trades', label: `معاملات (${realTrades.length})` },
     { key: 'time', label: 'زمانی' },
     { key: 'symbols', label: 'نمادها' },
-    { key: 'equity', label: 'Equity Curve' },
+    { key: 'equity', label: 'نمودار ها' },
   ];
 
   return (

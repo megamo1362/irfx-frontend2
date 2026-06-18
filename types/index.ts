@@ -322,9 +322,9 @@ export interface ChartsData {
   account_id: number;
   initial_balance: number | null;
   series: {
-    growth:   { balance_growth: ChartPt[]; equity_growth: ChartPt[]; };
+    growth:   { balance_growth: ChartPt[]; equity_growth: ChartPt[]; mfe_growth: ChartPt[]; mae_growth: ChartPt[]; };
     balance:  { balance: ChartPt[];        equity: ChartPt[]; };
-    profit:   { profit: ChartPt[]; };
+    profit:   { profit: ChartPt[]; per_trade: ChartPt[]; };
     drawdown: { drawdown: ChartPt[]; };
     margin:   { margin: ChartPt[]; };
   };
