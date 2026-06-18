@@ -88,7 +88,7 @@ export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: 
                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
             }`}
           >
-            فارسی
+            {t.lang_fa_label}
           </button>
           <button
             onClick={() => setLang('en')}

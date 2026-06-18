@@ -170,6 +170,8 @@ export const translations = {
     add_account_btn: 'افزودن حساب',
 
     // ── Emotions ───────────────────────────────────────────
+    lang_fa_label: 'فارسی',
+    lang_fa_short: 'فا',
     emotion_fear: 'ترس',
     emotion_greed: 'طمع',
     emotion_excitement: 'هیجان',
@@ -177,6 +179,14 @@ export const translations = {
     emotion_neutral: 'خنثی',
     emotion_overconfidence: 'اعتماد به نفس کاذب',
     emotion_revenge: 'انتقام',
+    emotion_confident: 'اطمینان',
+    emotion_fearful: 'ترس',
+    emotion_greedy: 'طمع',
+    emotion_calm: 'آرامش',
+    emotion_satisfied: 'رضایت',
+    emotion_regret: 'پشیمانی',
+    emotion_frustrated: 'ناامیدی',
+    emotion_happy: 'خوشحالی',
 
     // ── Journal ────────────────────────────────────────────
     journal_title: 'ژورنال معاملاتی',
@@ -642,6 +652,8 @@ export const translations = {
     add_account_btn: 'Add Account',
 
     // ── Emotions ───────────────────────────────────────────
+    lang_fa_label: 'فارسی',
+    lang_fa_short: 'FA',
     emotion_fear: 'Fear',
     emotion_greed: 'Greed',
     emotion_excitement: 'Excitement',
@@ -649,6 +661,14 @@ export const translations = {
     emotion_neutral: 'Neutral',
     emotion_overconfidence: 'Overconfidence',
     emotion_revenge: 'Revenge',
+    emotion_confident: 'Confident',
+    emotion_fearful: 'Fearful',
+    emotion_greedy: 'Greedy',
+    emotion_calm: 'Calm',
+    emotion_satisfied: 'Satisfied',
+    emotion_regret: 'Regret',
+    emotion_frustrated: 'Frustrated',
+    emotion_happy: 'Happy',
 
     // ── Journal ────────────────────────────────────────────
     journal_title: 'Trading Journal',

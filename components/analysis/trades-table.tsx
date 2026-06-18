@@ -12,21 +12,8 @@ import type { Trade, Journal, JournalEntry } from '@/types';
 
 // ── Journal modal ──────────────────────────────────────────
 
-const PRE_EMOTIONS = [
-  { en: 'confident', fa: 'اطمینان' },
-  { en: 'fearful',   fa: 'ترس'    },
-  { en: 'greedy',    fa: 'طمع'    },
-  { en: 'calm',      fa: 'آرامش'  },
-  { en: 'revenge',   fa: 'انتقام' },
-  { en: 'FOMO',      fa: 'FOMO'   },
-];
-const POST_EMOTIONS = [
-  { en: 'satisfied',   fa: 'رضایت'    },
-  { en: 'regret',      fa: 'پشیمانی'  },
-  { en: 'neutral',     fa: 'خنثی'     },
-  { en: 'frustrated',  fa: 'ناامیدی'  },
-  { en: 'happy',       fa: 'خوشحالی'  },
-];
+const PRE_EMOTION_KEYS = ['confident', 'fearful', 'greedy', 'calm', 'revenge', 'FOMO'] as const;
+const POST_EMOTION_KEYS = ['satisfied', 'regret', 'neutral', 'frustrated', 'happy'] as const;
 const TAGS = ['FOMO', 'Revenge', 'GoodSetup', 'Overtrading', 'EarlyExit', 'LateEntry'];
 
 function JournalModal({
@@ -38,7 +25,18 @@ function JournalModal({
   accountId: string;
   onClose: () => void;
 }) {
-  const { t, lang } = useLang();
+  const { t } = useLang();
+
+  const emotionLabel = (key: string) => {
+    const map: Record<string, string> = {
+      confident: t.emotion_confident, fearful: t.emotion_fearful,
+      greedy: t.emotion_greedy, calm: t.emotion_calm,
+      revenge: t.emotion_revenge, satisfied: t.emotion_satisfied,
+      regret: t.emotion_regret, neutral: t.emotion_neutral,
+      frustrated: t.emotion_frustrated, happy: t.emotion_happy,
+    };
+    return map[key] ?? key;
+  };
   const [j, setJ] = useState<Journal>({});
   const [journalId, setJournalId] = useState<number | null>(null);
   const [loadingExisting, setLoadingExisting] = useState(true);
@@ -123,18 +121,18 @@ function JournalModal({
           <div>
             <p className="text-sm text-[var(--color-text-muted)] mb-2">{t.journal_pre_label}</p>
             <div className="flex flex-wrap gap-2">
-              {PRE_EMOTIONS.map(e => (
+              {PRE_EMOTION_KEYS.map(e => (
                 <button
-                  key={e.en}
+                  key={e}
                   type="button"
-                  onClick={() => setJ(prev => ({ ...prev, pre_emotion: e.en }))}
+                  onClick={() => setJ(prev => ({ ...prev, pre_emotion: e }))}
                   className={`px-3 py-1.5 rounded-lg text-xs text-center transition-all ${
-                    j.pre_emotion === e.en
+                    j.pre_emotion === e
                       ? 'bg-[var(--color-cyan-dim)] border border-[rgba(0,212,255,0.3)] text-[var(--color-cyan)] font-bold'
                       : 'bg-[rgba(255,255,255,0.04)] border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
                   }`}
                 >
-                  <div>{lang === 'fa' ? e.fa : e.en}</div>
+                  <div>{emotionLabel(e)}</div>
                 </button>
               ))}
             </div>
@@ -156,18 +154,18 @@ function JournalModal({
           <div>
             <p className="text-sm text-[var(--color-text-muted)] mb-2">{t.journal_post_label}</p>
             <div className="flex flex-wrap gap-2">
-              {POST_EMOTIONS.map(e => (
+              {POST_EMOTION_KEYS.map(e => (
                 <button
-                  key={e.en}
+                  key={e}
                   type="button"
-                  onClick={() => setJ(prev => ({ ...prev, post_emotion: e.en }))}
+                  onClick={() => setJ(prev => ({ ...prev, post_emotion: e }))}
                   className={`px-3 py-1.5 rounded-lg text-xs text-center transition-all ${
-                    j.post_emotion === e.en
+                    j.post_emotion === e
                       ? 'bg-[var(--color-cyan-dim)] border border-[rgba(0,212,255,0.3)] text-[var(--color-cyan)] font-bold'
                       : 'bg-[rgba(255,255,255,0.04)] border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
                   }`}
                 >
-                  <div>{lang === 'fa' ? e.fa : e.en}</div>
+                  <div>{emotionLabel(e)}</div>
                 </button>
               ))}
             </div>

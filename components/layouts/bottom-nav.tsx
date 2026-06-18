@@ -89,7 +89,7 @@ export function BottomNav({ user, variant = 'dashboard' }: BottomNavProps) {
             <Globe className="h-5 w-5" />
           </div>
           <span className="text-[10px] font-medium leading-none">
-            {lang === 'fa' ? 'EN' : 'فا'}
+            {lang === 'fa' ? 'EN' : t.lang_fa_short}
           </span>
         </button>
       </div>

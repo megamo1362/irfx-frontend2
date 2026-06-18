@@ -17,15 +17,16 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-const EMOTION_COLORS: Record<string, string> = {
-  'ترس': '#ef4444', 'طمع': '#f97316', 'هیجان': '#eab308',
-  'انضباط': '#22c55e', 'خنثی': '#64748b', 'اعتماد به نفس کاذب': '#a855f7', 'انتقام': '#ec4899',
-  'Fear': '#ef4444', 'Greed': '#f97316', 'Excitement': '#eab308',
-  'Discipline': '#22c55e', 'Neutral': '#64748b', 'Overconfidence': '#a855f7', 'Revenge': '#ec4899',
-};
-
 export function JournalAnalysisView({ data, loading }: Props) {
   const { t } = useLang();
+
+  const EMOTION_COLORS: Record<string, string> = {
+    [t.emotion_fear]: '#ef4444', [t.emotion_greed]: '#f97316', [t.emotion_excitement]: '#eab308',
+    [t.emotion_discipline]: '#22c55e', [t.emotion_neutral]: '#64748b',
+    [t.emotion_overconfidence]: '#a855f7', [t.emotion_revenge]: '#ec4899',
+    'Fear': '#ef4444', 'Greed': '#f97316', 'Excitement': '#eab308',
+    'Discipline': '#22c55e', 'Neutral': '#64748b', 'Overconfidence': '#a855f7', 'Revenge': '#ec4899',
+  };
 
   if (loading) {
     return <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="skeleton h-24 rounded-2xl" />)}</div>;

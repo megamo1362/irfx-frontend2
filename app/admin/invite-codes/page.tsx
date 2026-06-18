@@ -21,7 +21,7 @@ export default function AdminInviteCodesPage() {
   const [loading, setLoading] = useState(true);
   const [filterUsed, setFilterUsed] = useState('');
   const [copied, setCopied] = useState('');
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ code_type: 'client', count: 1, plan_slug: '', expires_days: '' });
@@ -113,10 +113,10 @@ export default function AdminInviteCodesPage() {
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">
-                    {c.expires_at ? new Date(c.expires_at).toLocaleDateString('fa-IR') : '—'}
+                    {c.expires_at ? new Date(c.expires_at).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US') : '—'}
                   </td>
                   <td className="px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">
-                    {c.created_at ? new Date(c.created_at).toLocaleDateString('fa-IR') : '—'}
+                    {c.created_at ? new Date(c.created_at).toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-US') : '—'}
                   </td>
                   <td className="px-4 py-3 text-center">
                     {!c.is_used && (

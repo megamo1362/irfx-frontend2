@@ -5,7 +5,7 @@ import { Globe } from 'lucide-react';
 import { useLang } from './LangContext';
 
 export function LangToggle() {
-  const { lang, setLang, isRTL } = useLang();
+  const { lang, setLang, isRTL, t } = useLang();
   const [open, setOpen] = useState(false);
 
   const positionClass = isRTL ? 'right-5' : 'left-5';
@@ -29,7 +29,7 @@ export function LangToggle() {
             }`}
           >
             {lang === 'fa' && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-cyan)] flex-shrink-0" />}
-            فارسی
+            {t.lang_fa_label}
           </button>
           <button
             onClick={() => { setLang('en'); setOpen(false); }}
