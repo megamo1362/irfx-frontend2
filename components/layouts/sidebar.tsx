@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
-import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield, Globe } from 'lucide-react';
+import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield } from 'lucide-react';
 import { NavItem } from './nav-item';
 import { UserMenu } from './user-menu';
 import { cn } from '@/lib/utils';
@@ -41,7 +41,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: SidebarProps) {
-  const { t, lang, setLang, isRTL } = useLang();
+  const { t, isRTL } = useLang();
   const navItems = variant === 'admin' ? ADMIN_NAV : DASHBOARD_NAV;
   const visibleItems = navItems.filter((item) =>
     !item.roles || item.roles.includes(user.role),
@@ -75,33 +75,6 @@ export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: 
           />
         ))}
       </nav>
-
-      {/* Language switcher */}
-      <div className="flex-shrink-0 px-3 pb-2">
-        <div className="flex items-center gap-1.5 rounded-xl bg-[rgba(0,0,0,0.25)] border border-[var(--color-border)] p-1">
-          <Globe className="w-3.5 h-3.5 text-[var(--color-text-muted)] mx-1 flex-shrink-0" />
-          <button
-            onClick={() => setLang('fa')}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              lang === 'fa'
-                ? 'bg-[var(--color-cyan-dim)] text-[var(--color-cyan)]'
-                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
-            }`}
-          >
-            {t.lang_fa_label}
-          </button>
-          <button
-            onClick={() => setLang('en')}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              lang === 'en'
-                ? 'bg-[var(--color-cyan-dim)] text-[var(--color-cyan)]'
-                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
-            }`}
-          >
-            EN
-          </button>
-        </div>
-      </div>
 
       {/* User section */}
       <div className="flex-shrink-0 px-3 pb-4">
