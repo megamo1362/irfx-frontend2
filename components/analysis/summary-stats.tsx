@@ -2,16 +2,11 @@
 
 import { motion } from 'framer-motion';
 import type { AnalysisSummary, Analysis } from '@/types';
+import { useLang } from '@/app/i18n/LangContext';
 
 function pf(n: number) { return n >= 0 ? `+$${n.toFixed(2)}` : `-$${Math.abs(n).toFixed(2)}`; }
 function pc(n: number) { return n >= 0 ? 'text-emerald-400' : 'text-red-400'; }
 function winColor(rate: number) { return rate >= 50 ? 'text-emerald-400' : 'text-red-400'; }
-
-function formatMinutes(min: number | null) {
-  if (min === null) return '—';
-  if (min < 60) return `${min.toFixed(0)} دقیقه`;
-  return `${(min / 60).toFixed(1)} ساعت`;
-}
 
 function StatCard({ label, value, sub, color = 'text-[var(--color-cyan)]', delay = 0 }: {
   label: string; value: string | number; sub?: string; color?: string; delay?: number;
@@ -52,22 +47,29 @@ interface SummaryStatsProps {
 }
 
 export function SummaryStats({ summary: s, analysis }: SummaryStatsProps) {
+  const { t } = useLang();
   const totalProfit = s.total_profit;
   const rrColor = s.risk_reward >= 1 ? 'text-emerald-400' : 'text-red-400';
 
+  function formatMinutes(min: number | null) {
+    if (min === null) return '—';
+    if (min < 60) return t.stat_minutes(min.toFixed(0));
+    return t.stat_hours_f((min / 60).toFixed(1));
+  }
+
   const secondary = [
-    { label: 'برنده', value: s.wins, color: 'text-emerald-400' },
-    { label: 'بازنده', value: s.losses, color: 'text-red-400' },
-    { label: 'میانگین سود', value: `$${s.avg_win.toFixed(2)}`, color: 'text-emerald-400' },
-    { label: 'میانگین ضرر', value: `$${s.avg_loss.toFixed(2)}`, color: 'text-red-400' },
-    { label: 'Balance DD', value: `$${s.max_drawdown.toFixed(2)}`, color: 'text-orange-400' },
-    { label: 'Balance DD %', value: `${s.max_drawdown_pct.toFixed(2)}%`, color: 'text-orange-400' },
-    { label: 'Equity DD', value: `$${(s.max_drawdown_equity ?? 0).toFixed(2)}`, color: 'text-red-400' },
-    { label: 'Equity DD %', value: `${(s.max_drawdown_equity_pct ?? 0).toFixed(2)}%`, color: 'text-red-400' },
-    { label: 'ضرر متوالی', value: s.max_consecutive_losses, color: 'text-red-400' },
-    { label: 'سود متوالی', value: s.max_consecutive_wins, color: 'text-emerald-400' },
-    { label: 'پوزیشن باز', value: analysis.open_positions_count, color: 'text-[var(--color-cyan)]' },
-    { label: 'Floating P&L', value: `$${analysis.floating_pnl.toFixed(2)}`, color: pc(analysis.floating_pnl) },
+    { label: t.stat_wins,         value: s.wins,                                          color: 'text-emerald-400' },
+    { label: t.stat_losses,       value: s.losses,                                         color: 'text-red-400'    },
+    { label: t.stat_avg_win,      value: `$${s.avg_win.toFixed(2)}`,                       color: 'text-emerald-400' },
+    { label: t.stat_avg_loss,     value: `$${s.avg_loss.toFixed(2)}`,                      color: 'text-red-400'    },
+    { label: 'Balance DD',        value: `$${s.max_drawdown.toFixed(2)}`,                  color: 'text-orange-400' },
+    { label: 'Balance DD %',      value: `${s.max_drawdown_pct.toFixed(2)}%`,              color: 'text-orange-400' },
+    { label: 'Equity DD',         value: `$${(s.max_drawdown_equity ?? 0).toFixed(2)}`,   color: 'text-red-400'    },
+    { label: 'Equity DD %',       value: `${(s.max_drawdown_equity_pct ?? 0).toFixed(2)}%`, color: 'text-red-400'  },
+    { label: t.stat_consec_losses, value: s.max_consecutive_losses,                        color: 'text-red-400'    },
+    { label: t.stat_consec_wins,  value: s.max_consecutive_wins,                           color: 'text-emerald-400' },
+    { label: t.stat_open_pos,     value: analysis.open_positions_count,                    color: 'text-[var(--color-cyan)]' },
+    { label: 'Floating P&L',      value: `$${analysis.floating_pnl.toFixed(2)}`,           color: pc(analysis.floating_pnl) },
   ] as const;
 
   return (
@@ -76,8 +78,8 @@ export function SummaryStats({ summary: s, analysis }: SummaryStatsProps) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <HeroCard label="Win Rate" value={`${s.winrate}%`} color={winColor(s.winrate)} delay={0} />
         <HeroCard label="R:R" value={s.risk_reward.toFixed(2)} color={rrColor} delay={0.05} />
-        <HeroCard label="سود کل" value={pf(totalProfit)} color={pc(totalProfit)} delay={0.1} />
-        <HeroCard label="معاملات" value={s.total_trades} color="text-[var(--color-cyan)]" delay={0.15} />
+        <HeroCard label={t.stat_total_profit} value={pf(totalProfit)} color={pc(totalProfit)} delay={0.1} />
+        <HeroCard label={t.stat_total_trades} value={s.total_trades} color="text-[var(--color-cyan)]" delay={0.15} />
       </div>
 
       {/* Secondary stats */}
@@ -95,7 +97,7 @@ export function SummaryStats({ summary: s, analysis }: SummaryStatsProps) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <p className="text-[11px] text-[var(--color-text-muted)] mb-1">بهترین معامله</p>
+          <p className="text-[11px] text-[var(--color-text-muted)] mb-1">{t.stat_best_trade}</p>
           <p className="font-bold text-[var(--color-text-primary)]">{s.best_trade.symbol}</p>
           <p className="text-lg font-black text-emerald-400">+${s.best_trade.profit.toFixed(2)}</p>
         </motion.div>
@@ -106,7 +108,7 @@ export function SummaryStats({ summary: s, analysis }: SummaryStatsProps) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.52 }}
         >
-          <p className="text-[11px] text-[var(--color-text-muted)] mb-1">بدترین معامله</p>
+          <p className="text-[11px] text-[var(--color-text-muted)] mb-1">{t.stat_worst_trade}</p>
           <p className="font-bold text-[var(--color-text-primary)]">{s.worst_trade.symbol}</p>
           <p className="text-lg font-black text-red-400">${s.worst_trade.profit.toFixed(2)}</p>
         </motion.div>
@@ -118,7 +120,7 @@ export function SummaryStats({ summary: s, analysis }: SummaryStatsProps) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.54 }}
           >
-            <p className="text-[11px] text-[var(--color-text-muted)] mb-1">بهترین روز</p>
+            <p className="text-[11px] text-[var(--color-text-muted)] mb-1">{t.stat_best_day}</p>
             <p className="text-xs text-[var(--color-text-muted)]">{s.best_day.date}</p>
             <p className="text-lg font-black text-emerald-400">+${s.best_day.profit.toFixed(2)}</p>
           </motion.div>
@@ -131,7 +133,7 @@ export function SummaryStats({ summary: s, analysis }: SummaryStatsProps) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.56 }}
           >
-            <p className="text-[11px] text-[var(--color-text-muted)] mb-1">بدترین روز</p>
+            <p className="text-[11px] text-[var(--color-text-muted)] mb-1">{t.stat_worst_day}</p>
             <p className="text-xs text-[var(--color-text-muted)]">{s.worst_day.date}</p>
             <p className="text-lg font-black text-red-400">${s.worst_day.profit.toFixed(2)}</p>
           </motion.div>
@@ -148,23 +150,23 @@ export function SummaryStats({ summary: s, analysis }: SummaryStatsProps) {
         >
           <div className="flex items-center gap-2 mb-4">
             <div className="w-1 h-4 rounded-full bg-orange-400/60" />
-            <h3 className="font-bold text-[var(--color-text-primary)] text-sm">آنالیز MAE / MFE</h3>
+            <h3 className="font-bold text-[var(--color-text-primary)] text-sm">{t.stat_mae_title}</h3>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
             <div>
-              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">میانگین MAE</p>
+              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">{t.stat_avg_mae}</p>
               <p className="text-base font-bold text-orange-400">${analysis.mae_analysis.avg_mae.toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">میانگین MFE</p>
+              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">{t.stat_avg_mfe}</p>
               <p className="text-base font-bold text-blue-400">${analysis.mae_analysis.avg_mfe.toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">معاملات پرریسک</p>
+              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">{t.stat_risky_trades}</p>
               <p className="text-base font-bold text-red-400">{analysis.mae_analysis.risky_trades_count}</p>
             </div>
             <div>
-              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">زود بسته شده</p>
+              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">{t.stat_early_close}</p>
               <p className="text-base font-bold text-yellow-400">{analysis.mae_analysis.early_close_count}</p>
             </div>
           </div>
@@ -181,17 +183,17 @@ export function SummaryStats({ summary: s, analysis }: SummaryStatsProps) {
         >
           <div className="flex items-center gap-2 mb-4">
             <div className="w-1 h-4 rounded-full bg-[var(--color-cyan)]/60" />
-            <h3 className="font-bold text-[var(--color-text-primary)] text-sm">مدت نگه‌داری</h3>
+            <h3 className="font-bold text-[var(--color-text-primary)] text-sm">{t.stat_hold_time}</h3>
           </div>
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">میانگین معاملات سودده</p>
+              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">{t.stat_avg_win_time}</p>
               <p className="text-base font-bold text-emerald-400">
                 {formatMinutes(analysis.hold_time_analysis.avg_win_minutes)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">میانگین معاملات زیان‌ده</p>
+              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">{t.stat_avg_loss_time}</p>
               <p className="text-base font-bold text-red-400">
                 {formatMinutes(analysis.hold_time_analysis.avg_loss_minutes)}
               </p>

@@ -3,6 +3,7 @@
 import { useState, useId } from 'react';
 import { InlineLoader } from '@/components/shared';
 import { useCharts } from '@/hooks/use-analysis';
+import { useLang } from '@/app/i18n/LangContext';
 import type { ChartPt } from '@/types';
 
 // ── SVG layout ─────────────────────────────────────────────────────────────────
@@ -36,7 +37,7 @@ function timeIdxsFor(n: number): number[] {
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-function EmptyChart({ message = 'داده‌ای یافت نشد' }: { message?: string }) {
+function EmptyChart({ message }: { message: string }) {
   return (
     <div className="flex items-center justify-center text-[var(--color-text-muted)] text-sm" style={{ height: 300 }}>
       {message}
@@ -158,16 +159,18 @@ function SvgLineChart({
   series,
   yFmt = fmtPct,
   refZero = false,
+  noDataLabel = '',
 }: {
   series: LineSeries[];
   yFmt?: (v: number) => string;
   refZero?: boolean;
+  noDataLabel?: string;
 }) {
   const uid = useId().replace(/[^a-z0-9]/gi, '');
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   const primary = series.find(s => s.pts.length > 0);
-  if (!primary) return <EmptyChart />;
+  if (!primary) return <EmptyChart message={noDataLabel} />;
   const n = primary.pts.length;
 
   const allVals = series.flatMap(s => s.pts.map(p => p.value));
@@ -272,12 +275,12 @@ function SvgLineChart({
 }
 
 // ── SvgDualChart (profit: bars + cumulative line) ──────────────────────────────
-function SvgDualChart({ bars, line }: { bars: ChartPt[]; line: ChartPt[] }) {
+function SvgDualChart({ bars, line, barLabel, lineLabel }: { bars: ChartPt[]; line: ChartPt[]; barLabel: string; lineLabel: string }) {
   const uid = useId().replace(/[^a-z0-9]/gi, '');
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   const primary = bars.length > 0 ? bars : line;
-  if (primary.length === 0) return <EmptyChart />;
+  if (primary.length === 0) return <EmptyChart message={barLabel} />;
   const n = primary.length;
 
   const allVals = [...bars.map(p => p.value), ...line.map(p => p.value), 0];
@@ -366,12 +369,12 @@ function SvgDualChart({ bars, line }: { bars: ChartPt[]; line: ChartPt[] }) {
           onLeft={onLeft}
           entries={[
             ...(hoverBar ? [{
-              label: 'معامله',
+              label: barLabel,
               color: hoverBar.value >= 0 ? '#10b981' : '#ef4444',
               value: fmtDollar(hoverBar.value),
             }] : []),
             ...(hoverLine ? [{
-              label: 'تجمعی',
+              label: lineLabel,
               color: '#F59E0B',
               value: fmtDollar(hoverLine.value),
             }] : []),
@@ -383,10 +386,10 @@ function SvgDualChart({ bars, line }: { bars: ChartPt[]; line: ChartPt[] }) {
 }
 
 // ── SvgDrawdownChart ───────────────────────────────────────────────────────────
-function SvgDrawdownChart({ pts }: { pts: ChartPt[] }) {
+function SvgDrawdownChart({ pts, label }: { pts: ChartPt[]; label: string }) {
   const uid = useId().replace(/[^a-z0-9]/gi, '');
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
-  if (pts.length === 0) return <EmptyChart />;
+  if (pts.length === 0) return <EmptyChart message={label} />;
   const n = pts.length;
 
   const maxVal = Math.max(...pts.map(p => p.value), 0.1);
@@ -467,7 +470,7 @@ function SvgDrawdownChart({ pts }: { pts: ChartPt[] }) {
         <Tooltip
           time={pts[hoverIdx].time} onLeft={onLeft}
           entries={[{
-            label: 'افت',
+            label,
             color: pts[hoverIdx].value > maxVal * 0.4 ? '#f97316' : '#ef4444',
             value: fmtPct(pts[hoverIdx].value),
           }]}
@@ -480,30 +483,30 @@ function SvgDrawdownChart({ pts }: { pts: ChartPt[] }) {
 // ── ChartTabs ──────────────────────────────────────────────────────────────────
 type ChartTabKey = 'growth' | 'balance' | 'profit' | 'drawdown' | 'margin';
 
-const TABS: { key: ChartTabKey; label: string }[] = [
-  { key: 'growth',   label: 'رشد'        },
-  { key: 'balance',  label: 'بالانس'     },
-  { key: 'profit',   label: 'سود و زیان' },
-  { key: 'drawdown', label: 'افت'        },
-  { key: 'margin',   label: 'مارجین'     },
-];
-
 export function ChartTabs({ accountId }: { accountId: string | number }) {
   const [active, setActive] = useState<ChartTabKey>('growth');
   const { data, isLoading, isError } = useCharts(accountId);
+  const { t } = useLang();
 
-  if (isLoading) return <InlineLoader label="در حال بارگذاری نمودار‌ها..." />;
+  const TABS: { key: ChartTabKey; label: string }[] = [
+    { key: 'growth',   label: t.chart_tab_growth   },
+    { key: 'balance',  label: t.chart_tab_balance  },
+    { key: 'profit',   label: t.chart_tab_profit   },
+    { key: 'drawdown', label: t.chart_tab_drawdown },
+    { key: 'margin',   label: t.chart_tab_margin   },
+  ];
+
+  if (isLoading) return <InlineLoader label={t.chart_loading} />;
   if (isError || !data) {
     return (
       <div className="card-surface rounded-2xl p-8 text-center text-sm text-[var(--color-text-muted)]">
-        خطا در بارگذاری داده‌های نمودار
+        {t.chart_error}
       </div>
     );
   }
 
   const s = data.series;
 
-  // Show MAE/MFE lines only when they have meaningful difference from balance_growth
   const hasMaeMfe =
     s.growth.mfe_growth.length > 0 &&
     s.growth.mfe_growth.some(
@@ -513,18 +516,18 @@ export function ChartTabs({ accountId }: { accountId: string | number }) {
   return (
     <div className="space-y-3">
       <div className="flex overflow-x-auto gap-0.5 p-1 rounded-xl bg-[rgba(0,0,0,0.3)] border border-[var(--color-border)] w-fit max-w-full no-scrollbar">
-        {TABS.map(t => (
+        {TABS.map(tab => (
           <button
-            key={t.key}
+            key={tab.key}
             type="button"
-            onClick={() => setActive(t.key)}
+            onClick={() => setActive(tab.key)}
             className={`px-4 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
-              active === t.key
+              active === tab.key
                 ? 'bg-[var(--color-cyan-dim)] text-[var(--color-cyan)] border border-[rgba(0,212,255,0.2)]'
                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
             }`}
           >
-            {t.label}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -533,20 +536,21 @@ export function ChartTabs({ accountId }: { accountId: string | number }) {
         {active === 'growth' && (
           <>
             <Legend items={[
-              { label: 'رشد', color: '#10b981' },
+              { label: t.chart_legend_growth, color: '#10b981' },
               ...(hasMaeMfe ? [
-                { label: 'سقف MFE', color: '#38bdf8', dashed: true },
-                { label: 'کف MAE',  color: '#f87171', dashed: true },
+                { label: t.chart_legend_mfe, color: '#38bdf8', dashed: true },
+                { label: t.chart_legend_mae, color: '#f87171', dashed: true },
               ] : []),
             ]} />
             <SvgLineChart
               refZero
               yFmt={fmtPct}
+              noDataLabel={t.chart_no_data}
               series={[
-                { name: 'balance_growth', pts: s.growth.balance_growth, color: '#10b981', label: 'رشد', segmentColor: true },
+                { name: 'balance_growth', pts: s.growth.balance_growth, color: '#10b981', label: t.chart_legend_growth, segmentColor: true },
                 ...(hasMaeMfe ? [
-                  { name: 'mfe_growth', pts: s.growth.mfe_growth, color: '#38bdf8', label: 'سقف MFE', dashed: true },
-                  { name: 'mae_growth', pts: s.growth.mae_growth, color: '#f87171', label: 'کف MAE',  dashed: true },
+                  { name: 'mfe_growth', pts: s.growth.mfe_growth, color: '#38bdf8', label: t.chart_legend_mfe, dashed: true },
+                  { name: 'mae_growth', pts: s.growth.mae_growth, color: '#f87171', label: t.chart_legend_mae, dashed: true },
                 ] : []),
               ]}
             />
@@ -555,10 +559,11 @@ export function ChartTabs({ accountId }: { accountId: string | number }) {
 
         {active === 'balance' && (
           <>
-            <Legend items={[{ label: 'بالانس', color: '#38bdf8' }]} />
+            <Legend items={[{ label: t.chart_legend_balance, color: '#38bdf8' }]} />
             <SvgLineChart
               yFmt={fmtDollar}
-              series={[{ name: 'balance', pts: s.balance.balance, color: '#38bdf8', label: 'بالانس', segmentColor: false }]}
+              noDataLabel={t.chart_no_data}
+              series={[{ name: 'balance', pts: s.balance.balance, color: '#38bdf8', label: t.chart_legend_balance, segmentColor: false }]}
             />
           </>
         )}
@@ -566,31 +571,37 @@ export function ChartTabs({ accountId }: { accountId: string | number }) {
         {active === 'profit' && (
           <>
             <Legend items={[
-              { label: 'سود هر معامله', color: '#10b981' },
-              { label: 'سود تجمعی',     color: '#F59E0B' },
+              { label: t.chart_legend_per_trade,  color: '#10b981' },
+              { label: t.chart_legend_cumulative, color: '#F59E0B' },
             ]} />
-            <SvgDualChart bars={s.profit.per_trade ?? []} line={s.profit.profit} />
+            <SvgDualChart
+              bars={s.profit.per_trade ?? []}
+              line={s.profit.profit}
+              barLabel={t.chart_tooltip_trade}
+              lineLabel={t.chart_tooltip_cumulative}
+            />
           </>
         )}
 
         {active === 'drawdown' && (
           <>
-            <Legend items={[{ label: 'افت سرمایه', color: '#ef4444' }]} />
-            <SvgDrawdownChart pts={s.drawdown.drawdown} />
+            <Legend items={[{ label: t.chart_legend_drawdown, color: '#ef4444' }]} />
+            <SvgDrawdownChart pts={s.drawdown.drawdown} label={t.chart_tooltip_drawdown} />
           </>
         )}
 
         {active === 'margin' && (
           s.margin.margin.length > 0 ? (
             <>
-              <Legend items={[{ label: 'مارجین', color: '#818cf8' }]} />
+              <Legend items={[{ label: t.chart_legend_margin, color: '#818cf8' }]} />
               <SvgLineChart
                 yFmt={fmtPct}
-                series={[{ name: 'margin', pts: s.margin.margin, color: '#818cf8', label: 'مارجین' }]}
+                noDataLabel={t.chart_no_data}
+                series={[{ name: 'margin', pts: s.margin.margin, color: '#818cf8', label: t.chart_legend_margin }]}
               />
             </>
           ) : (
-            <EmptyChart message="داده مارجین در دسترس نیست" />
+            <EmptyChart message={t.chart_no_margin} />
           )
         )}
       </div>

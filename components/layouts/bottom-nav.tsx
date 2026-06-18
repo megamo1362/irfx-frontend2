@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart2, BookOpen, TrendingUp, Users, LayoutDashboard, KeyRound, CreditCard, UserCheck } from 'lucide-react';
+import { BarChart2, BookOpen, TrendingUp, Users, LayoutDashboard, KeyRound, CreditCard, UserCheck, Globe } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLang } from '@/app/i18n/LangContext';
 import type { User } from '@/types';
@@ -38,7 +38,7 @@ interface BottomNavProps {
 
 export function BottomNav({ user, variant = 'dashboard' }: BottomNavProps) {
   const pathname = usePathname();
-  const { t } = useLang();
+  const { t, lang, setLang } = useLang();
   const allItems = variant === 'admin' ? ADMIN_ITEMS : DASHBOARD_ITEMS;
   const items = allItems.filter(item => !item.roles || item.roles.includes(user.role));
 
@@ -79,6 +79,19 @@ export function BottomNav({ user, variant = 'dashboard' }: BottomNavProps) {
             </Link>
           );
         })}
+
+        {/* Language toggle tab */}
+        <button
+          onClick={() => setLang(lang === 'fa' ? 'en' : 'fa')}
+          className="flex flex-col items-center justify-center gap-1 flex-1 h-full text-[var(--color-text-muted)] transition-colors"
+        >
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl">
+            <Globe className="h-5 w-5" />
+          </div>
+          <span className="text-[10px] font-medium leading-none">
+            {lang === 'fa' ? 'EN' : 'فا'}
+          </span>
+        </button>
       </div>
     </nav>
   );
