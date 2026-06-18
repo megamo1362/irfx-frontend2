@@ -41,8 +41,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      lang="fa"
-      dir="rtl"
+      lang="en"
+      dir="ltr"
       suppressHydrationWarning
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >

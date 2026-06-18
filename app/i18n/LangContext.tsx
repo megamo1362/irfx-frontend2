@@ -12,14 +12,14 @@ interface LangCtx {
 }
 
 const LangContext = createContext<LangCtx>({
-  lang: 'fa',
+  lang: 'en',
   setLang: () => {},
-  t: translations.fa,
-  isRTL: true,
+  t: translations.en,
+  isRTL: false,
 });
 
 export function LangProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('fa');
+  const [lang, setLangState] = useState<Lang>('en');
 
   useEffect(() => {
     const saved = localStorage.getItem('irfx_lang') as Lang | null;
