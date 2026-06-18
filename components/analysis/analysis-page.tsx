@@ -16,9 +16,8 @@ import { SymbolAnalysis } from './symbol-analysis';
 import { useCheckAndRun, useRealtimeAnalysis, useUserFeatures } from '@/hooks/use-analysis';
 import { ApiError } from '@/lib/api';
 import { ROUTES } from '@/lib/constants';
+import { useLang } from '@/app/i18n/LangContext';
 import type { Analysis, Trade } from '@/types';
-
-// ── Page state ─────────────────────────────────────────────
 
 interface PageData {
   balance: number | null;
@@ -32,17 +31,10 @@ interface PageData {
 
 type TabKey = 'summary' | 'trades' | 'time' | 'symbols' | 'equity';
 
-function formatHours(h: number) {
-  if (h < 0.1) return 'همین الان';
-  if (h < 1) return `${Math.round(h * 60)} دق`;
-  return `${h.toFixed(1)} ساعت`;
-}
-
-// ── Component ──────────────────────────────────────────────
-
 export function AnalysisPage({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const isCoachMode = searchParams?.get('coach') === 'true';
+  const { t } = useLang();
 
   const { mutate: checkAndRun, isPending: initialLoading } = useCheckAndRun();
   const { mutate: runRealtime, isPending: realtimeLoading } = useRealtimeAnalysis();
@@ -53,6 +45,12 @@ export function AnalysisPage({ id }: { id: string }) {
   const [activeTab, setActiveTab] = useState<TabKey>('summary');
 
   const hasTriggered = useRef(false);
+
+  const formatHours = (h: number): string => {
+    if (h < 0.1) return t.time_just_now;
+    if (h < 1) return `${Math.round(h * 60)} ${t.time_min}`;
+    return `${h.toFixed(1)} ${t.time_hours}`;
+  };
 
   useEffect(() => {
     if (hasTriggered.current) return;
@@ -73,7 +71,7 @@ export function AnalysisPage({ id }: { id: string }) {
         }
       },
       onError: (err) => {
-        setError(err instanceof ApiError ? err.message : 'خطا در بارگذاری');
+        setError(err instanceof ApiError ? err.message : t.analysis_error_load);
       },
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,7 +92,7 @@ export function AnalysisPage({ id }: { id: string }) {
         });
       },
       onError: (err) => {
-        setError(err instanceof ApiError ? err.message : 'خطا در آنالیز');
+        setError(err instanceof ApiError ? err.message : t.analysis_error_run);
       },
     });
   };
@@ -103,11 +101,11 @@ export function AnalysisPage({ id }: { id: string }) {
   const realTrades = (data?.trades ?? []).filter(t => [0, 1].includes(t.type) && t.volume > 0 && t.profit !== 0);
 
   const tabs: { key: TabKey; label: string }[] = [
-    { key: 'summary', label: 'خلاصه' },
-    { key: 'trades', label: `معاملات (${realTrades.length})` },
-    { key: 'time', label: 'زمانی' },
-    { key: 'symbols', label: 'نمادها' },
-    { key: 'equity', label: 'نمودار ها' },
+    { key: 'summary', label: t.analysis_tab_summary },
+    { key: 'trades', label: `${t.analysis_tab_trades} (${realTrades.length})` },
+    { key: 'time', label: t.analysis_tab_time },
+    { key: 'symbols', label: t.analysis_tab_symbols },
+    { key: 'equity', label: t.analysis_tab_charts },
   ];
 
   return (
@@ -119,7 +117,7 @@ export function AnalysisPage({ id }: { id: string }) {
             <Link href={ROUTES.dashboard} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors">
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <h1 className="text-xl font-black text-[var(--color-text-primary)]">آنالیز حساب</h1>
+            <h1 className="text-xl font-black text-[var(--color-text-primary)]">{t.analysis_account_title}</h1>
             <span className="text-sm text-[var(--color-text-muted)] font-mono">#{id}</span>
           </div>
 
@@ -127,10 +125,10 @@ export function AnalysisPage({ id }: { id: string }) {
             <div className="flex items-center gap-3 text-xs text-[var(--color-text-muted)] mt-0.5">
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                آپدیت: {formatHours(data.hoursSinceUpdate)} پیش
+                {t.analysis_update_ago(formatHours(data.hoursSinceUpdate))}
               </span>
               {data.hoursUntilNext !== null && (
-                <span>بعدی: {formatHours(data.hoursUntilNext)} دیگر</span>
+                <span>{t.analysis_next_in(formatHours(data.hoursUntilNext))}</span>
               )}
             </div>
           )}
@@ -145,7 +143,7 @@ export function AnalysisPage({ id }: { id: string }) {
             disabled={realtimeLoading}
           >
             <Zap className="h-3.5 w-3.5 ml-1.5" />
-            آنالیز لحظه‌ای
+            {t.analysis_realtime_btn}
           </Button>
         )}
       </div>
@@ -154,13 +152,13 @@ export function AnalysisPage({ id }: { id: string }) {
       {data && (data.balance !== null || data.equity !== null) && (
         <div className="grid grid-cols-2 gap-3">
           <div className="card-surface rounded-2xl p-4 text-center">
-            <p className="text-xs text-[var(--color-text-muted)] mb-1">بالانس</p>
+            <p className="text-xs text-[var(--color-text-muted)] mb-1">{t.analysis_balance}</p>
             <p className="text-xl font-black text-[var(--color-cyan)]">
               ${data.balance?.toFixed(2) ?? '—'}
             </p>
           </div>
           <div className="card-surface rounded-2xl p-4 text-center">
-            <p className="text-xs text-[var(--color-text-muted)] mb-1">اکوییتی</p>
+            <p className="text-xs text-[var(--color-text-muted)] mb-1">{t.analysis_equity}</p>
             <p className="text-xl font-black text-emerald-400">
               ${data.equity?.toFixed(2) ?? '—'}
             </p>
@@ -176,16 +174,16 @@ export function AnalysisPage({ id }: { id: string }) {
       )}
 
       {/* Loading */}
-      {initialLoading && !data && <InlineLoader label="در حال بارگذاری آنالیز..." />}
+      {initialLoading && !data && <InlineLoader label={t.analysis_loading} />}
 
       {/* No snapshot */}
       {!initialLoading && !data && !error && (
         <div className="card-surface rounded-2xl p-14 text-center">
           <BarChart2 className="h-12 w-12 text-[var(--color-text-muted)] mx-auto mb-3" />
-          <p className="text-[var(--color-text-muted)] text-lg">آنالیزی ذخیره نشده</p>
+          <p className="text-[var(--color-text-muted)] text-lg">{t.analysis_no_snapshot}</p>
           {canRunRealtime && (
             <p className="text-sm text-[var(--color-text-muted)]/60 mt-1">
-              برای شروع دکمه «آنالیز لحظه‌ای» را بزنید
+              {t.analysis_realtime_hint}
             </p>
           )}
         </div>
@@ -202,7 +200,7 @@ export function AnalysisPage({ id }: { id: string }) {
           {/* No analysis data */}
           {!data.analysis.has_data && (
             <div className="card-surface rounded-2xl p-10 text-center">
-              <p className="text-[var(--color-text-muted)]">{data.analysis.message ?? 'داده کافی برای آنالیز وجود ندارد'}</p>
+              <p className="text-[var(--color-text-muted)]">{data.analysis.message ?? t.analysis_no_data}</p>
             </div>
           )}
 

@@ -5,13 +5,8 @@ import { LogOut } from 'lucide-react';
 import { AUTH_TOKEN_KEY, ROUTES } from '@/lib/constants';
 import { getInitials } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { useLang } from '@/app/i18n/LangContext';
 import type { User } from '@/types';
-
-const roleLabels: Record<string, string> = {
-  admin: 'ادمین',
-  coach: 'کوچ',
-  client: 'کاربر',
-};
 
 interface UserMenuProps {
   user: User;
@@ -20,6 +15,13 @@ interface UserMenuProps {
 
 export function UserMenu({ user, compact = false }: UserMenuProps) {
   const router = useRouter();
+  const { t } = useLang();
+
+  const roleLabels: Record<string, string> = {
+    admin: t.role_admin,
+    coach: t.role_coach,
+    client: t.role_client,
+  };
 
   const handleLogout = () => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -34,17 +36,16 @@ export function UserMenu({ user, compact = false }: UserMenuProps) {
       <button
         onClick={handleLogout}
         className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-status-error)] transition-all duration-200 w-full"
-        title="خروج"
+        title={t.user_logout}
       >
         <LogOut className="h-4 w-4 flex-shrink-0" />
-        <span>خروج از حساب</span>
+        <span>{t.user_logout}</span>
       </button>
     );
   }
 
   return (
     <div className="border-t border-[var(--color-border)] pt-4 space-y-3">
-      {/* User info */}
       <div className="flex items-center gap-3 px-3">
         <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-[var(--color-cyan)] to-[var(--color-blue)] flex items-center justify-center text-sm font-bold text-[var(--color-void)]">
           {initials}
@@ -58,13 +59,12 @@ export function UserMenu({ user, compact = false }: UserMenuProps) {
         </Badge>
       </div>
 
-      {/* Logout */}
       <button
         onClick={handleLogout}
         className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var(--color-text-muted)] hover:bg-[rgba(239,68,68,0.08)] hover:text-[var(--color-status-error)] transition-all duration-200 w-full"
       >
         <LogOut className="h-4 w-4 flex-shrink-0" />
-        <span>خروج از حساب</span>
+        <span>{t.user_logout}</span>
       </button>
     </div>
   );

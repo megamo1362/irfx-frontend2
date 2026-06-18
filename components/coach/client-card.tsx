@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getInitials } from '@/lib/utils';
 import { ROUTES } from '@/lib/constants';
+import { useLang } from '@/app/i18n/LangContext';
 import type { CoachClient } from '@/types';
 
-function formatHours(h: number | null): string {
+function formatHours(h: number | null, t: ReturnType<typeof useLang>['t']): string {
   if (h === null) return '—';
-  if (h < 0.1) return 'همین الان';
-  if (h < 1) return `${Math.round(h * 60)} دق`;
-  return `${Math.floor(h)} ساعت`;
+  if (h < 0.1) return t.time_just_now;
+  if (h < 1) return `${Math.round(h * 60)} ${t.time_min}`;
+  return `${Math.floor(h)} ${t.time_hours}`;
 }
 
 function getDisplayName(client: CoachClient): string {
@@ -41,6 +42,7 @@ interface ClientCardProps {
 
 export function ClientCard({ client, index = 0 }: ClientCardProps) {
   const [open, setOpen] = useState(true);
+  const { t } = useLang();
   const name = getDisplayName(client);
 
   return (
@@ -60,7 +62,7 @@ export function ClientCard({ client, index = 0 }: ClientCardProps) {
             <p className="font-bold text-[var(--color-text-primary)] truncate">{name}</p>
             {client.connected_since && (
               <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                متصل از {new Date(client.connected_since).toLocaleDateString('fa-IR')}
+                {t.client_connected_since(new Date(client.connected_since).toLocaleDateString('fa-IR'))}
               </p>
             )}
           </div>
@@ -90,7 +92,7 @@ export function ClientCard({ client, index = 0 }: ClientCardProps) {
           >
             {client.accounts.length === 0 ? (
               <div className="px-5 py-4 text-sm text-[var(--color-text-muted)]">
-                هیچ حسابی به اشتراک گذاشته نشده
+                {t.client_no_accounts}
               </div>
             ) : (
               <div className="divide-y divide-[var(--color-border)]">
@@ -109,38 +111,38 @@ export function ClientCard({ client, index = 0 }: ClientCardProps) {
                       {acc.has_snapshot ? (
                         <>
                           <div className="text-center hidden sm:block">
-                            <p className="text-[10px] text-[var(--color-text-muted)]">بالانس</p>
+                            <p className="text-[10px] text-[var(--color-text-muted)]">{t.client_balance}</p>
                             <p className="text-sm font-bold text-[var(--color-cyan)]">
                               {acc.balance !== null ? `$${acc.balance.toFixed(2)}` : '—'}
                             </p>
                           </div>
                           <div className="text-center hidden sm:block">
-                            <p className="text-[10px] text-[var(--color-text-muted)]">اکوییتی</p>
+                            <p className="text-[10px] text-[var(--color-text-muted)]">{t.client_equity}</p>
                             <p className="text-sm font-bold text-[var(--color-text-primary)]">
                               {acc.equity !== null ? `$${acc.equity.toFixed(2)}` : '—'}
                             </p>
                           </div>
                           <div className="text-center hidden md:block">
-                            <p className="text-[10px] text-[var(--color-text-muted)]">DD</p>
+                            <p className="text-[10px] text-[var(--color-text-muted)]">{t.client_drawdown}</p>
                             <p className="text-sm font-bold text-[#f97316]">
                               {acc.max_drawdown !== null ? `${acc.max_drawdown.toFixed(1)}%` : '—'}
                             </p>
                           </div>
                           <div className="text-center hidden lg:block">
-                            <p className="text-[10px] text-[var(--color-text-muted)]">آپدیت</p>
+                            <p className="text-[10px] text-[var(--color-text-muted)]">{t.client_update}</p>
                             <p className="text-xs text-[var(--color-text-muted)]">
-                              {formatHours(acc.hours_since_update)} پیش
+                              {t.client_ago(formatHours(acc.hours_since_update, t))}
                             </p>
                           </div>
                         </>
                       ) : (
-                        <span className="text-xs text-[var(--color-text-muted)]">آنالیزی ندارد</span>
+                        <span className="text-xs text-[var(--color-text-muted)]">{t.client_no_analysis}</span>
                       )}
 
                       <Button variant="secondary" size="sm" asChild>
                         <Link href={ROUTES.analyze(acc.id)}>
                           <BarChart2 className="h-3.5 w-3.5 ml-1" />
-                          آنالیز
+                          {t.client_analyze}
                         </Link>
                       </Button>
                     </div>

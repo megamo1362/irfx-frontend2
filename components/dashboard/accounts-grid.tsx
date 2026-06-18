@@ -8,35 +8,36 @@ import { InlineLoader } from '@/components/shared';
 import { AccountCard } from './account-card';
 import { AddAccountDialog } from './add-account-dialog';
 import { useAccounts } from '@/hooks/use-accounts';
+import { useLang } from '@/app/i18n/LangContext';
 
 export function AccountsGrid() {
   const [addOpen, setAddOpen] = useState(false);
   const { data: accounts, isLoading, isError } = useAccounts();
+  const { t } = useLang();
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-[var(--color-text-primary)]">حساب‌های MT5</h1>
+          <h1 className="text-2xl font-black text-[var(--color-text-primary)]">{t.accounts_title}</h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-1">
             {accounts?.length
-              ? `${accounts.length} حساب متصل`
-              : 'هنوز حسابی اضافه نشده'}
+              ? t.accounts_connected(accounts.length)
+              : t.accounts_none}
           </p>
         </div>
         <Button variant="primary" size="sm" onClick={() => setAddOpen(true)}>
           <Plus className="h-4 w-4 ml-1.5" />
-          افزودن حساب
+          {t.accounts_add}
         </Button>
       </div>
 
-      {/* Content */}
-      {isLoading && <InlineLoader label="در حال بارگذاری حساب‌ها..." />}
+      {isLoading && <InlineLoader label={t.accounts_loading} />}
 
       {isError && (
         <div className="text-center py-16 text-[var(--color-status-error)] text-sm">
-          خطا در دریافت اطلاعات. لطفاً صفحه را بازنشانی کنید.
+          {t.accounts_error}
         </div>
       )}
 
@@ -50,14 +51,14 @@ export function AccountsGrid() {
             <Wallet className="h-8 w-8 text-[var(--color-text-muted)]" />
           </div>
           <h2 className="text-lg font-bold text-[var(--color-text-primary)] mb-2">
-            هنوز حسابی اضافه نکرده‌اید
+            {t.accounts_empty_title}
           </h2>
           <p className="text-sm text-[var(--color-text-muted)] max-w-xs mb-6">
-            برای شروع تحلیل رفتار معاملاتی، ابتدا حساب MT5 خود را متصل کنید.
+            {t.accounts_empty_desc}
           </p>
           <Button variant="primary" onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4 ml-1.5" />
-            افزودن اولین حساب
+            {t.accounts_add_first}
           </Button>
         </motion.div>
       )}

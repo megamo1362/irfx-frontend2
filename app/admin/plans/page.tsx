@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
+import { useLang } from '@/app/i18n/LangContext';
 import type { Plan } from '@/types';
 
 interface PlanFeature {
@@ -29,6 +30,7 @@ const planAccent: Record<string, string> = {
 export default function AdminPlansPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLang();
 
   const [editPlan, setEditPlan] = useState<Plan | null>(null);
   const [saving, setSaving] = useState(false);
@@ -90,8 +92,8 @@ export default function AdminPlansPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">پلن‌ها</h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-1">پلن‌های اشتراک پلتفرم</p>
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{t.admin_plans_title}</h1>
+        <p className="text-sm text-[var(--color-text-muted)] mt-1">{t.admin_plans_sub}</p>
       </div>
 
       {loading ? (
@@ -111,26 +113,26 @@ export default function AdminPlansPage() {
                   {plan.name}
                 </h3>
                 <Badge variant={plan.is_active ? 'green' : 'red'} dot>
-                  {plan.is_active ? 'فعال' : 'غیرفعال'}
+                  {plan.is_active ? t.active : t.inactive}
                 </Badge>
               </div>
               <div className="space-y-2 text-sm mb-5 text-[var(--color-text-secondary)]">
                 <div className="flex justify-between">
-                  <span className="text-[var(--color-text-muted)]">قیمت</span>
-                  <span className="font-bold">${plan.price_usd}/ماه</span>
+                  <span className="text-[var(--color-text-muted)]">{t.admin_plans_price}</span>
+                  <span className="font-bold">${plan.price_usd}/mo</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--color-text-muted)]">مدت</span>
-                  <span className="font-bold">{plan.duration_days} روز</span>
+                  <span className="text-[var(--color-text-muted)]">{t.admin_plans_duration}</span>
+                  <span className="font-bold">{t.admin_plans_duration_val(plan.duration_days)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--color-text-muted)]">حداکثر حساب MT5</span>
+                  <span className="text-[var(--color-text-muted)]">{t.admin_plans_max_mt5}</span>
                   <span className="font-bold">{plan.max_mt5_accounts}</span>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="secondary" size="sm" className="flex-1" onClick={() => setEditPlan({ ...plan })}>ویرایش</Button>
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => openFeatures(plan)}>دسترسی‌ها</Button>
+                <Button variant="secondary" size="sm" className="flex-1" onClick={() => setEditPlan({ ...plan })}>{t.admin_plans_edit_btn}</Button>
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => openFeatures(plan)}>{t.admin_plans_features_btn}</Button>
               </div>
             </div>
           ))}
@@ -140,25 +142,25 @@ export default function AdminPlansPage() {
       {/* Edit Plan Modal */}
       <Dialog open={!!editPlan} onOpenChange={open => { if (!open) setEditPlan(null); }}>
         <DialogContent size="md">
-          <DialogHeader><DialogTitle>ویرایش پلن</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t.admin_plans_edit_title}</DialogTitle></DialogHeader>
           {editPlan && (
-            <div className="space-y-4" dir="rtl">
-              <Input label="نام پلن" value={editPlan.name} onChange={e => setEditPlan({ ...editPlan, name: e.target.value })} />
-              <Input label="قیمت (دلار)" type="number" min={0} step={0.01} value={editPlan.price_usd}
+            <div className="space-y-4">
+              <Input label={t.admin_plans_name_label} value={editPlan.name} onChange={e => setEditPlan({ ...editPlan, name: e.target.value })} />
+              <Input label={t.admin_plans_price_label} type="number" min={0} step={0.01} value={editPlan.price_usd}
                 onChange={e => setEditPlan({ ...editPlan, price_usd: parseFloat(e.target.value) || 0 })} />
-              <Input label="مدت (روز)" type="number" min={1} value={editPlan.duration_days}
+              <Input label={t.admin_plans_duration_label} type="number" min={1} value={editPlan.duration_days}
                 onChange={e => setEditPlan({ ...editPlan, duration_days: parseInt(e.target.value) || 1 })} />
-              <Input label="حداکثر حساب MT5" type="number" min={1} value={editPlan.max_mt5_accounts}
+              <Input label={t.admin_plans_max_mt5_label} type="number" min={1} value={editPlan.max_mt5_accounts}
                 onChange={e => setEditPlan({ ...editPlan, max_mt5_accounts: parseInt(e.target.value) || 1 })} />
               <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] px-4 py-3">
-                <span className="text-sm text-[var(--color-text-secondary)]">وضعیت پلن</span>
+                <span className="text-sm text-[var(--color-text-secondary)]">{t.admin_plans_status_label}</span>
                 <Switch checked={editPlan.is_active} onCheckedChange={v => setEditPlan({ ...editPlan, is_active: v })} />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="secondary" onClick={() => setEditPlan(null)}>انصراف</Button>
-            <Button onClick={savePlan} loading={saving}>ذخیره</Button>
+            <Button variant="secondary" onClick={() => setEditPlan(null)}>{t.cancel}</Button>
+            <Button onClick={savePlan} loading={saving}>{t.save}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -167,14 +169,14 @@ export default function AdminPlansPage() {
       <Dialog open={!!featuresPlan} onOpenChange={open => { if (!open) setFeaturesPlan(null); }}>
         <DialogContent size="md">
           <DialogHeader>
-            <DialogTitle>دسترسی‌های پلن {featuresPlan?.name}</DialogTitle>
+            <DialogTitle>{featuresPlan ? t.admin_plans_features_title(featuresPlan.name) : ''}</DialogTitle>
           </DialogHeader>
           {featuresPlan && (
-            <div dir="rtl">
+            <div>
               {featuresLoading ? (
                 <div className="space-y-2">{[...Array(5)].map((_, i) => <div key={i} className="skeleton h-12 rounded-xl" />)}</div>
               ) : features.length === 0 ? (
-                <p className="text-sm text-[var(--color-text-muted)] py-4 text-center">هنوز هیچ feature‌ای تعریف نشده است.</p>
+                <p className="text-sm text-[var(--color-text-muted)] py-4 text-center">{t.admin_plans_no_features}</p>
               ) : (
                 <div className="space-y-2 max-h-80 overflow-y-auto mb-2">
                   {features.map(f => (
@@ -194,8 +196,8 @@ export default function AdminPlansPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="secondary" onClick={() => setFeaturesPlan(null)}>انصراف</Button>
-            <Button onClick={saveFeatures} loading={savingFeatures} disabled={features.length === 0}>ذخیره</Button>
+            <Button variant="secondary" onClick={() => setFeaturesPlan(null)}>{t.cancel}</Button>
+            <Button onClick={saveFeatures} loading={savingFeatures} disabled={features.length === 0}>{t.save}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

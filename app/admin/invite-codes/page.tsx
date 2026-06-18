@@ -12,6 +12,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { useLang } from '@/app/i18n/LangContext';
 import type { InviteCode } from '@/types';
 
 export default function AdminInviteCodesPage() {
@@ -20,6 +21,7 @@ export default function AdminInviteCodesPage() {
   const [loading, setLoading] = useState(true);
   const [filterUsed, setFilterUsed] = useState('');
   const [copied, setCopied] = useState('');
+  const { t } = useLang();
 
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ code_type: 'client', count: 1, plan_slug: '', expires_days: '' });
@@ -65,19 +67,19 @@ export default function AdminInviteCodesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">کدهای دعوت</h1>
-          <p className="text-sm text-[var(--color-text-muted)] mt-1">مجموع: {total} کد</p>
+          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{t.admin_codes_title}</h1>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">{t.admin_codes_total(total)}</p>
         </div>
         <div className="flex gap-3">
           <Select value={filterUsed} onValueChange={setFilterUsed}>
             <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">همه</SelectItem>
-              <SelectItem value="false">استفاده نشده</SelectItem>
-              <SelectItem value="true">استفاده شده</SelectItem>
+              <SelectItem value="">{t.admin_codes_filter_all}</SelectItem>
+              <SelectItem value="false">{t.admin_codes_filter_unused}</SelectItem>
+              <SelectItem value="true">{t.admin_codes_filter_used}</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={() => { setShowCreate(true); setNewCodes([]); }}>+ ساخت کد</Button>
+          <Button onClick={() => { setShowCreate(true); setNewCodes([]); }}>{t.admin_codes_add}</Button>
         </div>
       </div>
 
@@ -88,12 +90,12 @@ export default function AdminInviteCodesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[var(--color-deep)] text-[var(--color-text-muted)]">
-                <th className="px-4 py-3 text-right">کد</th>
-                <th className="px-4 py-3 text-center">نوع</th>
-                <th className="px-4 py-3 text-center">وضعیت</th>
-                <th className="px-4 py-3 text-center">انقضا</th>
-                <th className="px-4 py-3 text-center">تاریخ</th>
-                <th className="px-4 py-3 text-center">کپی</th>
+                <th className="px-4 py-3 text-right">{t.admin_codes_col_code}</th>
+                <th className="px-4 py-3 text-center">{t.admin_codes_col_type}</th>
+                <th className="px-4 py-3 text-center">{t.admin_codes_col_status}</th>
+                <th className="px-4 py-3 text-center">{t.admin_codes_col_expiry}</th>
+                <th className="px-4 py-3 text-center">{t.admin_codes_col_date}</th>
+                <th className="px-4 py-3 text-center">{t.admin_codes_col_copy}</th>
               </tr>
             </thead>
             <tbody>
@@ -102,12 +104,12 @@ export default function AdminInviteCodesPage() {
                   <td className="px-4 py-3 font-mono font-bold text-[var(--color-cyan)]">{c.code}</td>
                   <td className="px-4 py-3 text-center">
                     <Badge variant={c.code_type === 'coach' ? 'purple' : 'blue'}>
-                      {c.code_type === 'coach' ? 'کوچ' : 'کلاینت'}
+                      {c.code_type === 'coach' ? t.admin_codes_type_coach : t.admin_codes_type_client}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <Badge variant={c.is_used ? 'gray' : 'green'} dot>
-                      {c.is_used ? 'استفاده شده' : 'باز'}
+                      {c.is_used ? t.admin_codes_status_used : t.admin_codes_status_open}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">
@@ -133,10 +135,10 @@ export default function AdminInviteCodesPage() {
       {/* Create Modal */}
       <Dialog open={showCreate} onOpenChange={open => { setShowCreate(open); if (!open) setNewCodes([]); }}>
         <DialogContent size="md">
-          <DialogHeader><DialogTitle>ساخت کد دعوت</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t.admin_codes_create_title}</DialogTitle></DialogHeader>
           {newCodes.length > 0 ? (
-            <div className="space-y-3" dir="rtl">
-              <p className="text-sm font-bold text-[var(--color-success)]">✅ {newCodes.length} کد ساخته شد</p>
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-[var(--color-success)]">{t.admin_codes_create_success(newCodes.length)}</p>
               <div className="rounded-xl border border-[var(--color-border)] p-3 space-y-2 max-h-48 overflow-y-auto">
                 {newCodes.map(code => (
                   <div key={code} className="flex items-center justify-between">
@@ -148,30 +150,30 @@ export default function AdminInviteCodesPage() {
                 ))}
               </div>
               <Button variant="secondary" className="w-full" onClick={copyAll}>
-                {copied === 'all' ? '✅ کپی شد' : '📋 کپی همه'}
+                {copied === 'all' ? t.admin_codes_copied_all : t.admin_codes_copy_all}
               </Button>
-              <Button className="w-full" onClick={() => { setShowCreate(false); setNewCodes([]); }}>بستن</Button>
+              <Button className="w-full" onClick={() => { setShowCreate(false); setNewCodes([]); }}>{t.admin_codes_create_close}</Button>
             </div>
           ) : (
-            <div className="space-y-4" dir="rtl">
+            <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-[var(--color-text-muted)]">نوع کد</label>
+                <label className="text-xs font-medium text-[var(--color-text-muted)]">{t.admin_codes_code_type_label}</label>
                 <Select value={form.code_type} onValueChange={v => setForm({ ...form, code_type: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="client">کلاینت</SelectItem>
-                    <SelectItem value="coach">کوچ</SelectItem>
+                    <SelectItem value="client">{t.admin_codes_type_client}</SelectItem>
+                    <SelectItem value="coach">{t.admin_codes_type_coach}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <Input label="تعداد کد" type="number" min={1} max={50} value={form.count}
+              <Input label={t.admin_codes_count_label} type="number" min={1} max={50} value={form.count}
                 onChange={e => setForm({ ...form, count: parseInt(e.target.value) || 1 })} />
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-[var(--color-text-muted)]">پلن پیش‌فرض (اختیاری)</label>
+                <label className="text-xs font-medium text-[var(--color-text-muted)]">{t.admin_codes_plan_label}</label>
                 <Select value={form.plan_slug} onValueChange={v => setForm({ ...form, plan_slug: v })}>
-                  <SelectTrigger><SelectValue placeholder="بدون پلن" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t.admin_codes_no_plan} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">بدون پلن</SelectItem>
+                    <SelectItem value="">{t.admin_codes_no_plan}</SelectItem>
                     <SelectItem value="trial">Trial</SelectItem>
                     <SelectItem value="basic">Basic</SelectItem>
                     <SelectItem value="pro">Pro</SelectItem>
@@ -179,11 +181,11 @@ export default function AdminInviteCodesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <Input label="انقضا (روز، اختیاری)" type="number" placeholder="مثال: 30"
+              <Input label={t.admin_codes_expires_label} type="number" placeholder={t.admin_codes_expires_placeholder}
                 value={form.expires_days} onChange={e => setForm({ ...form, expires_days: e.target.value })} />
               <DialogFooter>
-                <Button variant="secondary" onClick={() => setShowCreate(false)}>انصراف</Button>
-                <Button onClick={createCodes} loading={creating}>ساخت کد</Button>
+                <Button variant="secondary" onClick={() => setShowCreate(false)}>{t.cancel}</Button>
+                <Button onClick={createCodes} loading={creating}>{t.admin_codes_create_btn}</Button>
               </DialogFooter>
             </div>
           )}

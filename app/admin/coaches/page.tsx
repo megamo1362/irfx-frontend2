@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
+import { useLang } from '@/app/i18n/LangContext';
 import type { AdminUser } from '@/types';
 
 export default function AdminCoachesPage() {
   const [coaches, setCoaches] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { t } = useLang();
 
   useEffect(() => {
     apiFetch<{ users: AdminUser[]; total: number }>('/admin/users?role=coach')
@@ -19,25 +21,25 @@ export default function AdminCoachesPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">کوچ‌ها</h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-1">مجموع: {total} کوچ</p>
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{t.admin_coaches_title}</h1>
+        <p className="text-sm text-[var(--color-text-muted)] mt-1">{t.admin_coaches_total(total)}</p>
       </div>
 
       {loading ? (
         <div className="space-y-2">{[...Array(5)].map((_, i) => <div key={i} className="skeleton h-14 rounded-xl" />)}</div>
       ) : coaches.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center border border-[var(--color-border)]">
-          <p className="text-[var(--color-text-muted)]">هیچ کوچی ثبت‌نام نکرده است.</p>
+          <p className="text-[var(--color-text-muted)]">{t.admin_coaches_none}</p>
         </div>
       ) : (
         <div className="glass rounded-2xl overflow-hidden border border-[var(--color-border)]">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[var(--color-deep)] text-[var(--color-text-muted)]">
-                <th className="px-4 py-3 text-right">کوچ</th>
-                <th className="px-4 py-3 text-center">پلن</th>
-                <th className="px-4 py-3 text-center">وضعیت</th>
-                <th className="px-4 py-3 text-center">تاریخ عضویت</th>
+                <th className="px-4 py-3 text-right">{t.admin_coaches_col_coach}</th>
+                <th className="px-4 py-3 text-center">{t.admin_coaches_col_plan}</th>
+                <th className="px-4 py-3 text-center">{t.admin_coaches_col_status}</th>
+                <th className="px-4 py-3 text-center">{t.admin_coaches_col_joined}</th>
               </tr>
             </thead>
             <tbody>
@@ -56,7 +58,7 @@ export default function AdminCoachesPage() {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <Badge variant={coach.is_active ? 'green' : 'red'} dot>
-                      {coach.is_active ? 'فعال' : 'غیرفعال'}
+                      {coach.is_active ? t.active : t.inactive}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">

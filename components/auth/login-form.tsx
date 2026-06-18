@@ -8,13 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLogin } from '@/hooks/use-auth-api';
 import { ApiError } from '@/lib/api';
+import { useLang } from '@/app/i18n/LangContext';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { mutate: login, isPending, error } = useLogin();
+  const { t } = useLang();
 
-  const errorMessage = error instanceof ApiError ? error.message : error ? 'خطا در ورود. لطفاً دوباره تلاش کنید.' : null;
+  const errorMessage = error instanceof ApiError ? error.message : error ? t.auth_login_error : null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +32,7 @@ export function LoginForm() {
       transition={{ duration: 0.3 }}
     >
       <div className="space-y-2">
-        <Label htmlFor="login-email">ایمیل</Label>
+        <Label htmlFor="login-email">{t.email}</Label>
         <Input
           id="login-email"
           type="email"
@@ -46,13 +48,13 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="login-password">رمز عبور</Label>
+        <Label htmlFor="login-password">{t.password}</Label>
         <Input
           id="login-password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="رمز عبور خود را وارد کنید"
+          placeholder={t.password}
           iconLeft={<Lock className="h-4 w-4" />}
           required
           autoComplete="current-password"
@@ -79,7 +81,7 @@ export function LoginForm() {
         loading={isPending}
         disabled={isPending}
       >
-        ورود به حساب
+        {t.auth_login_btn}
       </Button>
     </motion.form>
   );

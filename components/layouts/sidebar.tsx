@@ -1,42 +1,37 @@
 'use client';
 
-'use client';
-
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
 import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield } from 'lucide-react';
 import { NavItem } from './nav-item';
 import { UserMenu } from './user-menu';
 import { cn } from '@/lib/utils';
+import { useLang } from '@/app/i18n/LangContext';
 import type { User } from '@/types';
-
-// ── Nav configs ───────────────────────────────────────────────────────
 
 interface NavEntry {
   href: string;
-  label: string;
+  labelKey: keyof ReturnType<typeof useLang>['t'];
   icon: LucideIcon;
   exact?: boolean;
   roles?: Array<User['role']>;
 }
 
 const DASHBOARD_NAV: NavEntry[] = [
-  { href: '/dashboard', label: 'حساب‌ها', icon: BarChart2, exact: true },
-  { href: '/dashboard/journal', label: 'ژورنال', icon: BookOpen },
-  { href: '/dashboard/journal/analysis', label: 'آنالیز ژورنال', icon: TrendingUp, roles: ['client'] },
-  { href: '/dashboard/settings/journal-permissions', label: 'دسترسی کوچ', icon: Shield, roles: ['client'] },
-  { href: '/dashboard/coach/clients', label: 'کلاینت‌های من', icon: Users, roles: ['coach'] },
+  { href: '/dashboard', labelKey: 'nav_accounts', icon: BarChart2, exact: true },
+  { href: '/dashboard/journal', labelKey: 'nav_journal', icon: BookOpen },
+  { href: '/dashboard/journal/analysis', labelKey: 'nav_journal_analysis', icon: TrendingUp, roles: ['client'] },
+  { href: '/dashboard/settings/journal-permissions', labelKey: 'nav_coach_access', icon: Shield, roles: ['client'] },
+  { href: '/dashboard/coach/clients', labelKey: 'nav_my_clients', icon: Users, roles: ['coach'] },
 ];
 
 const ADMIN_NAV: NavEntry[] = [
-  { href: '/admin', label: 'داشبورد', icon: LayoutDashboard, exact: true },
-  { href: '/admin/users', label: 'کاربران', icon: Users },
-  { href: '/admin/coaches', label: 'کوچ‌ها', icon: UserCheck },
-  { href: '/admin/invite-codes', label: 'کدهای دعوت', icon: KeyRound },
-  { href: '/admin/plans', label: 'پلن‌ها', icon: CreditCard },
+  { href: '/admin', labelKey: 'nav_admin_dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/admin/users', labelKey: 'nav_admin_users', icon: Users },
+  { href: '/admin/coaches', labelKey: 'nav_admin_coaches', icon: UserCheck },
+  { href: '/admin/invite-codes', labelKey: 'nav_admin_invite_codes', icon: KeyRound },
+  { href: '/admin/plans', labelKey: 'nav_admin_plans', icon: CreditCard },
 ];
-
-// ── Sidebar ───────────────────────────────────────────────────────────
 
 interface SidebarProps {
   user: User;
@@ -46,6 +41,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: SidebarProps) {
+  const { t, isRTL } = useLang();
   const navItems = variant === 'admin' ? ADMIN_NAV : DASHBOARD_NAV;
   const visibleItems = navItems.filter((item) =>
     !item.roles || item.roles.includes(user.role),
@@ -54,7 +50,8 @@ export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: 
   return (
     <aside
       className={cn(
-        'flex flex-col h-full w-[280px] bg-[var(--color-deep)] border-l border-[var(--color-border)]',
+        'flex flex-col h-full w-[280px] bg-[var(--color-deep)]',
+        isRTL ? 'border-l border-[var(--color-border)]' : 'border-r border-[var(--color-border)]',
         className,
       )}
     >
@@ -71,7 +68,7 @@ export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: 
           <NavItem
             key={item.href}
             href={item.href}
-            label={item.label}
+            label={t[item.labelKey] as string}
             icon={item.icon}
             exact={item.exact}
             onClick={onNavClick}

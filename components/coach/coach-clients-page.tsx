@@ -8,8 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { InlineLoader } from '@/components/shared';
 import { ClientCard } from './client-card';
 import { useMyClients, useInviteCodes, useCreateInviteCode, useDeleteInviteCode } from '@/hooks/use-coach';
-
-// ── Invite codes panel ─────────────────────────────────────
+import { useLang } from '@/app/i18n/LangContext';
 
 function InviteCodesPanel() {
   const { data: codes = [], isLoading } = useInviteCodes();
@@ -18,6 +17,7 @@ function InviteCodesPanel() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [expiresDays, setExpiresDays] = useState('30');
   const [maxUses, setMaxUses] = useState('');
+  const { t } = useLang();
 
   const handleCreate = () => {
     const body: { expires_days?: number; max_uses?: number } = {};
@@ -41,53 +41,53 @@ function InviteCodesPanel() {
     <div className="space-y-5">
       {/* Create panel */}
       <div className="card-surface rounded-2xl p-5">
-        <h3 className="font-bold text-[var(--color-text-primary)] mb-4">ساخت کد دعوت جدید</h3>
+        <h3 className="font-bold text-[var(--color-text-primary)] mb-4">{t.coach_create_code_title}</h3>
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1.5">
-            <label className="text-xs text-[var(--color-text-muted)]">انقضا</label>
+            <label className="text-xs text-[var(--color-text-muted)]">{t.coach_expiry_label}</label>
             <select
               value={expiresDays}
               onChange={(e) => setExpiresDays(e.target.value)}
               className="input-dark rounded-xl px-3 py-2 text-sm"
             >
-              <option value="7">۷ روز</option>
-              <option value="14">۱۴ روز</option>
-              <option value="30">۳۰ روز</option>
-              <option value="90">۳ ماه</option>
-              <option value="0">بدون انقضا</option>
+              <option value="7">{t.coach_expiry_7}</option>
+              <option value="14">{t.coach_expiry_14}</option>
+              <option value="30">{t.coach_expiry_30}</option>
+              <option value="90">{t.coach_expiry_90}</option>
+              <option value="0">{t.coach_expiry_none}</option>
             </select>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs text-[var(--color-text-muted)]">
-              تعداد استفاده
-              <span className="mr-1 text-[var(--color-text-muted)]/60 text-[10px]">(خالی = یک‌بار)</span>
+              {t.coach_uses_label}
+              <span className="mx-1 text-[var(--color-text-muted)]/60 text-[10px]">{t.coach_uses_hint}</span>
             </label>
             <input
               type="number"
               min="1"
               value={maxUses}
               onChange={(e) => setMaxUses(e.target.value)}
-              placeholder="مثلا ۵"
+              placeholder={t.coach_uses_placeholder}
               className="input-dark rounded-xl px-3 py-2 text-sm w-24"
             />
           </div>
 
           <Button variant="primary" size="sm" onClick={handleCreate} loading={creating} disabled={creating}>
             <Plus className="h-3.5 w-3.5 ml-1" />
-            ساخت کد
+            {t.coach_create_code_btn}
           </Button>
         </div>
       </div>
 
-      {isLoading && <InlineLoader label="در حال بارگذاری کدها..." />}
+      {isLoading && <InlineLoader label={t.coach_loading_codes} />}
 
       {/* Active codes */}
       {activeCodes.length > 0 && (
         <div className="card-surface rounded-2xl overflow-hidden">
           <div className="px-5 py-3 border-b border-[var(--color-border)]">
             <p className="text-sm font-bold text-[var(--color-text-secondary)]">
-              کدهای فعال
+              {t.coach_active_codes}
               <Badge variant="cyan" className="mr-2">{activeCodes.length}</Badge>
             </p>
           </div>
@@ -100,13 +100,13 @@ function InviteCodesPanel() {
                   </span>
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {c.max_uses !== null ? (
-                      <Badge variant="purple">{c.used_count}/{c.max_uses} استفاده</Badge>
+                      <Badge variant="purple">{t.coach_uses_count(c.used_count, c.max_uses)}</Badge>
                     ) : (
-                      <span className="text-xs text-[var(--color-text-muted)]">یک‌بار</span>
+                      <span className="text-xs text-[var(--color-text-muted)]">{t.coach_single_use}</span>
                     )}
                     {c.expires_at && (
                       <span className="text-xs text-[var(--color-text-muted)]">
-                        تا {new Date(c.expires_at).toLocaleDateString('fa-IR')}
+                        {t.coach_code_until(new Date(c.expires_at).toLocaleDateString('fa-IR'))}
                       </span>
                     )}
                   </div>
@@ -122,7 +122,7 @@ function InviteCodesPanel() {
                     {copiedId === c.id
                       ? <Check className="h-3.5 w-3.5" />
                       : <Copy className="h-3.5 w-3.5" />}
-                    <span className="mr-1.5 text-xs">{copiedId === c.id ? 'کپی شد' : 'کپی'}</span>
+                    <span className="mr-1.5 text-xs">{copiedId === c.id ? t.coach_copied : t.coach_copy}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -146,7 +146,7 @@ function InviteCodesPanel() {
       {usedCodes.length > 0 && (
         <div className="card-surface rounded-2xl overflow-hidden opacity-60">
           <div className="px-5 py-3 border-b border-[var(--color-border)]">
-            <p className="text-sm font-bold text-[var(--color-text-muted)]">تکمیل‌شده</p>
+            <p className="text-sm font-bold text-[var(--color-text-muted)]">{t.coach_completed_codes}</p>
           </div>
           <div className="divide-y divide-[var(--color-border)]">
             {usedCodes.map((c) => (
@@ -173,36 +173,33 @@ function InviteCodesPanel() {
       {!isLoading && codes.length === 0 && (
         <div className="card-surface rounded-2xl p-12 text-center">
           <KeyRound className="h-10 w-10 text-[var(--color-text-muted)] mx-auto mb-3" />
-          <p className="text-[var(--color-text-muted)]">هنوز کد دعوتی نساختید</p>
-          <p className="text-sm text-[var(--color-text-muted)]/60 mt-1">
-            کلاینت‌ها با کد دعوت شما ثبت‌نام می‌کنند
-          </p>
+          <p className="text-[var(--color-text-muted)]">{t.coach_no_codes}</p>
+          <p className="text-sm text-[var(--color-text-muted)]/60 mt-1">{t.coach_no_codes_desc}</p>
         </div>
       )}
     </div>
   );
 }
 
-// ── Main page ──────────────────────────────────────────────
-
 type Tab = 'clients' | 'invite-codes';
 
 export function CoachClientsPage() {
   const [tab, setTab] = useState<Tab>('clients');
   const { data: clients = [], isLoading, isError } = useMyClients();
+  const { t } = useLang();
 
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-black text-[var(--color-text-primary)]">پنل کوچ</h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-1">مدیریت کلاینت‌ها و کدهای دعوت</p>
+        <h1 className="text-2xl font-black text-[var(--color-text-primary)]">{t.coach_panel_title}</h1>
+        <p className="text-sm text-[var(--color-text-muted)] mt-1">{t.coach_panel_desc}</p>
       </div>
 
       {/* Tab pills */}
       <div className="flex gap-1 p-1 rounded-xl w-fit bg-[rgba(0,0,0,0.3)] border border-[var(--color-border)]">
         {([
-          { key: 'clients' as const, label: 'کلاینت‌ها', icon: Users, count: clients.length as number | undefined },
-          { key: 'invite-codes' as const, label: 'کدهای دعوت', icon: KeyRound, count: undefined as number | undefined },
+          { key: 'clients' as const, label: t.coach_tab_clients, icon: Users, count: clients.length as number | undefined },
+          { key: 'invite-codes' as const, label: t.coach_tab_codes, icon: KeyRound, count: undefined as number | undefined },
         ]).map(({ key, label, icon: Icon, count }) => (
           <button
             key={key}
@@ -229,17 +226,15 @@ export function CoachClientsPage() {
       <AnimatePresence mode="wait">
         {tab === 'clients' && (
           <motion.div key="clients" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            {isLoading && <InlineLoader label="در حال بارگذاری کلاینت‌ها..." />}
+            {isLoading && <InlineLoader label={t.coach_loading_clients} />}
             {isError && (
-              <p className="text-sm text-[var(--color-status-error)]">خطا در دریافت اطلاعات</p>
+              <p className="text-sm text-[var(--color-status-error)]">{t.coach_error}</p>
             )}
             {!isLoading && !isError && clients.length === 0 && (
               <div className="card-surface rounded-2xl p-16 text-center">
                 <Users className="h-12 w-12 text-[var(--color-text-muted)] mx-auto mb-3" />
-                <p className="text-[var(--color-text-muted)] text-lg">هنوز کلاینتی متصل نشده</p>
-                <p className="text-sm text-[var(--color-text-muted)]/60 mt-1">
-                  کلاینت‌ها با کد دعوت شما ثبت‌نام می‌کنند
-                </p>
+                <p className="text-[var(--color-text-muted)] text-lg">{t.coach_no_clients}</p>
+                <p className="text-sm text-[var(--color-text-muted)]/60 mt-1">{t.coach_no_clients_desc}</p>
               </div>
             )}
             {!isLoading && clients.length > 0 && (

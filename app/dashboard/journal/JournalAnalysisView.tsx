@@ -1,5 +1,6 @@
 'use client';
 
+import { useLang } from '@/app/i18n/LangContext';
 import type { JournalAnalysisData } from '@/types';
 
 interface Props {
@@ -16,7 +17,16 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+const EMOTION_COLORS: Record<string, string> = {
+  'ترس': '#ef4444', 'طمع': '#f97316', 'هیجان': '#eab308',
+  'انضباط': '#22c55e', 'خنثی': '#64748b', 'اعتماد به نفس کاذب': '#a855f7', 'انتقام': '#ec4899',
+  'Fear': '#ef4444', 'Greed': '#f97316', 'Excitement': '#eab308',
+  'Discipline': '#22c55e', 'Neutral': '#64748b', 'Overconfidence': '#a855f7', 'Revenge': '#ec4899',
+};
+
 export function JournalAnalysisView({ data, loading }: Props) {
+  const { t } = useLang();
+
   if (loading) {
     return <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="skeleton h-24 rounded-2xl" />)}</div>;
   }
@@ -25,25 +35,20 @@ export function JournalAnalysisView({ data, loading }: Props) {
   const totalEmotions = Object.values(data.emotion_distribution).reduce((a, b) => a + b, 0);
   const maxBar = Math.max(...Object.values(data.emotion_distribution), 1);
 
-  const EMOTION_COLORS: Record<string, string> = {
-    'ترس': '#ef4444', 'طمع': '#f97316', 'هیجان': '#eab308',
-    'انضباط': '#22c55e', 'خنثی': '#64748b', 'اعتماد به نفس کاذب': '#a855f7', 'انتقام': '#ec4899',
-  };
-
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="تعداد ژورنال‌ها" value={String(data.total_journals)} />
-        <StatCard label="میانگین امتیاز" value={data.avg_post_rating ? `${data.avg_post_rating}/10` : '—'} />
-        <StatCard label="پایبندی به پلن" value={data.plan_followed_pct ? `${data.plan_followed_pct}%` : '—'} />
-        <StatCard label="احساسات ثبت‌شده" value={String(totalEmotions)} />
+        <StatCard label={t.journal_total_entries} value={String(data.total_journals)} />
+        <StatCard label={t.journal_avg_rating} value={data.avg_post_rating ? `${data.avg_post_rating}/10` : '—'} />
+        <StatCard label={t.journal_plan_adherence} value={data.plan_followed_pct ? `${data.plan_followed_pct}%` : '—'} />
+        <StatCard label={t.journal_emotions_logged} value={String(totalEmotions)} />
       </div>
 
       {/* Emotion distribution */}
       {Object.keys(data.emotion_distribution).length > 0 && (
         <div className="glass rounded-2xl p-5 border border-[var(--color-border)]">
-          <p className="text-sm font-bold text-[var(--color-text-primary)] mb-4">توزیع احساسات (قبل از معامله)</p>
+          <p className="text-sm font-bold text-[var(--color-text-primary)] mb-4">{t.journal_emotion_dist_title}</p>
           <div className="space-y-2.5">
             {Object.entries(data.emotion_distribution)
               .sort(([, a], [, b]) => b - a)
@@ -69,13 +74,13 @@ export function JournalAnalysisView({ data, loading }: Props) {
       {/* Emotion vs P&L */}
       {data.emotion_pnl.length > 0 && (
         <div className="glass rounded-2xl p-5 border border-[var(--color-border)]">
-          <p className="text-sm font-bold text-[var(--color-text-primary)] mb-4">تأثیر احساسات بر نتیجه معامله</p>
+          <p className="text-sm font-bold text-[var(--color-text-primary)] mb-4">{t.journal_emotion_pnl_title}</p>
           <table className="w-full text-sm">
             <thead>
               <tr className="text-[var(--color-text-muted)] text-xs">
-                <th className="text-right pb-2">احساس</th>
-                <th className="text-center pb-2">میانگین سود/زیان</th>
-                <th className="text-center pb-2">تعداد</th>
+                <th className="text-right pb-2">{t.journal_emotion_col}</th>
+                <th className="text-center pb-2">{t.journal_avg_pnl_col}</th>
+                <th className="text-center pb-2">{t.journal_count_col}</th>
               </tr>
             </thead>
             <tbody>
@@ -96,25 +101,25 @@ export function JournalAnalysisView({ data, loading }: Props) {
       {/* Plan followed vs P&L */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="glass rounded-2xl p-5 border border-[var(--color-border)]">
-          <p className="text-xs text-[var(--color-success)] font-bold mb-1">✓ پایبند بودم</p>
+          <p className="text-xs text-[var(--color-success)] font-bold mb-1">{t.journal_followed_yes}</p>
           <p className={`text-xl font-black ${data.plan_followed_pnl.followed.avg_profit >= 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-status-error)]'}`}>
             {data.plan_followed_pnl.followed.avg_profit >= 0 ? '+' : ''}${data.plan_followed_pnl.followed.avg_profit}
           </p>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">{data.plan_followed_pnl.followed.count} معامله</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">{t.journal_trades(data.plan_followed_pnl.followed.count)}</p>
         </div>
         <div className="glass rounded-2xl p-5 border border-[var(--color-border)]">
-          <p className="text-xs text-[var(--color-status-error)] font-bold mb-1">✗ پایبند نبودم</p>
+          <p className="text-xs text-[var(--color-status-error)] font-bold mb-1">{t.journal_followed_no}</p>
           <p className={`text-xl font-black ${data.plan_followed_pnl.not_followed.avg_profit >= 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-status-error)]'}`}>
             {data.plan_followed_pnl.not_followed.avg_profit >= 0 ? '+' : ''}${data.plan_followed_pnl.not_followed.avg_profit}
           </p>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">{data.plan_followed_pnl.not_followed.count} معامله</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">{t.journal_trades(data.plan_followed_pnl.not_followed.count)}</p>
         </div>
       </div>
 
       {/* Top tags */}
       {data.top_tags.length > 0 && (
         <div className="glass rounded-2xl p-5 border border-[var(--color-border)]">
-          <p className="text-sm font-bold text-[var(--color-text-primary)] mb-4">پرتکرارترین تگ‌ها</p>
+          <p className="text-sm font-bold text-[var(--color-text-primary)] mb-4">{t.journal_top_tags}</p>
           <div className="flex flex-wrap gap-2">
             {data.top_tags.map(({ tag, count }) => (
               <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-elevated)] border border-[var(--color-border)] text-sm">
@@ -129,7 +134,7 @@ export function JournalAnalysisView({ data, loading }: Props) {
       {/* Monthly activity */}
       {data.monthly_journal_count.length > 0 && (
         <div className="glass rounded-2xl p-5 border border-[var(--color-border)]">
-          <p className="text-sm font-bold text-[var(--color-text-primary)] mb-4">فعالیت ماهانه</p>
+          <p className="text-sm font-bold text-[var(--color-text-primary)] mb-4">{t.journal_monthly}</p>
           <div className="flex items-end gap-2 h-32">
             {(() => {
               const maxCount = Math.max(...data.monthly_journal_count.map(m => m.count), 1);

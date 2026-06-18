@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useLang } from '@/app/i18n/LangContext';
 import type { JournalEntry } from '@/types';
 
-const EMOTIONS = ['ترس', 'طمع', 'هیجان', 'انضباط', 'خنثی', 'اعتماد به نفس کاذب', 'انتقام'];
+const EMOTIONS_FA = ['ترس', 'طمع', 'هیجان', 'انضباط', 'خنثی', 'اعتماد به نفس کاذب', 'انتقام'];
+const EMOTIONS_EN = ['Fear', 'Greed', 'Excitement', 'Discipline', 'Neutral', 'Overconfidence', 'Revenge'];
 
 interface TradeRef {
   ticket: number;
@@ -37,6 +39,9 @@ export function JournalModal({ open, onClose, onSaved, accountId, entry, trade }
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { t, isRTL } = useLang();
+
+  const emotions = isRTL ? EMOTIONS_FA : EMOTIONS_EN;
 
   useEffect(() => {
     if (entry) {
@@ -88,7 +93,7 @@ export function JournalModal({ open, onClose, onSaved, accountId, entry, trade }
       onSaved();
       onClose();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'خطا در ذخیره');
+      setError(e instanceof Error ? e.message : t.journal_save_error);
     } finally {
       setSaving(false);
     }
@@ -98,42 +103,42 @@ export function JournalModal({ open, onClose, onSaved, accountId, entry, trade }
     <Dialog open={open} onOpenChange={o => { if (!o) onClose(); }}>
       <DialogContent size="lg">
         <DialogHeader>
-          <DialogTitle>{entry ? 'ویرایش ژورنال' : 'ثبت ژورنال جدید'}</DialogTitle>
+          <DialogTitle>{entry ? t.journal_modal_edit : t.journal_modal_create}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-5 max-h-[65vh] overflow-y-auto pl-1" dir="rtl">
+        <div className="space-y-5 max-h-[65vh] overflow-y-auto pl-1">
           {/* Pre-trade */}
           <div>
-            <p className="text-xs font-bold text-[var(--color-cyan)] uppercase tracking-widest mb-3">قبل از معامله</p>
+            <p className="text-xs font-bold text-[var(--color-cyan)] uppercase tracking-widest mb-3">{t.journal_pre_label}</p>
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <label className="text-xs text-[var(--color-text-muted)]">احساس</label>
+                <label className="text-xs text-[var(--color-text-muted)]">{t.journal_emotion_label}</label>
                 <Select value={form.pre_emotion} onValueChange={v => setForm(f => ({ ...f, pre_emotion: v }))}>
-                  <SelectTrigger><SelectValue placeholder="انتخاب احساس" /></SelectTrigger>
-                  <SelectContent>{EMOTIONS.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
+                  <SelectTrigger><SelectValue placeholder={t.journal_select_emotion} /></SelectTrigger>
+                  <SelectContent>{emotions.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs text-[var(--color-text-muted)]">دلیل ورود</label>
+                <label className="text-xs text-[var(--color-text-muted)]">{t.journal_entry_reason_label}</label>
                 <textarea
                   className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)] resize-none h-20 focus:outline-none focus:border-[var(--color-cyan)]"
                   value={form.pre_reason}
                   onChange={e => setForm(f => ({ ...f, pre_reason: e.target.value }))}
-                  placeholder="چرا وارد این معامله شدی؟"
+                  placeholder={t.journal_reason_placeholder}
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs text-[var(--color-text-muted)]">استراتژی</label>
+                <label className="text-xs text-[var(--color-text-muted)]">{t.journal_strategy_label}</label>
                 <textarea
                   className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)] resize-none h-20 focus:outline-none focus:border-[var(--color-cyan)]"
                   value={form.pre_strategy}
                   onChange={e => setForm(f => ({ ...f, pre_strategy: e.target.value }))}
-                  placeholder="استراتژی مورد استفاده"
+                  placeholder={t.journal_strategy_placeholder}
                 />
               </div>
               <Input
-                label="ریسک (%)"
+                label={t.journal_risk_label}
                 type="number"
-                placeholder="مثال: 1.5"
+                placeholder={t.journal_risk_placeholder}
                 value={form.pre_risk}
                 onChange={e => setForm(f => ({ ...f, pre_risk: e.target.value }))}
               />
@@ -142,27 +147,26 @@ export function JournalModal({ open, onClose, onSaved, accountId, entry, trade }
 
           {/* Post-trade */}
           <div>
-            <p className="text-xs font-bold text-[var(--color-cyan)] uppercase tracking-widest mb-3">بعد از معامله</p>
+            <p className="text-xs font-bold text-[var(--color-cyan)] uppercase tracking-widest mb-3">{t.journal_post_label}</p>
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <label className="text-xs text-[var(--color-text-muted)]">احساس</label>
+                <label className="text-xs text-[var(--color-text-muted)]">{t.journal_emotion_label}</label>
                 <Select value={form.post_emotion} onValueChange={v => setForm(f => ({ ...f, post_emotion: v }))}>
-                  <SelectTrigger><SelectValue placeholder="انتخاب احساس" /></SelectTrigger>
-                  <SelectContent>{EMOTIONS.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
+                  <SelectTrigger><SelectValue placeholder={t.journal_select_emotion} /></SelectTrigger>
+                  <SelectContent>{emotions.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs text-[var(--color-text-muted)]">درس آموخته</label>
+                <label className="text-xs text-[var(--color-text-muted)]">{t.journal_lesson_label}</label>
                 <textarea
                   className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)] resize-none h-20 focus:outline-none focus:border-[var(--color-cyan)]"
                   value={form.post_lesson}
                   onChange={e => setForm(f => ({ ...f, post_lesson: e.target.value }))}
-                  placeholder="چه چیزی یاد گرفتی؟"
+                  placeholder={t.journal_lesson_placeholder}
                 />
               </div>
-              {/* Star rating 1-10 */}
               <div className="space-y-1.5">
-                <label className="text-xs text-[var(--color-text-muted)]">امتیاز معامله (۱-۱۰)</label>
+                <label className="text-xs text-[var(--color-text-muted)]">{t.journal_rating_label}</label>
                 <div className="flex gap-1">
                   {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
                     <button
@@ -181,7 +185,7 @@ export function JournalModal({ open, onClose, onSaved, accountId, entry, trade }
                 </div>
               </div>
               <div className="flex items-center justify-between rounded-xl border border-[var(--color-border)] px-4 py-3">
-                <span className="text-sm text-[var(--color-text-secondary)]">آیا به پلن پایبند بودی؟</span>
+                <span className="text-sm text-[var(--color-text-secondary)]">{t.journal_followed_plan_q}</span>
                 <Switch
                   checked={form.post_followed_plan}
                   onCheckedChange={v => setForm(f => ({ ...f, post_followed_plan: v }))}
@@ -193,15 +197,15 @@ export function JournalModal({ open, onClose, onSaved, accountId, entry, trade }
           {/* Other */}
           <div className="space-y-3">
             <Input
-              label="تگ‌ها (با کاما جدا کن)"
-              placeholder="مثال: breakout, london, XAUUSD"
+              label={t.journal_tags_label}
+              placeholder={t.journal_tags_placeholder}
               value={form.tags}
               onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
             />
             <Input
-              label="سود/زیان ($)"
+              label={t.journal_pnl_label}
               type="number"
-              placeholder="مثال: 45.50"
+              placeholder="e.g. 45.50"
               value={form.profit}
               onChange={e => setForm(f => ({ ...f, profit: e.target.value }))}
             />
@@ -210,8 +214,8 @@ export function JournalModal({ open, onClose, onSaved, accountId, entry, trade }
           {error && <p className="text-sm text-[var(--color-status-error)]">{error}</p>}
         </div>
         <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>انصراف</Button>
-          <Button onClick={save} loading={saving}>ذخیره</Button>
+          <Button variant="secondary" onClick={onClose}>{t.cancel}</Button>
+          <Button onClick={save} loading={saving}>{t.save}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

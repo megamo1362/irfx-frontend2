@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAddAccount } from '@/hooks/use-accounts';
 import { ApiError } from '@/lib/api';
+import { useLang } from '@/app/i18n/LangContext';
 
 interface AddAccountDialogProps {
   open: boolean;
@@ -27,8 +28,9 @@ const EMPTY = { login: '', investor_password: '', server: '', label: '' };
 export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) {
   const [fields, setFields] = useState(EMPTY);
   const { mutate: addAccount, isPending, error, reset } = useAddAccount();
+  const { t } = useLang();
 
-  const apiError = error instanceof ApiError ? error.message : error ? 'خطا در افزودن حساب.' : null;
+  const apiError = error instanceof ApiError ? error.message : error ? t.add_account_error : null;
 
   const set = (key: keyof typeof fields) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setFields((f) => ({ ...f, [key]: e.target.value }));
@@ -55,15 +57,13 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>افزودن حساب MT5</DialogTitle>
-          <DialogDescription>
-            اطلاعات حساب MetaTrader 5 خود را وارد کنید. فقط به پسورد سرمایه‌گذار (read-only) نیاز داریم.
-          </DialogDescription>
+          <DialogTitle>{t.add_account_title}</DialogTitle>
+          <DialogDescription>{t.add_account_desc}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div className="space-y-2">
-            <Label htmlFor="acc-login">شماره حساب</Label>
+            <Label htmlFor="acc-login">{t.add_account_number}</Label>
             <Input
               id="acc-login"
               type="text"
@@ -77,7 +77,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="acc-password">پسورد سرمایه‌گذار</Label>
+            <Label htmlFor="acc-password">{t.add_account_investor_pw}</Label>
             <Input
               id="acc-password"
               type="password"
@@ -90,7 +90,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="acc-server">سرور</Label>
+            <Label htmlFor="acc-server">{t.add_account_server}</Label>
             <Input
               id="acc-server"
               type="text"
@@ -105,15 +105,15 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
 
           <div className="space-y-2">
             <Label htmlFor="acc-label">
-              برچسب{' '}
-              <span className="text-xs text-[var(--color-text-muted)]">(اختیاری)</span>
+              {t.add_account_label}{' '}
+              <span className="text-xs text-[var(--color-text-muted)]">{t.add_account_label_optional}</span>
             </Label>
             <Input
               id="acc-label"
               type="text"
               value={fields.label}
               onChange={set('label')}
-              placeholder="مثال: حساب اصلی"
+              placeholder="e.g. Main Account"
               iconLeft={<Tag className="h-4 w-4" />}
             />
           </div>
@@ -127,7 +127,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="ghost" size="sm" type="button">انصراف</Button>
+              <Button variant="ghost" size="sm" type="button">{t.cancel}</Button>
             </DialogClose>
             <Button
               variant="primary"
@@ -137,7 +137,7 @@ export function AddAccountDialog({ open, onOpenChange }: AddAccountDialogProps) 
               disabled={isPending}
             >
               <Plus className="h-4 w-4 ml-1" />
-              افزودن حساب
+              {t.add_account_btn}
             </Button>
           </DialogFooter>
         </form>

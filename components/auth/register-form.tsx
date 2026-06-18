@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRegister } from '@/hooks/use-auth-api';
 import { ApiError } from '@/lib/api';
+import { useLang } from '@/app/i18n/LangContext';
 
 export function RegisterForm() {
   const [fields, setFields] = useState({
@@ -19,8 +20,9 @@ export function RegisterForm() {
   });
   const [validationError, setValidationError] = useState<string | null>(null);
   const { mutate: register, isPending, error } = useRegister();
+  const { t } = useLang();
 
-  const apiError = error instanceof ApiError ? error.message : error ? 'خطا در ثبت‌نام. لطفاً دوباره تلاش کنید.' : null;
+  const apiError = error instanceof ApiError ? error.message : error ? t.auth_register_error : null;
   const displayError = validationError ?? apiError;
 
   const set = (key: keyof typeof fields) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -31,11 +33,11 @@ export function RegisterForm() {
     setValidationError(null);
 
     if (fields.password !== fields.confirmPassword) {
-      setValidationError('رمز عبور و تأیید آن یکسان نیستند.');
+      setValidationError(t.auth_password_mismatch);
       return;
     }
     if (fields.password.length < 8) {
-      setValidationError('رمز عبور باید حداقل ۸ کاراکتر باشد.');
+      setValidationError(t.auth_password_too_short);
       return;
     }
 
@@ -56,19 +58,19 @@ export function RegisterForm() {
       transition={{ duration: 0.3 }}
     >
       <div className="space-y-2">
-        <Label htmlFor="reg-name">نام (اختیاری)</Label>
+        <Label htmlFor="reg-name">{t.auth_name_optional}</Label>
         <Input
           id="reg-name"
           type="text"
           value={fields.full_name}
           onChange={set('full_name')}
-          placeholder="نام و نام خانوادگی"
+          placeholder={t.auth_name_placeholder}
           iconLeft={<User className="h-4 w-4" />}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="reg-email">ایمیل</Label>
+        <Label htmlFor="reg-email">{t.email}</Label>
         <Input
           id="reg-email"
           type="email"
@@ -83,25 +85,25 @@ export function RegisterForm() {
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <Label htmlFor="reg-password">رمز عبور</Label>
+          <Label htmlFor="reg-password">{t.password}</Label>
           <Input
             id="reg-password"
             type="password"
             value={fields.password}
             onChange={set('password')}
-            placeholder="حداقل ۸ کاراکتر"
+            placeholder={t.password_min}
             iconLeft={<Lock className="h-4 w-4" />}
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="reg-confirm">تأیید رمز</Label>
+          <Label htmlFor="reg-confirm">{t.auth_password_confirm}</Label>
           <Input
             id="reg-confirm"
             type="password"
             value={fields.confirmPassword}
             onChange={set('confirmPassword')}
-            placeholder="تأیید رمز عبور"
+            placeholder={t.auth_password_confirm_placeholder}
             iconLeft={<Lock className="h-4 w-4" />}
             required
           />
@@ -109,13 +111,13 @@ export function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="reg-invite">کد دعوت</Label>
+        <Label htmlFor="reg-invite">{t.auth_invite_code}</Label>
         <Input
           id="reg-invite"
           type="text"
           value={fields.invite_code}
           onChange={set('invite_code')}
-          placeholder="کد دعوت خود را وارد کنید"
+          placeholder={t.auth_invite_placeholder}
           iconLeft={<Key className="h-4 w-4" />}
           required
           dir="ltr"
@@ -141,7 +143,7 @@ export function RegisterForm() {
         loading={isPending}
         disabled={isPending}
       >
-        ایجاد حساب کاربری
+        {t.auth_create_account}
       </Button>
     </motion.form>
   );

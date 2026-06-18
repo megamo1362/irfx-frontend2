@@ -4,29 +4,31 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BarChart2, BookOpen, TrendingUp, Users, LayoutDashboard, KeyRound, CreditCard, UserCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useLang } from '@/app/i18n/LangContext';
 import type { User } from '@/types';
+import type { Translations } from '@/app/i18n/translations';
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: keyof Translations;
   icon: LucideIcon;
   exact?: boolean;
   roles?: Array<User['role']>;
 }
 
 const DASHBOARD_ITEMS: NavItem[] = [
-  { href: '/dashboard', label: 'حساب‌ها', icon: BarChart2, exact: true },
-  { href: '/dashboard/journal', label: 'ژورنال', icon: BookOpen },
-  { href: '/dashboard/journal/analysis', label: 'آنالیز', icon: TrendingUp, roles: ['client'] },
-  { href: '/dashboard/coach/clients', label: 'کلاینت‌ها', icon: Users, roles: ['coach'] },
+  { href: '/dashboard', labelKey: 'nav_accounts', icon: BarChart2, exact: true },
+  { href: '/dashboard/journal', labelKey: 'nav_journal', icon: BookOpen },
+  { href: '/dashboard/journal/analysis', labelKey: 'nav_analysis', icon: TrendingUp, roles: ['client'] },
+  { href: '/dashboard/coach/clients', labelKey: 'nav_my_clients', icon: Users, roles: ['coach'] },
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
-  { href: '/admin', label: 'داشبورد', icon: LayoutDashboard, exact: true },
-  { href: '/admin/users', label: 'کاربران', icon: Users },
-  { href: '/admin/coaches', label: 'کوچ‌ها', icon: UserCheck },
-  { href: '/admin/invite-codes', label: 'کدها', icon: KeyRound },
-  { href: '/admin/plans', label: 'پلن‌ها', icon: CreditCard },
+  { href: '/admin', labelKey: 'nav_admin_dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/admin/users', labelKey: 'nav_admin_users', icon: Users },
+  { href: '/admin/coaches', labelKey: 'nav_admin_coaches', icon: UserCheck },
+  { href: '/admin/invite-codes', labelKey: 'nav_admin_codes', icon: KeyRound },
+  { href: '/admin/plans', labelKey: 'nav_admin_plans', icon: CreditCard },
 ];
 
 interface BottomNavProps {
@@ -36,10 +38,10 @@ interface BottomNavProps {
 
 export function BottomNav({ user, variant = 'dashboard' }: BottomNavProps) {
   const pathname = usePathname();
+  const { t } = useLang();
   const allItems = variant === 'admin' ? ADMIN_ITEMS : DASHBOARD_ITEMS;
   const items = allItems.filter(item => !item.roles || item.roles.includes(user.role));
 
-  // Find the most specific (longest) matching item — prevents two items being active at once
   const matches = items.filter(item => {
     if (item.exact) return pathname === item.href;
     return pathname === item.href || pathname.startsWith(item.href + '/');
@@ -72,7 +74,7 @@ export function BottomNav({ user, variant = 'dashboard' }: BottomNavProps) {
               <span className={`text-[10px] font-medium leading-none transition-colors ${
                 active ? 'text-[var(--color-cyan)]' : 'text-[var(--color-text-muted)]'
               }`}>
-                {item.label}
+                {t[item.labelKey] as string}
               </span>
             </Link>
           );

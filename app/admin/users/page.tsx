@@ -12,22 +12,13 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { useLang } from '@/app/i18n/LangContext';
 import type { AdminUser, Plan } from '@/types';
 
 interface AdminPerm { key: string; label: string; is_enabled: boolean }
 
-const TABS = [
-  { value: '', label: 'همه' },
-  { value: 'client', label: 'کلاینت‌ها' },
-  { value: 'coach', label: 'کوچ‌ها' },
-  { value: 'admin', label: 'ادمین‌ها' },
-];
-
 const roleVariant: Record<string, 'red' | 'purple' | 'blue'> = {
   admin: 'red', coach: 'purple', client: 'blue',
-};
-const roleLabel: Record<string, string> = {
-  admin: 'ادمین', coach: 'کوچ', client: 'کلاینت',
 };
 
 export default function AdminUsersPage() {
@@ -37,6 +28,20 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState('');
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const { t } = useLang();
+
+  const TABS = [
+    { value: '', label: t.admin_users_tab_all },
+    { value: 'client', label: t.admin_users_tab_clients },
+    { value: 'coach', label: t.admin_users_tab_coaches },
+    { value: 'admin', label: t.admin_users_tab_admins },
+  ];
+
+  const roleLabel: Record<string, string> = {
+    admin: t.admin_users_role_admin,
+    coach: t.admin_users_role_coach,
+    client: t.admin_users_role_client,
+  };
 
   // create
   const [showCreate, setShowCreate] = useState(false);
@@ -95,7 +100,7 @@ export default function AdminUsersPage() {
       setCreateForm({ email: '', full_name: '', password: '', role: 'client', is_super_admin: false, plan_id: '' });
       fetchUsers(roleFilter);
     } catch (e: unknown) {
-      setCreateError(e instanceof Error ? e.message : 'خطا');
+      setCreateError(e instanceof Error ? e.message : t.error_generic);
     } finally {
       setCreating(false);
     }
@@ -132,7 +137,7 @@ export default function AdminUsersPage() {
       setResetUser(null);
       setNewPassword('');
     } catch (e: unknown) {
-      setResetError(e instanceof Error ? e.message : 'خطا');
+      setResetError(e instanceof Error ? e.message : t.error_generic);
     } finally {
       setResetting(false);
     }
@@ -165,25 +170,25 @@ export default function AdminUsersPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">کاربران</h1>
-          <p className="text-sm text-[var(--color-text-muted)] mt-1">مجموع: {total} کاربر</p>
+          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{t.admin_users_title}</h1>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">{t.admin_users_total(total)}</p>
         </div>
-        <Button onClick={() => { setShowCreate(true); setCreateError(''); }}>+ افزودن کاربر</Button>
+        <Button onClick={() => { setShowCreate(true); setCreateError(''); }}>{t.admin_users_add}</Button>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-5 bg-[var(--color-deep)] border border-[var(--color-border)] rounded-xl p-1 w-fit">
-        {TABS.map(t => (
+        {TABS.map(tab => (
           <button
-            key={t.value}
-            onClick={() => setRoleFilter(t.value)}
+            key={tab.value}
+            onClick={() => setRoleFilter(tab.value)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              roleFilter === t.value
+              roleFilter === tab.value
                 ? 'bg-gradient-to-r from-[#00d4ff] to-[#0066ff] text-[#020510] font-bold'
                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
             }`}
           >
-            {t.label}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -197,12 +202,12 @@ export default function AdminUsersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[var(--color-deep)] text-[var(--color-text-muted)]">
-                <th className="px-4 py-3 text-right">کاربر</th>
-                <th className="px-4 py-3 text-center">نقش</th>
-                <th className="px-4 py-3 text-center">پلن</th>
-                <th className="px-4 py-3 text-center">وضعیت</th>
-                <th className="px-4 py-3 text-center">تاریخ</th>
-                <th className="px-4 py-3 text-center">عملیات</th>
+                <th className="px-4 py-3 text-right">{t.admin_users_col_user}</th>
+                <th className="px-4 py-3 text-center">{t.admin_users_col_role}</th>
+                <th className="px-4 py-3 text-center">{t.admin_users_col_plan}</th>
+                <th className="px-4 py-3 text-center">{t.admin_users_col_status}</th>
+                <th className="px-4 py-3 text-center">{t.admin_users_col_date}</th>
+                <th className="px-4 py-3 text-center">{t.admin_users_col_actions}</th>
               </tr>
             </thead>
             <tbody>
@@ -212,7 +217,7 @@ export default function AdminUsersPage() {
                     <p className="font-medium text-[var(--color-text-primary)]">
                       {user.full_name || '—'}
                       {user.is_super_admin && (
-                        <Badge variant="yellow" className="mr-2 text-[10px]">سوپر</Badge>
+                        <Badge variant="yellow" className="mr-2 text-[10px]">{t.admin_users_super_badge}</Badge>
                       )}
                     </p>
                     <p className="text-[var(--color-text-muted)] text-xs mt-0.5">{user.email}</p>
@@ -229,7 +234,7 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <Badge variant={user.is_active ? 'green' : 'red'} dot>
-                      {user.is_active ? 'فعال' : 'غیرفعال'}
+                      {user.is_active ? t.active : t.inactive}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-center text-[var(--color-text-muted)] text-xs">
@@ -255,35 +260,35 @@ export default function AdminUsersPage() {
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent size="md">
           <DialogHeader>
-            <DialogTitle>افزودن کاربر جدید</DialogTitle>
+            <DialogTitle>{t.admin_users_create_title}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4" dir="rtl">
-            <Input label="ایمیل" type="email" value={createForm.email} onChange={e => setCreateForm({ ...createForm, email: e.target.value })} placeholder="example@email.com" dir="ltr" />
-            <Input label="نام کامل (اختیاری)" value={createForm.full_name} onChange={e => setCreateForm({ ...createForm, full_name: e.target.value })} />
-            <Input label="رمز عبور" type="password" value={createForm.password} onChange={e => setCreateForm({ ...createForm, password: e.target.value })} placeholder="حداقل ۸ کاراکتر" />
+          <div className="space-y-4">
+            <Input label={t.email} type="email" value={createForm.email} onChange={e => setCreateForm({ ...createForm, email: e.target.value })} placeholder="example@email.com" dir="ltr" />
+            <Input label={t.admin_users_full_name_optional} value={createForm.full_name} onChange={e => setCreateForm({ ...createForm, full_name: e.target.value })} />
+            <Input label={t.password} type="password" value={createForm.password} onChange={e => setCreateForm({ ...createForm, password: e.target.value })} placeholder={t.password_min} />
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[var(--color-text-muted)]">نقش</label>
+              <label className="text-xs font-medium text-[var(--color-text-muted)]">{t.admin_users_role_label}</label>
               <Select value={createForm.role} onValueChange={v => setCreateForm({ ...createForm, role: v, is_super_admin: false })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="client">کلاینت</SelectItem>
-                  <SelectItem value="coach">کوچ</SelectItem>
-                  <SelectItem value="admin">ادمین</SelectItem>
+                  <SelectItem value="client">{t.admin_users_role_client}</SelectItem>
+                  <SelectItem value="coach">{t.admin_users_role_coach}</SelectItem>
+                  <SelectItem value="admin">{t.admin_users_role_admin}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             {createForm.role === 'admin' && isSuperAdmin && (
               <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] px-4 py-3">
-                <span className="text-sm text-[var(--color-text-secondary)]">سوپر ادمین</span>
+                <span className="text-sm text-[var(--color-text-secondary)]">{t.admin_users_role_super_admin}</span>
                 <Switch checked={createForm.is_super_admin} onCheckedChange={v => setCreateForm({ ...createForm, is_super_admin: v })} />
               </div>
             )}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[var(--color-text-muted)]">پلن اشتراک (اختیاری)</label>
+              <label className="text-xs font-medium text-[var(--color-text-muted)]">{t.admin_users_plan_sub_optional}</label>
               <Select value={String(createForm.plan_id)} onValueChange={v => setCreateForm({ ...createForm, plan_id: v === '' ? '' : Number(v) })}>
-                <SelectTrigger><SelectValue placeholder="بدون پلن" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t.admin_users_no_plan} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">بدون پلن</SelectItem>
+                  <SelectItem value="">{t.admin_users_no_plan}</SelectItem>
                   {plans.map(p => <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -291,8 +296,8 @@ export default function AdminUsersPage() {
             {createError && <p className="text-xs text-[var(--color-danger)]">{createError}</p>}
           </div>
           <DialogFooter>
-            <Button variant="secondary" onClick={() => setShowCreate(false)}>انصراف</Button>
-            <Button onClick={createUser} loading={creating}>ایجاد کاربر</Button>
+            <Button variant="secondary" onClick={() => setShowCreate(false)}>{t.cancel}</Button>
+            <Button onClick={createUser} loading={creating}>{t.admin_users_create_btn}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -300,41 +305,41 @@ export default function AdminUsersPage() {
       {/* Edit Modal */}
       <Dialog open={!!editUser} onOpenChange={open => { if (!open) setEditUser(null); }}>
         <DialogContent size="md">
-          <DialogHeader><DialogTitle>ویرایش کاربر</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t.admin_users_edit_title}</DialogTitle></DialogHeader>
           {editUser && (
-            <div className="space-y-4" dir="rtl">
-              <Input label="نام کامل" value={editUser.full_name || ''} onChange={e => setEditUser({ ...editUser, full_name: e.target.value })} />
+            <div className="space-y-4">
+              <Input label={t.admin_users_full_name} value={editUser.full_name || ''} onChange={e => setEditUser({ ...editUser, full_name: e.target.value })} />
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-[var(--color-text-muted)]">نقش</label>
+                <label className="text-xs font-medium text-[var(--color-text-muted)]">{t.admin_users_role_label}</label>
                 <Select value={editUser.role} onValueChange={v => setEditUser({ ...editUser, role: v as AdminUser['role'] })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="client">کلاینت</SelectItem>
-                    <SelectItem value="coach">کوچ</SelectItem>
-                    <SelectItem value="admin">ادمین</SelectItem>
+                    <SelectItem value="client">{t.admin_users_role_client}</SelectItem>
+                    <SelectItem value="coach">{t.admin_users_role_coach}</SelectItem>
+                    <SelectItem value="admin">{t.admin_users_role_admin}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-[var(--color-text-muted)]">پلن اشتراک</label>
+                <label className="text-xs font-medium text-[var(--color-text-muted)]">{t.admin_users_plan_sub}</label>
                 <Select value={String(editPlanId)} onValueChange={v => setEditPlanId(v === '' ? '' : Number(v))}>
-                  <SelectTrigger><SelectValue placeholder="بدون تغییر" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t.admin_users_no_change} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">بدون تغییر</SelectItem>
+                    <SelectItem value="">{t.admin_users_no_change}</SelectItem>
                     {plans.map(p => <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                {editUser.plan_name && <p className="text-xs text-[var(--color-text-muted)]">پلن فعلی: {editUser.plan_name}</p>}
+                {editUser.plan_name && <p className="text-xs text-[var(--color-text-muted)]">{t.admin_users_current_plan(editUser.plan_name)}</p>}
               </div>
               <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] px-4 py-3">
-                <span className="text-sm text-[var(--color-text-secondary)]">وضعیت حساب</span>
+                <span className="text-sm text-[var(--color-text-secondary)]">{t.admin_users_account_status}</span>
                 <Switch checked={editUser.is_active} onCheckedChange={v => setEditUser({ ...editUser, is_active: v })} />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="secondary" onClick={() => setEditUser(null)}>انصراف</Button>
-            <Button onClick={saveUser} loading={saving}>ذخیره</Button>
+            <Button variant="secondary" onClick={() => setEditUser(null)}>{t.cancel}</Button>
+            <Button onClick={saveUser} loading={saving}>{t.save}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -343,18 +348,18 @@ export default function AdminUsersPage() {
       <Dialog open={!!resetUser} onOpenChange={open => { if (!open) setResetUser(null); }}>
         <DialogContent size="sm">
           <DialogHeader>
-            <DialogTitle>تغییر رمز عبور</DialogTitle>
+            <DialogTitle>{t.admin_users_reset_pw_title}</DialogTitle>
           </DialogHeader>
           {resetUser && (
-            <div className="space-y-4" dir="rtl">
+            <div className="space-y-4">
               <p className="text-sm text-[var(--color-text-muted)]">{resetUser.email}</p>
-              <Input label="رمز عبور جدید" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="حداقل ۸ کاراکتر" />
+              <Input label={t.admin_users_new_password} type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t.password_min} />
               {resetError && <p className="text-xs text-[var(--color-danger)]">{resetError}</p>}
             </div>
           )}
           <DialogFooter>
-            <Button variant="secondary" onClick={() => setResetUser(null)}>انصراف</Button>
-            <Button variant="danger" onClick={resetPassword} loading={resetting}>تغییر رمز</Button>
+            <Button variant="secondary" onClick={() => setResetUser(null)}>{t.cancel}</Button>
+            <Button variant="danger" onClick={resetPassword} loading={resetting}>{t.admin_users_reset_pw_btn}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -363,10 +368,10 @@ export default function AdminUsersPage() {
       <Dialog open={!!permUser} onOpenChange={open => { if (!open) setPermUser(null); }}>
         <DialogContent size="md">
           <DialogHeader>
-            <DialogTitle>دسترسی‌های ادمین</DialogTitle>
+            <DialogTitle>{t.admin_users_perms_title}</DialogTitle>
           </DialogHeader>
           {permUser && (
-            <div dir="rtl">
+            <div>
               <p className="text-sm text-[var(--color-text-muted)] mb-5">{permUser.email}</p>
               {permLoading ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="skeleton h-12 rounded-xl" />)}</div>
@@ -374,8 +379,8 @@ export default function AdminUsersPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between rounded-lg border border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.08)] px-4 py-3">
                     <div>
-                      <p className="text-sm font-bold text-[var(--color-warning)]">سوپر ادمین</p>
-                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">دسترسی کامل بدون محدودیت</p>
+                      <p className="text-sm font-bold text-[var(--color-warning)]">{t.admin_users_role_super_admin}</p>
+                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{t.admin_users_super_desc}</p>
                     </div>
                     <Switch checked={permIsSuperAdmin} onCheckedChange={setPermIsSuperAdmin} />
                   </div>
@@ -393,8 +398,8 @@ export default function AdminUsersPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="secondary" onClick={() => setPermUser(null)}>انصراف</Button>
-            <Button onClick={savePerms} loading={savingPerms}>ذخیره</Button>
+            <Button variant="secondary" onClick={() => setPermUser(null)}>{t.cancel}</Button>
+            <Button onClick={savePerms} loading={savingPerms}>{t.save}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

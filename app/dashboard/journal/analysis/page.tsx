@@ -5,6 +5,7 @@ import { apiFetch, ApiError } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { JournalAnalysisView } from '../JournalAnalysisView';
+import { useLang } from '@/app/i18n/LangContext';
 import type { MT5Account, JournalAnalysisData } from '@/types';
 
 export default function JournalAnalysisPage() {
@@ -14,6 +15,7 @@ export default function JournalAnalysisPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [forbidden, setForbidden] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     apiFetch<{ accounts: MT5Account[] }>('/accounts/list')
@@ -36,7 +38,7 @@ export default function JournalAnalysisPage() {
       if (e instanceof ApiError && e.status === 403) {
         setForbidden(true);
       } else {
-        setError(e instanceof Error ? e.message : 'خطا در بارگذاری');
+        setError(e instanceof Error ? e.message : t.analysis_error_load);
       }
     } finally {
       setLoading(false);
@@ -44,15 +46,15 @@ export default function JournalAnalysisPage() {
   };
 
   return (
-    <div dir="rtl">
+    <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">آنالیز ژورنال</h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-1">بررسی رفتار و احساسات معاملاتی</p>
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{t.journal_analysis_title}</h1>
+        <p className="text-sm text-[var(--color-text-muted)] mt-1">{t.journal_analysis_desc}</p>
       </div>
 
       <div className="flex items-center gap-3 mb-6">
         <Select value={accountId} onValueChange={setAccountId}>
-          <SelectTrigger className="w-64"><SelectValue placeholder="انتخاب حساب" /></SelectTrigger>
+          <SelectTrigger className="w-64"><SelectValue placeholder={t.journal_select_account} /></SelectTrigger>
           <SelectContent>
             {accounts.map(a => (
               <SelectItem key={a.id} value={String(a.id)}>
@@ -61,13 +63,13 @@ export default function JournalAnalysisPage() {
             ))}
           </SelectContent>
         </Select>
-        <Button onClick={load} loading={loading} disabled={!accountId}>بارگذاری آنالیز</Button>
+        <Button onClick={load} loading={loading} disabled={!accountId}>{t.journal_analysis_load_btn}</Button>
       </div>
 
       {forbidden && (
         <div className="glass rounded-2xl p-8 border border-[var(--color-border)] text-center">
-          <p className="text-lg font-bold text-[var(--color-text-primary)] mb-2">این قابلیت در پلن شما موجود نیست</p>
-          <p className="text-sm text-[var(--color-text-muted)]">برای دسترسی به آنالیز ژورنال، پلن خود را ارتقا دهید.</p>
+          <p className="text-lg font-bold text-[var(--color-text-primary)] mb-2">{t.journal_analysis_no_access}</p>
+          <p className="text-sm text-[var(--color-text-muted)]">{t.journal_analysis_upgrade}</p>
         </div>
       )}
 

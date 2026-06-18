@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { Switch } from '@/components/ui/switch';
+import { useLang } from '@/app/i18n/LangContext';
 import type { JournalPermission } from '@/types';
 
 export default function JournalPermissionsPage() {
@@ -10,6 +11,7 @@ export default function JournalPermissionsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<number | null>(null);
   const [toast, setToast] = useState('');
+  const { t } = useLang();
 
   useEffect(() => {
     apiFetch<{ permissions: JournalPermission[] }>('/journal/permission/my-settings')
@@ -25,10 +27,10 @@ export default function JournalPermissionsPage() {
         body: { allow },
       });
       setPermissions(prev => prev.map(p => p.coach_id === coachId ? { ...p, allow_journal_view: allow } : p));
-      setToast('تنظیمات ذخیره شد');
+      setToast(t.journal_perms_saved);
       setTimeout(() => setToast(''), 2500);
     } catch (e) {
-      setToast(e instanceof Error ? e.message : 'خطا');
+      setToast(e instanceof Error ? e.message : t.error_generic);
       setTimeout(() => setToast(''), 2500);
     } finally {
       setSaving(null);
@@ -36,17 +38,17 @@ export default function JournalPermissionsPage() {
   };
 
   return (
-    <div dir="rtl">
+    <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">دسترسی کوچ به ژورنال</h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-1">مشخص کن کدام کوچ می‌تواند ژورنال‌هایت را ببیند</p>
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{t.journal_perms_title}</h1>
+        <p className="text-sm text-[var(--color-text-muted)] mt-1">{t.journal_perms_desc}</p>
       </div>
 
       {loading ? (
         <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="skeleton h-16 rounded-2xl" />)}</div>
       ) : permissions.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center border border-[var(--color-border)]">
-          <p className="text-[var(--color-text-muted)]">هنوز به کوچی متصل نشده‌اید.</p>
+          <p className="text-[var(--color-text-muted)]">{t.journal_perms_no_coaches}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -55,7 +57,7 @@ export default function JournalPermissionsPage() {
               <div>
                 <p className="font-semibold text-[var(--color-text-primary)]">{p.coach_name}</p>
                 <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                  {p.allow_journal_view ? 'می‌تواند ژورنال‌هایت را ببیند' : 'دسترسی ندارد'}
+                  {p.allow_journal_view ? t.journal_perms_can_view : t.journal_perms_no_access}
                 </p>
               </div>
               <Switch

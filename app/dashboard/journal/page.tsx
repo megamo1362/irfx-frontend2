@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { JournalModal } from './JournalModal';
+import { useLang } from '@/app/i18n/LangContext';
 import type { JournalEntry, MT5Account, Trade } from '@/types';
 
 export default function JournalPage() {
@@ -18,6 +19,7 @@ export default function JournalPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     apiFetch<{ accounts: MT5Account[] }>('/accounts/list')
@@ -44,7 +46,6 @@ export default function JournalPage() {
 
   useEffect(() => { fetchData(); }, [accountId]);
 
-  // map ticket → journal
   const journalMap = new Map<number, JournalEntry>();
   journals.forEach(j => { if (j.ticket != null) journalMap.set(j.ticket, j); });
 
@@ -61,17 +62,17 @@ export default function JournalPage() {
   const realTrades = trades.filter(t => [0, 1].includes(t.type) && t.volume > 0 && t.profit !== 0);
 
   return (
-    <div dir="rtl">
+    <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">ژورنال معاملاتی</h1>
-          <p className="text-sm text-[var(--color-text-muted)] mt-1">برای هر معامله ژورنال ثبت کن</p>
+          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{t.journal_title}</h1>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">{t.journal_desc}</p>
         </div>
       </div>
 
       <div className="mb-5 w-64">
         <Select value={accountId} onValueChange={setAccountId}>
-          <SelectTrigger><SelectValue placeholder="انتخاب حساب" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t.journal_select_account} /></SelectTrigger>
           <SelectContent>
             {accounts.map(a => (
               <SelectItem key={a.id} value={String(a.id)}>
@@ -86,7 +87,7 @@ export default function JournalPage() {
         <div className="space-y-3">{[...Array(6)].map((_, i) => <div key={i} className="skeleton h-16 rounded-2xl" />)}</div>
       ) : realTrades.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center border border-[var(--color-border)]">
-          <p className="text-[var(--color-text-muted)] text-sm">هنوز معامله‌ای همگام‌سازی نشده است.</p>
+          <p className="text-[var(--color-text-muted)] text-sm">{t.journal_no_trades}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -100,7 +101,7 @@ export default function JournalPage() {
                 <div className="flex-1 min-w-0 flex items-center gap-3 flex-wrap">
                   <span className="font-mono font-bold text-[var(--color-cyan)] text-sm">{trade.symbol}</span>
                   <Badge variant={trade.type === 0 ? 'green' : 'red'}>
-                    {trade.type === 0 ? 'خرید' : 'فروش'}
+                    {trade.type === 0 ? t.journal_buy : t.journal_sell}
                   </Badge>
                   <span className={`font-bold text-sm tabular-nums ${profitColor(trade.profit)}`}>
                     {trade.profit >= 0 ? '+' : ''}{trade.profit.toFixed(2)}$
@@ -111,7 +112,7 @@ export default function JournalPage() {
                   {hasJournal && (
                     <Badge variant="cyan">
                       <BookOpen className="w-3 h-3 ml-0.5" />
-                      ژورنال ثبت شده
+                      {t.journal_logged}
                     </Badge>
                   )}
                 </div>
@@ -122,9 +123,9 @@ export default function JournalPage() {
                   className="flex-shrink-0"
                 >
                   {hasJournal ? (
-                    <><Pencil className="w-3.5 h-3.5 ml-1" />ویرایش</>
+                    <><Pencil className="w-3.5 h-3.5 ml-1" />{t.journal_edit}</>
                   ) : (
-                    <><BookOpen className="w-3.5 h-3.5 ml-1" />ثبت ژورنال</>
+                    <><BookOpen className="w-3.5 h-3.5 ml-1" />{t.journal_log}</>
                   )}
                 </Button>
               </div>

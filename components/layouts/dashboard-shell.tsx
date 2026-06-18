@@ -11,6 +11,7 @@ import { CommandPalette } from '@/components/shared/command-palette';
 import { AmbientOrbs } from '@/components/effects';
 import { useUiStore } from '@/store/ui';
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
+import { useLang } from '@/app/i18n/LangContext';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -18,37 +19,32 @@ interface DashboardShellProps {
 
 function ShellInner({ children }: { children: React.ReactNode }) {
   const { user } = useCurrentUser();
+  const { isRTL } = useLang();
   const openCommandPalette = useUiStore((s) => s.openCommandPalette);
 
-  // Cmd+K / Ctrl+K → command palette
   useKeyboardShortcut(['meta', 'k'], openCommandPalette, { ignoreInputs: false });
   useKeyboardShortcut(['ctrl', 'k'], openCommandPalette, { ignoreInputs: false });
 
   return (
     <div className="min-h-screen flex bg-[var(--color-void)]">
-      {/* Ambient background effects */}
       <AmbientOrbs />
 
-      {/* Desktop sidebar — fixed right (RTL start) */}
-      <div className="hidden lg:block fixed top-0 right-0 bottom-0 w-[280px] z-20">
+      {/* Desktop sidebar — direction-aware */}
+      <div className={`hidden lg:block fixed top-0 ${isRTL ? 'right-0' : 'left-0'} bottom-0 w-[280px] z-20`}>
         <Sidebar user={user} variant="dashboard" className="h-full" />
       </div>
 
-      {/* Mobile sidebar overlay */}
       <MobileNav user={user} variant="dashboard" />
 
-      {/* Main content — offset from right sidebar on desktop */}
-      <div className="flex flex-col flex-1 min-w-0 lg:mr-[280px]">
+      {/* Main content — direction-aware offset */}
+      <div className={`flex flex-col flex-1 min-w-0 ${isRTL ? 'lg:mr-[280px]' : 'lg:ml-[280px]'}`}>
         <Topbar user={user} />
         <main className="flex-1 p-4 md:p-6 pb-24 lg:pb-6 overflow-auto">
           <PageTransition>{children}</PageTransition>
         </main>
       </div>
 
-      {/* Bottom nav — mobile only */}
       <BottomNav user={user} variant="dashboard" />
-
-      {/* Global UI layers */}
       <CommandPalette />
       <Toaster />
     </div>

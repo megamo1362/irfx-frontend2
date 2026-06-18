@@ -16,9 +16,8 @@ import {
 import { useAccounts } from '@/hooks/use-accounts';
 import { getInitials } from '@/lib/utils';
 import { ApiError } from '@/lib/api';
+import { useLang } from '@/app/i18n/LangContext';
 import type { DisplayMode } from '@/types';
-
-// ── Edit panel (for existing connection) ───────────────────
 
 function EditPanel({
   coach,
@@ -32,6 +31,7 @@ function EditPanel({
   const [label, setLabel] = useState(coach.display_label ?? '');
   const [selectedIds, setSelectedIds] = useState<number[]>(coach.shared_account_ids);
   const { mutate: connect, isPending: saving, error } = useConnectCoach();
+  const { t } = useLang();
 
   const apiError = error instanceof ApiError ? error.message : null;
   const needsLabel = mode === 'name' || mode === 'both';
@@ -66,7 +66,7 @@ function EditPanel({
         />
 
         <div>
-          <p className="text-xs text-[var(--color-text-muted)] mb-2">حساب‌های مشترک</p>
+          <p className="text-xs text-[var(--color-text-muted)] mb-2">{t.connect_shared_accounts}</p>
           <div className="space-y-2">
             {accounts.map((acc) => (
               <label
@@ -95,21 +95,20 @@ function EditPanel({
 
         <div className="flex gap-2">
           <Button variant="primary" size="sm" className="flex-1" onClick={handleSave} loading={saving} disabled={!canSave || saving}>
-            ذخیره تغییرات
+            {t.connect_save}
           </Button>
-          <Button variant="ghost" size="sm" className="flex-1" onClick={onClose}>انصراف</Button>
+          <Button variant="ghost" size="sm" className="flex-1" onClick={onClose}>{t.cancel}</Button>
         </div>
       </div>
     </motion.div>
   );
 }
 
-// ── My coaches list ────────────────────────────────────────
-
 function MyCoachesList() {
   const { data: coaches = [], isLoading } = useMyCoaches();
   const { mutate: disconnect, isPending: disconnecting, variables: disconnectingId } = useDisconnectCoach();
   const [editingId, setEditingId] = useState<number | null>(null);
+  const { t } = useLang();
 
   if (isLoading) return <InlineLoader />;
 
@@ -117,7 +116,7 @@ function MyCoachesList() {
     return (
       <div className="card-surface rounded-2xl p-8 text-center">
         <Link2 className="h-8 w-8 text-[var(--color-text-muted)] mx-auto mb-2" />
-        <p className="text-sm text-[var(--color-text-muted)]">هنوز به هیچ کوچی متصل نشدید</p>
+        <p className="text-sm text-[var(--color-text-muted)]">{t.connect_no_coaches}</p>
       </div>
     );
   }
@@ -136,7 +135,7 @@ function MyCoachesList() {
                 <p className="text-xs text-[var(--color-text-muted)]">{c.coach_email}</p>
                 {c.connected_since && (
                   <p className="text-xs text-[var(--color-text-muted)]/60 mt-0.5">
-                    از {new Date(c.connected_since).toLocaleDateString('fa-IR')}
+                    {t.connect_since(new Date(c.connected_since).toLocaleDateString('fa-IR'))}
                   </p>
                 )}
               </div>
@@ -148,7 +147,7 @@ function MyCoachesList() {
                 size="sm"
                 onClick={() => setEditingId(editingId === c.coach_id ? null : c.coach_id)}
               >
-                {editingId === c.coach_id ? 'بستن' : 'ویرایش'}
+                {editingId === c.coach_id ? t.connect_close : t.connect_edit}
               </Button>
               <Button
                 variant="ghost"
@@ -157,7 +156,7 @@ function MyCoachesList() {
                 loading={disconnecting && disconnectingId === c.coach_id}
                 className="text-[var(--color-status-error)] hover:bg-[rgba(239,68,68,0.08)]"
               >
-                قطع
+                {t.connect_disconnect}
               </Button>
             </div>
           </div>
@@ -173,16 +172,13 @@ function MyCoachesList() {
   );
 }
 
-// ── Main export ────────────────────────────────────────────
-
 export function ConnectCoachPage() {
+  const { t } = useLang();
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-black text-[var(--color-text-primary)]">کوچ‌های من</h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-1">
-          کوچ‌های متصل به حسابتان
-        </p>
+        <h1 className="text-2xl font-black text-[var(--color-text-primary)]">{t.connect_title}</h1>
+        <p className="text-sm text-[var(--color-text-muted)] mt-1">{t.connect_desc}</p>
       </div>
       <MyCoachesList />
     </div>

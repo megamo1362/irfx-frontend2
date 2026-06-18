@@ -5,8 +5,11 @@ import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { LoginForm } from '@/components/auth/login-form';
 import { RegisterForm } from '@/components/auth/register-form';
+import { useLang } from '@/app/i18n/LangContext';
 
 export default function LoginPage() {
+  const { t } = useLang();
+
   return (
     <motion.div
       className="w-full max-w-md"
@@ -32,8 +35,8 @@ export default function LoginPage() {
       <div className="glass-elevated rounded-2xl p-6 border border-[var(--color-border)]">
         <Tabs defaultValue="login">
           <TabsList variant="pills" className="w-full mb-6">
-            <TabsTrigger value="login" className="flex-1">ورود</TabsTrigger>
-            <TabsTrigger value="register" className="flex-1">ثبت‌نام</TabsTrigger>
+            <TabsTrigger value="login" className="flex-1">{t.auth_login_tab}</TabsTrigger>
+            <TabsTrigger value="register" className="flex-1">{t.auth_register_tab}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="login">

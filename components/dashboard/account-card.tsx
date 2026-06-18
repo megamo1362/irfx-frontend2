@@ -18,6 +18,7 @@ import {
 import { useDeleteAccount, useSyncAccount } from '@/hooks/use-accounts';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { ROUTES } from '@/lib/constants';
+import { useLang } from '@/app/i18n/LangContext';
 import type { MT5Account } from '@/types';
 
 interface AccountCardProps {
@@ -29,6 +30,7 @@ export function AccountCard({ account, index = 0 }: AccountCardProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { mutate: sync, isPending: syncing } = useSyncAccount();
   const { mutate: deleteAccount, isPending: deleting } = useDeleteAccount();
+  const { t } = useLang();
 
   const handleSync = () => sync(account.id);
   const handleDelete = () => {
@@ -46,7 +48,6 @@ export function AccountCard({ account, index = 0 }: AccountCardProps) {
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            {/* MT5 icon */}
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-cyan-dim)] to-[var(--color-blue-dim)] border border-[var(--color-cyan)]/20 flex items-center justify-center flex-shrink-0">
               <span className="text-xs font-black text-[var(--color-cyan)]">MT5</span>
             </div>
@@ -65,7 +66,7 @@ export function AccountCard({ account, index = 0 }: AccountCardProps) {
           </div>
 
           <Badge variant={account.is_active ? 'cyan' : 'gray'} dot>
-            {account.is_active ? 'فعال' : 'غیرفعال'}
+            {account.is_active ? t.account_active : t.account_inactive}
           </Badge>
         </div>
 
@@ -77,11 +78,9 @@ export function AccountCard({ account, index = 0 }: AccountCardProps) {
 
         {/* Balance */}
         <div className="rounded-xl bg-[var(--color-void)]/60 border border-[var(--color-border)] px-4 py-3 mb-4">
-          <p className="text-xs text-[var(--color-text-muted)] mb-1">موجودی</p>
+          <p className="text-xs text-[var(--color-text-muted)] mb-1">{t.account_balance}</p>
           <p className="text-xl font-black tabular-nums text-[var(--color-cyan)]">
-            {account.balance !== null
-              ? formatCurrency(account.balance)
-              : '—'}
+            {account.balance !== null ? formatCurrency(account.balance) : '—'}
           </p>
         </div>
 
@@ -89,21 +88,16 @@ export function AccountCard({ account, index = 0 }: AccountCardProps) {
         {account.last_sync_at && (
           <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)] mb-4">
             <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-            <span>آخرین همگام‌سازی: {formatDate(account.last_sync_at)}</span>
+            <span>{t.account_last_sync} {formatDate(account.last_sync_at)}</span>
           </div>
         )}
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-3 border-t border-[var(--color-border)]">
-          <Button
-            variant="primary"
-            size="sm"
-            className="flex-1"
-            asChild
-          >
+          <Button variant="primary" size="sm" className="flex-1" asChild>
             <Link href={ROUTES.analyze(account.id)}>
               <TrendingUp className="h-3.5 w-3.5 ml-1.5" />
-              آنالیز
+              {t.account_analyze}
             </Link>
           </Button>
 
@@ -113,7 +107,7 @@ export function AccountCard({ account, index = 0 }: AccountCardProps) {
             onClick={handleSync}
             loading={syncing}
             disabled={syncing}
-            title="همگام‌سازی"
+            title={t.account_sync}
           >
             <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
           </Button>
@@ -123,7 +117,7 @@ export function AccountCard({ account, index = 0 }: AccountCardProps) {
             size="sm"
             onClick={() => setDeleteOpen(true)}
             className="text-[var(--color-text-muted)] hover:text-[var(--color-status-error)] hover:bg-[rgba(239,68,68,0.08)]"
-            title="حذف حساب"
+            title={t.account_delete}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -134,15 +128,14 @@ export function AccountCard({ account, index = 0 }: AccountCardProps) {
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>حذف حساب MT5</DialogTitle>
+            <DialogTitle>{t.account_delete_title}</DialogTitle>
             <DialogDescription>
-              آیا از حذف حساب <span className="font-mono text-[var(--color-text-primary)]">{account.login}</span> مطمئن هستید؟
-              این عمل قابل بازگشت نیست.
+              {t.account_delete_desc(account.login)}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="ghost" size="sm">انصراف</Button>
+              <Button variant="ghost" size="sm">{t.cancel}</Button>
             </DialogClose>
             <Button
               variant="danger"
@@ -151,7 +144,7 @@ export function AccountCard({ account, index = 0 }: AccountCardProps) {
               loading={deleting}
               disabled={deleting}
             >
-              بله، حذف شود
+              {t.account_delete_confirm}
             </Button>
           </DialogFooter>
         </DialogContent>

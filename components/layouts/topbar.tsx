@@ -4,13 +4,8 @@ import { Menu, Bell } from 'lucide-react';
 import { useUiStore } from '@/store/ui';
 import { getInitials } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useLang } from '@/app/i18n/LangContext';
 import type { User } from '@/types';
-
-const roleLabels: Record<string, string> = {
-  admin: 'ادمین',
-  coach: 'کوچ',
-  client: 'کاربر',
-};
 
 interface TopbarProps {
   user: User;
@@ -19,8 +14,15 @@ interface TopbarProps {
 
 export function Topbar({ user, className }: TopbarProps) {
   const { openMobileSidebar } = useUiStore();
+  const { t } = useLang();
   const displayName = user.full_name || user.email;
   const initials = getInitials(displayName);
+
+  const roleLabels: Record<string, string> = {
+    admin: t.role_admin,
+    coach: t.role_coach,
+    client: t.role_client,
+  };
 
   return (
     <header
@@ -32,7 +34,7 @@ export function Topbar({ user, className }: TopbarProps) {
         className,
       )}
     >
-      {/* Right side: hamburger (mobile) */}
+      {/* Hamburger (mobile) */}
       <div className="flex items-center gap-3">
         <button
           onClick={openMobileSidebar}
@@ -40,20 +42,16 @@ export function Topbar({ user, className }: TopbarProps) {
         >
           <Menu className="h-5 w-5" />
         </button>
-
-        {/* Logo on mobile (hidden on desktop where sidebar shows it) */}
         <img src="/logo.png" alt="Zenvora" className="lg:hidden h-8 w-auto object-contain" />
       </div>
 
-      {/* Left side: notifications + user avatar */}
+      {/* Right side: notifications + user avatar */}
       <div className="flex items-center gap-3">
-        {/* Notification bell (placeholder) */}
         <button className="relative w-9 h-9 flex items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-elevated)] transition-colors">
           <Bell className="h-4 w-4" />
           <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-[var(--color-cyan)] ring-2 ring-[var(--color-deep)]" />
         </button>
 
-        {/* User chip */}
         <div className="flex items-center gap-2.5 pl-3 border-r border-[var(--color-border)]">
           <div className="hidden sm:block text-left">
             <p className="text-sm font-medium text-[var(--color-text-primary)] leading-none">{displayName}</p>
