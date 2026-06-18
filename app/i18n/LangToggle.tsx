@@ -17,9 +17,11 @@ export function LangToggle() {
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      {/* Dropdown menu */}
-      {open && (
-        <div className={`absolute bottom-10 ${menuAlignClass} mb-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-elevated)] shadow-xl overflow-hidden min-w-[120px]`}>
+      {/* Dropdown — pb-2 bridges the gap between menu and button */}
+      <div
+        className={`absolute bottom-full ${menuAlignClass} pb-2 ${open ? 'block' : 'hidden'}`}
+      >
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-elevated)] shadow-xl overflow-hidden min-w-[120px]">
           <button
             onClick={() => { setLang('fa'); setOpen(false); }}
             className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--color-cyan-dim)] ${
@@ -39,7 +41,7 @@ export function LangToggle() {
             English
           </button>
         </div>
-      )}
+      </div>
 
       {/* Globe button */}
       <button
