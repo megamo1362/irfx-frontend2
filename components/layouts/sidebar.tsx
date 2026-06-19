@@ -5,6 +5,7 @@ import type { LucideIcon } from 'lucide-react';
 import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield } from 'lucide-react';
 import { NavItem } from './nav-item';
 import { UserMenu } from './user-menu';
+import { LangToggle } from '@/app/i18n/LangToggle';
 import { cn } from '@/lib/utils';
 import { useLang } from '@/app/i18n/LangContext';
 import type { User } from '@/types';
@@ -76,8 +77,11 @@ export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: 
         ))}
       </nav>
 
-      {/* User section */}
-      <div className="flex-shrink-0 px-3 pb-4">
+      {/* Language toggle + User section */}
+      <div className="flex-shrink-0 px-3 pb-4 space-y-2">
+        <div className="flex justify-center">
+          <LangToggle />
+        </div>
         <UserMenu user={user} />
       </div>
     </aside>

@@ -2,6 +2,7 @@
 
 import { AlertTriangle, AlertCircle, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLang } from '@/app/i18n/LangContext';
 import type { AnalysisWarning } from '@/types';
 
 const LEVEL = {
@@ -26,6 +27,7 @@ const LEVEL = {
 } as const;
 
 export function WarningCards({ warnings }: { warnings: AnalysisWarning[] }) {
+  const { t } = useLang();
   if (!warnings?.length) return null;
 
   return (
@@ -33,6 +35,12 @@ export function WarningCards({ warnings }: { warnings: AnalysisWarning[] }) {
       {warnings.map((w, i) => {
         const cfg = LEVEL[w.level as keyof typeof LEVEL] ?? LEVEL.info;
         const { Icon } = cfg;
+
+        // Extract first number from English message for use in FA template
+        const num = w.message.match(/[\d.]+/)?.[0] ?? '';
+        const warnFn = t.warnings[w.type as keyof typeof t.warnings];
+        const text = warnFn ? warnFn(num) : w.message;
+
         return (
           <motion.div
             key={i}
@@ -42,7 +50,7 @@ export function WarningCards({ warnings }: { warnings: AnalysisWarning[] }) {
             className={`flex items-start gap-3 rounded-xl px-4 py-3 border ${cfg.wrap}`}
           >
             <Icon className={`h-4 w-4 mt-0.5 flex-shrink-0 ${cfg.icon}`} />
-            <p className={`text-sm ${cfg.text}`}>{w.message}</p>
+            <p className={`text-sm ${cfg.text}`}>{text}</p>
           </motion.div>
         );
       })}
