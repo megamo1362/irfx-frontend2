@@ -173,6 +173,19 @@ export const translations = {
     lang_fa_label: 'Persian',
     lang_fa_short: 'FA',
 
+    // ── Settings page ──────────────────────────────────────
+    nav_settings: 'Settings',
+    settings_title: 'Settings',
+    settings_desc: 'Customize your experience',
+    settings_appearance_section: 'Appearance',
+    settings_language_section: 'Language',
+    settings_theme_label: 'Theme',
+    settings_theme_dark: 'Dark',
+    settings_theme_light: 'Light',
+    settings_lang_en: 'English',
+    settings_lang_fa: 'Persian (فارسی)',
+    settings_saved: 'Settings saved',
+
     // ── Emotions ───────────────────────────────────────────
     emotion_fear: 'Fear',
     emotion_greed: 'Greed',
@@ -668,6 +681,19 @@ export const translations = {
     // ── Language ───────────────────────────────────────────
     lang_fa_label: 'فارسی',
     lang_fa_short: 'FA',
+
+    // ── Settings page ──────────────────────────────────────
+    nav_settings: 'تنظیمات',
+    settings_title: 'تنظیمات',
+    settings_desc: 'تجربه خود را شخصی‌سازی کنید',
+    settings_appearance_section: 'ظاهر',
+    settings_language_section: 'زبان',
+    settings_theme_label: 'تم',
+    settings_theme_dark: 'تاریک',
+    settings_theme_light: 'روشن',
+    settings_lang_en: 'انگلیسی (English)',
+    settings_lang_fa: 'فارسی',
+    settings_saved: 'تنظیمات ذخیره شد',
 
     // ── Emotions ───────────────────────────────────────────
     emotion_fear: 'ترس',

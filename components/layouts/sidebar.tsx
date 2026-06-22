@@ -2,10 +2,9 @@
 
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
-import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield } from 'lucide-react';
+import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield, Settings } from 'lucide-react';
 import { NavItem } from './nav-item';
 import { UserMenu } from './user-menu';
-import { LangToggle } from '@/app/i18n/LangToggle';
 import { cn } from '@/lib/utils';
 import { useLang } from '@/app/i18n/LangContext';
 import type { User } from '@/types';
@@ -24,6 +23,7 @@ const DASHBOARD_NAV: NavEntry[] = [
   { href: '/dashboard/journal/analysis', labelKey: 'nav_journal_analysis', icon: TrendingUp, roles: ['client'] },
   { href: '/dashboard/settings/journal-permissions', labelKey: 'nav_coach_access', icon: Shield, roles: ['client'] },
   { href: '/dashboard/coach/clients', labelKey: 'nav_my_clients', icon: Users, roles: ['coach'] },
+  { href: '/dashboard/settings', labelKey: 'nav_settings', icon: Settings, exact: true },
 ];
 
 const ADMIN_NAV: NavEntry[] = [
@@ -77,11 +77,8 @@ export function Sidebar({ user, variant = 'dashboard', onNavClick, className }: 
         ))}
       </nav>
 
-      {/* Language toggle + User section */}
-      <div className="flex-shrink-0 px-3 pb-4 space-y-2">
-        <div className="flex justify-center">
-          <LangToggle />
-        </div>
+      {/* User section */}
+      <div className="flex-shrink-0 px-3 pb-4">
         <UserMenu user={user} />
       </div>
     </aside>

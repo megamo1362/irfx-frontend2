@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { Providers } from '@/app/providers';
 import { LangProvider } from '@/app/i18n/LangContext';
+import { ThemeProvider } from '@/app/i18n/ThemeContext';
 import { ClientWrapper } from '@/app/i18n/ClientWrapper';
 import '@/app/globals.css';
 
@@ -47,11 +48,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="circuit-bg antialiased">
-        <LangProvider>
-          <ClientWrapper>
-            <Providers>{children}</Providers>
-          </ClientWrapper>
-        </LangProvider>
+        <ThemeProvider>
+          <LangProvider>
+            <ClientWrapper>
+              <Providers>{children}</Providers>
+            </ClientWrapper>
+          </LangProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
