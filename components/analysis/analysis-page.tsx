@@ -9,6 +9,11 @@ import { Button } from '@/components/ui/button';
 import { InlineLoader } from '@/components/shared';
 import { WarningCards } from './warning-cards';
 import { PsychologyScore } from './psychology-score';
+import { SessionAnalysis } from './session-analysis';
+import { ParetoAnalysis } from './pareto-analysis';
+import { EntryExitQuality } from './entry-exit-quality';
+import { CostAnalysis } from './cost-analysis';
+import { TradingStyle } from './trading-style';
 import { SummaryStats } from './summary-stats';
 import { ChartTabs } from './chart-tabs';
 import { TradesTable } from './trades-table';
@@ -201,6 +206,31 @@ export function AnalysisPage({ id }: { id: string }) {
           {/* Psychology Score */}
           {data.analysis.psychology_score && (
             <PsychologyScore data={data.analysis.psychology_score} />
+          )}
+
+          {/* Session Analysis */}
+          {data.analysis.session_analysis && (
+            <SessionAnalysis data={data.analysis.session_analysis} />
+          )}
+
+          {/* Pareto Analysis */}
+          {data.analysis.pareto_analysis && (
+            <ParetoAnalysis data={data.analysis.pareto_analysis} />
+          )}
+
+          {/* Entry & Exit Quality */}
+          {data.analysis.entry_exit_quality && (
+            <EntryExitQuality data={data.analysis.entry_exit_quality} />
+          )}
+
+          {/* Cost Analysis */}
+          {data.analysis.cost_analysis && (
+            <CostAnalysis data={data.analysis.cost_analysis} />
+          )}
+
+          {/* Trading Style */}
+          {data.analysis.trading_style && (
+            <TradingStyle data={data.analysis.trading_style} />
           )}
 
           {/* No analysis data */}

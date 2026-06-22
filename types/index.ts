@@ -155,6 +155,61 @@ export interface Analysis {
     }>;
     weights?: Record<string, number>;
   };
+  session_analysis?: {
+    sessions: Array<{
+      session: string;
+      label: { en: string; fa: string };
+      trades: number;
+      wins: number;
+      losses: number;
+      winrate: number;
+      profit: number;
+      avg_profit: number;
+    }>;
+    best_session: { session: string; label: { en: string; fa: string }; profit: number; winrate: number } | null;
+    worst_session: { session: string; label: { en: string; fa: string }; profit: number; winrate: number } | null;
+  };
+  pareto_analysis?: {
+    profit_pareto: {
+      top_trades_count: number;
+      top_trades_pct_of_total: number;
+      top_trades_profit: number;
+      total_profit: number;
+    };
+    loss_pareto: {
+      top_trades_count: number;
+      top_trades_pct_of_total: number;
+      top_trades_loss: number;
+      total_loss: number;
+    };
+    symbol_profit_share: Array<{ symbol: string; profit: number; share_pct: number }>;
+    symbol_loss_share: Array<{ symbol: string; loss: number; share_pct: number }>;
+  };
+  entry_exit_quality?: {
+    avg_entry_quality: number | null;
+    avg_exit_quality: number | null;
+    early_exit_count: number;
+    late_exit_loss_count: number;
+    sample_size: number;
+    insight: { en: string; fa: string };
+  } | null;
+  cost_analysis?: {
+    total_commission: number;
+    total_swap: number;
+    total_costs: number;
+    gross_profit: number;
+    cost_impact_pct: number;
+    symbol_costs: Array<{ symbol: string; total_cost: number }>;
+    most_expensive_symbol: { symbol: string; total_cost: number } | null;
+  };
+  trading_style?: {
+    style: string;
+    style_label: { en: string; fa: string };
+    avg_hold_minutes: number;
+    post_loss_streak_behavior: { sample_count: number; winrate: number; avg_profit: number } | null;
+    post_win_streak_behavior: { sample_count: number; winrate: number; avg_profit: number } | null;
+    insight: { en: string; fa: string };
+  };
 }
 
 export interface SnapshotResponse {
