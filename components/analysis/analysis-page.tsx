@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { InlineLoader } from '@/components/shared';
 import { WarningCards } from './warning-cards';
+import { PsychologyScore } from './psychology-score';
 import { SummaryStats } from './summary-stats';
 import { ChartTabs } from './chart-tabs';
 import { TradesTable } from './trades-table';
@@ -195,6 +196,11 @@ export function AnalysisPage({ id }: { id: string }) {
           {/* Warnings */}
           {data.analysis.warnings?.length > 0 && (
             <WarningCards warnings={data.analysis.warnings} />
+          )}
+
+          {/* Psychology Score */}
+          {data.analysis.psychology_score && (
+            <PsychologyScore data={data.analysis.psychology_score} />
           )}
 
           {/* No analysis data */}

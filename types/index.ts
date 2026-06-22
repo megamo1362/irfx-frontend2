@@ -144,6 +144,17 @@ export interface Analysis {
   open_positions_count: number;
   floating_pnl: number;
   warnings: AnalysisWarning[];
+  psychology_score?: {
+    overall: number;
+    grade: { en: string; fa: string };
+    scores: Record<string, number>;
+    insights: Array<{
+      type: string;
+      severity: 'high' | 'medium' | 'low';
+      message: { en: string; fa: string };
+    }>;
+    weights?: Record<string, number>;
+  };
 }
 
 export interface SnapshotResponse {
