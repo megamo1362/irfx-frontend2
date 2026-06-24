@@ -49,6 +49,10 @@ export function AnalysisPage({ id }: { id: string }) {
   const [data, setData] = useState<PageData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('summary');
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
+  const [printTabs, setPrintTabs] = useState<Set<TabKey>>(
+    new Set(['summary', 'trades', 'time', 'symbols', 'equity'] as TabKey[])
+  );
 
   const hasTriggered = useRef(false);
 
@@ -103,6 +107,19 @@ export function AnalysisPage({ id }: { id: string }) {
     });
   };
 
+  const togglePrintTab = (key: TabKey) => {
+    setPrintTabs(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  };
+
+  const handlePrintConfirm = () => {
+    setShowPrintDialog(false);
+    setTimeout(() => window.print(), 150);
+  };
+
   const canRunRealtime = !isCoachMode && (features?.realtime_analysis ?? false);
   const realTrades = (data?.trades ?? []).filter(t => [0, 1].includes(t.type) && t.volume > 0 && t.profit !== 0);
 
@@ -115,6 +132,47 @@ export function AnalysisPage({ id }: { id: string }) {
   ];
 
   return (
+    <>
+    {/* PDF Section Dialog */}
+    {showPrintDialog && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm print:hidden">
+        <div className="card-surface rounded-2xl p-6 w-full max-w-sm mx-4 space-y-4 border border-[var(--color-border)]">
+          <h2 className="text-base font-bold text-[var(--color-text-primary)]">
+            {lang === 'fa' ? 'انتخاب بخش‌های PDF' : 'Select PDF Sections'}
+          </h2>
+          <div className="space-y-3">
+            {tabs.map(tab => (
+              <label key={tab.key} className="flex items-center gap-3 cursor-pointer group select-none">
+                <input
+                  type="checkbox"
+                  checked={printTabs.has(tab.key)}
+                  onChange={() => togglePrintTab(tab.key)}
+                  className="w-4 h-4 accent-[var(--color-cyan)] cursor-pointer rounded"
+                />
+                <span className="text-sm text-[var(--color-text-secondary)] group-hover:text-[var(--color-text-primary)] transition-colors">
+                  {tab.label}
+                </span>
+              </label>
+            ))}
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Button variant="ghost" size="sm" className="flex-1" onClick={() => setShowPrintDialog(false)}>
+              {lang === 'fa' ? 'انصراف' : 'Cancel'}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              className="flex-1"
+              onClick={handlePrintConfirm}
+              disabled={printTabs.size === 0}
+            >
+              <Printer className="h-3.5 w-3.5 ml-1.5" />
+              {lang === 'fa' ? 'دریافت PDF' : 'Print PDF'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    )}
     <div className="space-y-5 max-w-4xl">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -157,7 +215,7 @@ export function AnalysisPage({ id }: { id: string }) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => window.print()}
+              onClick={() => setShowPrintDialog(true)}
             >
               <Printer className="h-3.5 w-3.5 ml-1.5" />
               {lang === 'fa' ? 'خروجی PDF' : 'Export PDF'}
@@ -308,10 +366,22 @@ export function AnalysisPage({ id }: { id: string }) {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Print-only: always render summary */}
-              <div className="hidden print:block">
-                {data.analysis.summary && (
+              {/* Print-only: render selected tabs */}
+              <div className="hidden print:block space-y-6">
+                {printTabs.has('summary') && data.analysis.summary && (
                   <SummaryStats summary={data.analysis.summary} analysis={data.analysis} />
+                )}
+                {printTabs.has('trades') && (
+                  <TradesTable trades={data.trades} accountId={id} showJournal={!isCoachMode} />
+                )}
+                {printTabs.has('time') && (
+                  <TimeAnalysis data={data.analysis.time_analysis ?? []} />
+                )}
+                {printTabs.has('symbols') && (
+                  <SymbolAnalysis data={data.analysis.symbol_analysis ?? []} />
+                )}
+                {printTabs.has('equity') && (
+                  <ChartTabs accountId={id} />
                 )}
               </div>
             </>
@@ -319,5 +389,6 @@ export function AnalysisPage({ id }: { id: string }) {
         </>
       )}
     </div>
+    </>
   );
 }
