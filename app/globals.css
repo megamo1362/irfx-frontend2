@@ -849,3 +849,56 @@ html.light ::-webkit-scrollbar-track { background: var(--color-deep); }
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.3; }
 }
+
+/* ─── Print / PDF Export ──────────────────────────────────── */
+@media print {
+  @page { margin: 12mm 15mm; size: A4; }
+
+  body {
+    background: #fff !important;
+    color: #0f172a !important;
+    font-size: 11px;
+  }
+
+  .print\:hidden { display: none !important; }
+
+  /* Hide all nav chrome */
+  #ml-sidebar, #ml-topbar, #ml-mobilenav, #ml-bottomnav,
+  #ml-commandpalette, #ml-toaster, #ml-ambientorbs { display: none !important; }
+
+  /* Remove sidebar offset */
+  #ml-maincontent { margin-left: 0 !important; margin-right: 0 !important; }
+  #ml-maininner { padding: 0 !important; }
+
+  /* Card surfaces */
+  .card-surface {
+    background: #fff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  /* Force text colors readable on white */
+  .text-emerald-400 { color: #059669 !important; }
+  .text-red-400     { color: #dc2626 !important; }
+  .text-amber-400   { color: #d97706 !important; }
+  .text-blue-400    { color: #2563eb !important; }
+  .text-purple-400  { color: #7c3aed !important; }
+  .text-teal-400    { color: #0d9488 !important; }
+  .text-orange-400  { color: #ea580c !important; }
+
+  [class*="text-\[var(--color-text-primary\)"]  { color: #0f172a !important; }
+  [class*="text-\[var(--color-text-secondary\)"]{ color: #334155 !important; }
+  [class*="text-\[var(--color-text-muted\)"]    { color: #64748b !important; }
+  [class*="text-\[var(--color-cyan\)"]          { color: #0284c7 !important; }
+
+  /* Backgrounds */
+  [class*="bg-\[rgba(255,255,255,0"] { background: #f8fafc !important; }
+  [class*="border-\[var(--color-border\)"]      { border-color: #e2e8f0 !important; }
+
+  /* Motion bars — keep visible */
+  .rounded-full { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+  /* Page breaks */
+  .card-surface { page-break-inside: avoid; }
+}

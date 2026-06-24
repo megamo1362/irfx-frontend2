@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart2, Clock, Zap, ArrowRight } from 'lucide-react';
+import { BarChart2, Clock, Zap, ArrowRight, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { InlineLoader } from '@/components/shared';
@@ -40,7 +40,7 @@ type TabKey = 'summary' | 'trades' | 'time' | 'symbols' | 'equity';
 export function AnalysisPage({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const isCoachMode = searchParams?.get('coach') === 'true';
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   const { mutate: checkAndRun, isPending: initialLoading } = useCheckAndRun();
   const { mutate: runRealtime, isPending: realtimeLoading } = useRealtimeAnalysis();
@@ -120,7 +120,7 @@ export function AnalysisPage({ id }: { id: string }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Link href={ROUTES.dashboard} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors">
+            <Link href={ROUTES.dashboard} className="print:hidden text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors">
               <ArrowRight className="h-4 w-4" />
             </Link>
             <h1 className="text-xl font-black text-[var(--color-text-primary)]">{t.analysis_account_title}</h1>
@@ -140,18 +140,30 @@ export function AnalysisPage({ id }: { id: string }) {
           )}
         </div>
 
-        {canRunRealtime && (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleRealtime}
-            loading={realtimeLoading}
-            disabled={realtimeLoading}
-          >
-            <Zap className="h-3.5 w-3.5 ml-1.5" />
-            {t.analysis_realtime_btn}
-          </Button>
-        )}
+        <div className="flex items-center gap-2 print:hidden">
+          {canRunRealtime && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleRealtime}
+              loading={realtimeLoading}
+              disabled={realtimeLoading}
+            >
+              <Zap className="h-3.5 w-3.5 ml-1.5" />
+              {t.analysis_realtime_btn}
+            </Button>
+          )}
+          {data && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.print()}
+            >
+              <Printer className="h-3.5 w-3.5 ml-1.5" />
+              {lang === 'fa' ? 'خروجی PDF' : 'Export PDF'}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Account balance row */}
@@ -243,7 +255,7 @@ export function AnalysisPage({ id }: { id: string }) {
           {data.analysis.has_data && (
             <>
               {/* Tabs */}
-              <div className="flex overflow-x-auto gap-0.5 p-1 rounded-xl bg-[rgba(0,0,0,0.3)] border border-[var(--color-border)] w-fit max-w-full no-scrollbar">
+              <div className="print:hidden flex overflow-x-auto gap-0.5 p-1 rounded-xl bg-[rgba(0,0,0,0.3)] border border-[var(--color-border)] w-fit max-w-full no-scrollbar">
                 {tabs.map(tab => (
                   <button
                     key={tab.key}
@@ -268,6 +280,7 @@ export function AnalysisPage({ id }: { id: string }) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
+                  className="print:hidden"
                 >
                   {activeTab === 'summary' && data.analysis.summary && (
                     <SummaryStats summary={data.analysis.summary} analysis={data.analysis} />
@@ -294,6 +307,13 @@ export function AnalysisPage({ id }: { id: string }) {
                   )}
                 </motion.div>
               </AnimatePresence>
+
+              {/* Print-only: always render summary */}
+              <div className="hidden print:block">
+                {data.analysis.summary && (
+                  <SummaryStats summary={data.analysis.summary} analysis={data.analysis} />
+                )}
+              </div>
             </>
           )}
         </>

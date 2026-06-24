@@ -27,26 +27,26 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex bg-[var(--color-void)]">
-      <AmbientOrbs />
+      <div id="ml-ambientorbs"><AmbientOrbs /></div>
 
       {/* Desktop sidebar — direction-aware */}
-      <div className={`hidden lg:block fixed top-0 ${isRTL ? 'right-0' : 'left-0'} bottom-0 w-[280px] z-20`}>
+      <div id="ml-sidebar" className={`hidden lg:block fixed top-0 ${isRTL ? 'right-0' : 'left-0'} bottom-0 w-[280px] z-20`}>
         <Sidebar user={user} variant="dashboard" className="h-full" />
       </div>
 
-      <MobileNav user={user} variant="dashboard" />
+      <div id="ml-mobilenav"><MobileNav user={user} variant="dashboard" /></div>
 
       {/* Main content — direction-aware offset */}
-      <div className={`flex flex-col flex-1 min-w-0 ${isRTL ? 'lg:mr-[280px]' : 'lg:ml-[280px]'}`}>
-        <Topbar user={user} />
-        <main className="flex-1 p-4 md:p-6 pb-24 lg:pb-6 overflow-auto">
+      <div id="ml-maincontent" className={`flex flex-col flex-1 min-w-0 ${isRTL ? 'lg:mr-[280px]' : 'lg:ml-[280px]'}`}>
+        <div id="ml-topbar"><Topbar user={user} /></div>
+        <main id="ml-maininner" className="flex-1 p-4 md:p-6 pb-24 lg:pb-6 overflow-auto">
           <PageTransition>{children}</PageTransition>
         </main>
       </div>
 
-      <BottomNav user={user} variant="dashboard" />
-      <CommandPalette />
-      <Toaster />
+      <div id="ml-bottomnav"><BottomNav user={user} variant="dashboard" /></div>
+      <div id="ml-commandpalette"><CommandPalette /></div>
+      <div id="ml-toaster"><Toaster /></div>
     </div>
   );
 }
