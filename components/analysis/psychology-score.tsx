@@ -14,15 +14,9 @@ interface PsychologyInsight {
 interface PsychologyScoreData {
   overall: number;
   grade: { en: string; fa: string };
-  scores: {
-    revenge_control: number;
-    emotional_stability: number;
-    fear_control: number;
-    risk_management: number;
-    discipline: number;
-    consistency: number;
-  };
+  scores: Record<string, number>;
   insights: PsychologyInsight[];
+  weights?: Record<string, number>;
 }
 
 interface PsychologyScoreProps {
