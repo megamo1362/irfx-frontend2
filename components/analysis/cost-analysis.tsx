@@ -51,8 +51,8 @@ export function CostAnalysis({ data }: CostAnalysisProps) {
         <h3 className="font-bold text-[var(--color-text-primary)] text-sm">{TITLE[l]}</h3>
       </div>
 
-      {/* 3 stat boxes */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* 4 stat boxes */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatBox
           label={l === 'fa' ? 'کمیسیون' : 'Commission'}
           value={`$${Math.abs(data.total_commission).toFixed(2)}`}
@@ -66,10 +66,16 @@ export function CostAnalysis({ data }: CostAnalysisProps) {
           delay={0.10}
         />
         <StatBox
+          label={l === 'fa' ? 'اسپرد (تخمینی)' : 'Est. Spread'}
+          value={`$${Math.abs(data.total_spread ?? 0).toFixed(2)}`}
+          color="text-orange-400"
+          delay={0.15}
+        />
+        <StatBox
           label={l === 'fa' ? 'کل هزینه' : 'Total Costs'}
           value={`$${Math.abs(data.total_costs).toFixed(2)}`}
           color="text-red-400"
-          delay={0.15}
+          delay={0.20}
         />
       </div>
 

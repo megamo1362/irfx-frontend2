@@ -196,6 +196,7 @@ export interface Analysis {
   cost_analysis?: {
     total_commission: number;
     total_swap: number;
+    total_spread: number;
     total_costs: number;
     gross_profit: number;
     cost_impact_pct: number;
