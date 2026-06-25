@@ -207,6 +207,8 @@ export interface Analysis {
     style: string;
     style_label: { en: string; fa: string };
     avg_hold_minutes: number;
+    avg_hold_time_display?: string;
+    total_positions?: number;
     post_loss_streak_behavior: { sample_count: number; winrate: number; avg_profit: number } | null;
     post_win_streak_behavior: { sample_count: number; winrate: number; avg_profit: number } | null;
     insight: { en: string; fa: string };
