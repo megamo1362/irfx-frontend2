@@ -28,7 +28,7 @@ export default function LoginPage() {
           ]}}
           transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <Image src="/logo.png" alt="MINDLURA" width={260} height={260} className="object-contain w-36 sm:w-48 lg:w-64" priority />
+          <Image src="/logo-login-dark.png" alt="MINDLURA" width={260} height={260} className="object-contain w-36 sm:w-48 lg:w-64" priority />
         </motion.div>
         <p className="text-sm text-[var(--color-text-muted)] mt-1">
           AI Fintech Trading & Psychology

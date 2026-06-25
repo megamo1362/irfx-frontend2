@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+import { useTheme } from 'next-themes';
 import { Menu, Bell } from 'lucide-react';
 import { useUiStore } from '@/store/ui';
 import { getInitials } from '@/lib/utils';
@@ -15,6 +17,10 @@ interface TopbarProps {
 export function Topbar({ user, className }: TopbarProps) {
   const { openMobileSidebar } = useUiStore();
   const { t } = useLang();
+  const { resolvedTheme } = useTheme();
+  const dashboardLogoSrc = resolvedTheme === 'light'
+    ? '/logo-dashboard-light.png'
+    : '/logo-dashboard-dark.png';
   const displayName = user.full_name || user.email;
   const initials = getInitials(displayName);
 
@@ -42,7 +48,9 @@ export function Topbar({ user, className }: TopbarProps) {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <img src="/logo.png" alt="MINDLURA" className="lg:hidden h-8 w-auto object-contain" />
+        <div className="lg:hidden" suppressHydrationWarning>
+          <Image src={dashboardLogoSrc} alt="MINDLURA" width={120} height={32} className="h-8 w-auto object-contain" priority />
+        </div>
       </div>
 
       {/* Right side: notifications + user avatar */}
