@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { LoginForm } from '@/components/auth/login-form';
 import { RegisterForm } from '@/components/auth/register-form';
 import { useLang } from '@/app/i18n/LangContext';
+import { LangToggle } from '@/app/i18n/LangToggle';
 
 export default function LoginPage() {
   const { t } = useLang();
@@ -54,9 +55,12 @@ export default function LoginPage() {
       </div>
 
       {/* Footer */}
-      <p className="text-center text-xs text-[var(--color-text-muted)] mt-6">
-        MINDLURA · AI Fintech Trading & Psychology
-      </p>
+      <div className="flex items-center justify-between mt-6">
+        <p className="text-xs text-[var(--color-text-muted)]">
+          MINDLURA · AI Fintech Trading & Psychology
+        </p>
+        <LangToggle />
+      </div>
     </motion.div>
   );
 }
