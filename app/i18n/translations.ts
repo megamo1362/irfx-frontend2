@@ -501,6 +501,10 @@ export const translations = {
     // ── Profile page ──────────────────────────────────────
     profile_title: 'Profile',
     profile_personal_info: 'Personal Information',
+    profile_first_name: 'First Name',
+    profile_last_name: 'Last Name',
+    profile_dob: 'Date of Birth',
+    profile_nationality: 'Nationality',
     profile_name: 'Full Name',
     profile_email: 'Email Address',
     profile_phone: 'Phone Number',
@@ -1055,6 +1059,10 @@ export const translations = {
     // ── Profile page ──────────────────────────────────────
     profile_title: 'پروفایل',
     profile_personal_info: 'اطلاعات شخصی',
+    profile_first_name: 'نام',
+    profile_last_name: 'نام خانوادگی',
+    profile_dob: 'تاریخ تولد',
+    profile_nationality: 'ملیت',
     profile_name: 'نام و نام خانوادگی',
     profile_email: 'آدرس ایمیل',
     profile_phone: 'شماره تلفن',

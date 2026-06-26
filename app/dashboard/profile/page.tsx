@@ -13,6 +13,10 @@ import { useCountdown } from '@/hooks/useCountdown';
 interface ProfileData {
   id: number;
   name: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  date_of_birth: string | null;
+  nationality: string | null;
   email: string;
   phone: string | null;
   role: string;
@@ -46,6 +50,10 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
 
   // Personal info
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [dob, setDob] = useState('');
+  const [nationality, setNationality] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
@@ -81,6 +89,10 @@ export default function ProfilePage() {
     apiFetch<ProfileData>('/profile/me')
       .then(data => {
         setProfile(data);
+        setFirstName(data.first_name ?? '');
+        setLastName(data.last_name ?? '');
+        setDob(data.date_of_birth ?? '');
+        setNationality(data.nationality ?? '');
         setName(data.name ?? '');
         setPhone(data.phone ?? '');
         setTelegramId(data.telegram_id ?? data.telegram_username ?? '');
@@ -93,9 +105,28 @@ export default function ProfilePage() {
     setSaving(true);
     setSavedMsg(false);
     try {
-      await apiFetch('/profile/update', { method: 'PUT', body: { name, phone: phone || null } });
+      await apiFetch('/profile/update', {
+        method: 'PUT',
+        body: {
+          first_name: firstName || null,
+          last_name: lastName || null,
+          date_of_birth: dob || null,
+          nationality: nationality || null,
+          phone: phone || null,
+        },
+      });
+      const combined = `${firstName} ${lastName}`.trim() || null;
       setSavedMsg(true);
-      setProfile(prev => prev ? { ...prev, name, phone: phone || null, is_phone_verified: phone !== (prev.phone ?? '') ? false : prev.is_phone_verified } : prev);
+      setProfile(prev => prev ? {
+        ...prev,
+        first_name: firstName || null,
+        last_name: lastName || null,
+        date_of_birth: dob || null,
+        nationality: nationality || null,
+        name: combined,
+        phone: phone || null,
+        is_phone_verified: phone !== (prev.phone ?? '') ? false : prev.is_phone_verified,
+      } : prev);
       setTimeout(() => setSavedMsg(false), 3000);
     } catch {
       // ignore, user can retry
@@ -240,11 +271,39 @@ export default function ProfilePage() {
           </h2>
         </div>
 
-        {/* Full Name */}
+        {/* First & Last Name */}
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label={t.profile_first_name}
+            value={firstName}
+            onChange={e => setFirstName(e.target.value)}
+          />
+          <Input
+            label={t.profile_last_name}
+            value={lastName}
+            onChange={e => setLastName(e.target.value)}
+          />
+        </div>
+
+        {/* Date of Birth */}
+        <div className="w-full space-y-1.5">
+          <label className="block text-xs font-medium text-[var(--color-text-muted)]">
+            {t.profile_dob}
+          </label>
+          <input
+            type="date"
+            value={dob}
+            onChange={e => setDob(e.target.value)}
+            className="w-full h-10 text-sm px-4 rounded-[var(--radius-md)] bg-[rgba(6,13,28,0.6)] border border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-border-hover)] focus:border-[var(--color-border-active)] focus:shadow-[var(--shadow-focus)] outline-none transition-all duration-200"
+          />
+        </div>
+
+        {/* Nationality */}
         <Input
-          label={t.profile_name}
-          value={name}
-          onChange={e => setName(e.target.value)}
+          label={t.profile_nationality}
+          value={nationality}
+          onChange={e => setNationality(e.target.value)}
+          placeholder={lang === 'fa' ? 'مثال: ایرانی' : 'e.g. Iranian'}
         />
 
         {/* Email + verification */}
