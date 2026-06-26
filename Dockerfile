@@ -6,7 +6,8 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --legacy-peer-deps
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+RUN npm ci --legacy-peer-deps --no-fund --no-audit
 
 # ── Stage 2: build ────────────────────────────────────────
 FROM base AS builder
