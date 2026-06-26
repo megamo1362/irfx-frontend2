@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { AnalysisPage } from '@/components/analysis';
 
-export const metadata: Metadata = { title: 'Account Analysis | MINDLURA' };
+export const metadata: Metadata = { title: 'Account Analysis' };
 
 interface Props {
   params: Promise<{ id: string }>;

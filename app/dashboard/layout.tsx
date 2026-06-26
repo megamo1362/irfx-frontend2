@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { DashboardShell } from '@/components/layouts';
 
 export const metadata: Metadata = {
-  title: 'Dashboard | MINDLURA',
+  title: 'Dashboard',
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
