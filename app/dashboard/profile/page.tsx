@@ -30,7 +30,7 @@ interface ProfileData {
   telegram_username: string | null;
 }
 
-const TELEGRAM_BOT_USERNAME = 'MINDLURA_BOT';
+const TELEGRAM_BOT_USERNAME = 'Mindlurabot';
 
 function formatDate(dateStr: string, lang: string): string {
   try {
