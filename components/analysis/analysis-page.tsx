@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart2, Clock, Zap, ArrowRight, Printer } from 'lucide-react';
+import { BarChart2, Clock, Zap, ArrowRight, Printer, CalendarRange } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { InlineLoader } from '@/components/shared';
@@ -19,11 +19,51 @@ import { ChartTabs } from './chart-tabs';
 import { TradesTable } from './trades-table';
 import { TimeAnalysis } from './time-analysis';
 import { SymbolAnalysis } from './symbol-analysis';
-import { useCheckAndRun, useRealtimeAnalysis, useUserFeatures } from '@/hooks/use-analysis';
+import { useCheckAndRun, useRealtimeAnalysis, useUserFeatures, useFilteredAnalysis } from '@/hooks/use-analysis';
 import { ApiError } from '@/lib/api';
 import { ROUTES } from '@/lib/constants';
 import { useLang } from '@/app/i18n/LangContext';
 import type { Analysis, Trade } from '@/types';
+
+type DatePreset = 'all' | 'this_week' | 'this_month' | 'last_month' | '3_months' | '6_months' | '1_year' | 'custom';
+
+const PRESET_LABELS: Record<DatePreset, { en: string; fa: string }> = {
+  all:        { en: 'All Time',      fa: 'همه' },
+  this_week:  { en: 'This Week',     fa: 'هفته جاری' },
+  this_month: { en: 'This Month',    fa: 'ماه جاری' },
+  last_month: { en: 'Last Month',    fa: 'ماه گذشته' },
+  '3_months': { en: 'Last 3 Months', fa: '۳ ماه گذشته' },
+  '6_months': { en: 'Last 6 Months', fa: '۶ ماه گذشته' },
+  '1_year':   { en: 'Last Year',     fa: 'یک سال گذشته' },
+  custom:     { en: 'Custom',        fa: 'بازه دلخواه' },
+};
+
+function toYMD(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+function getPresetRange(preset: DatePreset): { from: string; to: string } | null {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (preset === 'all' || preset === 'custom') return null;
+  if (preset === 'this_week') {
+    const day = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((day + 6) % 7));
+    return { from: toYMD(monday), to: toYMD(now) };
+  }
+  if (preset === 'this_month') return { from: toYMD(new Date(now.getFullYear(), now.getMonth(), 1)), to: toYMD(now) };
+  if (preset === 'last_month') {
+    return {
+      from: toYMD(new Date(now.getFullYear(), now.getMonth() - 1, 1)),
+      to:   toYMD(new Date(now.getFullYear(), now.getMonth(), 0)),
+    };
+  }
+  if (preset === '3_months') { const f = new Date(now); f.setMonth(f.getMonth() - 3); return { from: toYMD(f), to: toYMD(now) }; }
+  if (preset === '6_months') { const f = new Date(now); f.setMonth(f.getMonth() - 6); return { from: toYMD(f), to: toYMD(now) }; }
+  if (preset === '1_year')   { const f = new Date(now); f.setFullYear(f.getFullYear() - 1); return { from: toYMD(f), to: toYMD(now) }; }
+  return null;
+}
 
 interface PageData {
   balance: number | null;
@@ -41,11 +81,14 @@ export function AnalysisPage({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const isCoachMode = searchParams?.get('coach') === 'true';
   const { t, lang } = useLang();
+  const l = lang === 'fa' ? 'fa' : 'en';
 
   const { mutate: checkAndRun, isPending: initialLoading } = useCheckAndRun();
   const { mutate: runRealtime, isPending: realtimeLoading } = useRealtimeAnalysis();
+  const { mutate: runFiltered, isPending: filterLoading } = useFilteredAnalysis();
   const { data: features } = useUserFeatures();
 
+  const [allTimeData, setAllTimeData] = useState<PageData | null>(null);
   const [data, setData] = useState<PageData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('summary');
@@ -53,6 +96,9 @@ export function AnalysisPage({ id }: { id: string }) {
   const [printTabs, setPrintTabs] = useState<Set<TabKey>>(
     new Set(['summary', 'trades', 'time', 'symbols', 'equity'] as TabKey[])
   );
+  const [datePreset, setDatePreset] = useState<DatePreset>('all');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
 
   const hasTriggered = useRef(false);
 
@@ -69,7 +115,7 @@ export function AnalysisPage({ id }: { id: string }) {
     checkAndRun(id, {
       onSuccess: (snap) => {
         if (snap.has_snapshot && snap.analysis) {
-          setData({
+          const d: PageData = {
             balance: snap.balance ?? null,
             equity: snap.equity ?? null,
             analysis: snap.analysis,
@@ -77,7 +123,9 @@ export function AnalysisPage({ id }: { id: string }) {
             snapshotTime: snap.snapshot_time ?? null,
             hoursUntilNext: snap.hours_until_next ?? null,
             hoursSinceUpdate: snap.hours_since_update ?? null,
-          });
+          };
+          setAllTimeData(d);
+          setData(d);
         }
       },
       onError: (err) => {
@@ -87,11 +135,54 @@ export function AnalysisPage({ id }: { id: string }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const applyFilter = useCallback((preset: DatePreset, from: string, to: string) => {
+    if (preset === 'all') {
+      setData(allTimeData);
+      return;
+    }
+
+    let fromDate: string;
+    let toDate: string;
+
+    if (preset === 'custom') {
+      if (!from || !to) return;
+      fromDate = from;
+      toDate = to;
+    } else {
+      const range = getPresetRange(preset);
+      if (!range) return;
+      fromDate = range.from;
+      toDate = range.to;
+    }
+
+    runFiltered(
+      { id, fromDate, toDate },
+      {
+        onSuccess: (result) => {
+          setData(prev => ({
+            balance: prev?.balance ?? null,
+            equity: prev?.equity ?? null,
+            snapshotTime: prev?.snapshotTime ?? null,
+            hoursUntilNext: prev?.hoursUntilNext ?? null,
+            hoursSinceUpdate: prev?.hoursSinceUpdate ?? null,
+            analysis: result.analysis,
+            trades: result.trades,
+          }));
+        },
+        onError: () => {
+          setDatePreset('all');
+          setData(allTimeData);
+        },
+      }
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allTimeData, id]);
+
   const handleRealtime = () => {
     setError(null);
     runRealtime(id, {
       onSuccess: (result) => {
-        setData({
+        const d: PageData = {
           balance: result.balance ?? null,
           equity: result.equity ?? null,
           analysis: result.analysis,
@@ -99,7 +190,10 @@ export function AnalysisPage({ id }: { id: string }) {
           snapshotTime: null,
           hoursUntilNext: null,
           hoursSinceUpdate: null,
-        });
+        };
+        setAllTimeData(d);
+        setData(d);
+        setDatePreset('all');
       },
       onError: (err) => {
         setError(err instanceof ApiError ? err.message : t.analysis_error_run);
@@ -118,6 +212,17 @@ export function AnalysisPage({ id }: { id: string }) {
   const handlePrintConfirm = () => {
     setShowPrintDialog(false);
     setTimeout(() => window.print(), 150);
+  };
+
+  const handlePresetChange = (preset: DatePreset) => {
+    setDatePreset(preset);
+    if (preset !== 'custom') {
+      applyFilter(preset, customFrom, customTo);
+    }
+  };
+
+  const handleCustomApply = () => {
+    applyFilter('custom', customFrom, customTo);
   };
 
   const canRunRealtime = !isCoachMode && (features?.realtime_analysis ?? false);
@@ -223,6 +328,64 @@ export function AnalysisPage({ id }: { id: string }) {
           )}
         </div>
       </div>
+
+      {/* Date filter — only shown when data is available */}
+      {data && (
+        <div className="flex flex-wrap items-center gap-2 print:hidden">
+          <CalendarRange className="w-4 h-4 text-[var(--color-text-muted)] flex-shrink-0" />
+          <div className="flex flex-wrap gap-1">
+            {(Object.keys(PRESET_LABELS) as DatePreset[]).map(preset => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => handlePresetChange(preset)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                  datePreset === preset
+                    ? 'bg-[var(--color-cyan-dim)] text-[var(--color-cyan)] border border-[rgba(0,212,255,0.3)]'
+                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] border border-transparent hover:border-[var(--color-border)]'
+                }`}
+              >
+                {PRESET_LABELS[preset][l]}
+              </button>
+            ))}
+          </div>
+          {datePreset === 'custom' && (
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={customFrom}
+                onChange={e => setCustomFrom(e.target.value)}
+                className="px-2.5 py-1 rounded-lg text-xs bg-[rgba(255,255,255,0.05)] border border-[var(--color-border)] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-cyan)]"
+              />
+              <span className="text-xs text-[var(--color-text-muted)]">—</span>
+              <input
+                type="date"
+                value={customTo}
+                onChange={e => setCustomTo(e.target.value)}
+                className="px-2.5 py-1 rounded-lg text-xs bg-[rgba(255,255,255,0.05)] border border-[var(--color-border)] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-cyan)]"
+              />
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleCustomApply}
+                disabled={!customFrom || !customTo || filterLoading}
+              >
+                {l === 'fa' ? 'اعمال' : 'Apply'}
+              </Button>
+            </div>
+          )}
+          {filterLoading && (
+            <span className="text-xs text-[var(--color-text-muted)] animate-pulse">
+              {l === 'fa' ? 'در حال محاسبه...' : 'Recalculating...'}
+            </span>
+          )}
+          {datePreset !== 'all' && !filterLoading && (
+            <span className="text-xs text-[var(--color-cyan)] font-medium">
+              {realTrades.length} {l === 'fa' ? 'معامله' : 'trades'}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Account balance row */}
       {data && (data.balance !== null || data.equity !== null) && (

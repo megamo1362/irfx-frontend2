@@ -53,6 +53,23 @@ export function useCharts(accountId: string | number) {
   });
 }
 
+export interface FilteredAnalysisResponse {
+  analysis: Analysis;
+  trades: Trade[];
+  balance: number | null;
+  equity: number | null;
+  total_trades: number;
+}
+
+export function useFilteredAnalysis() {
+  return useMutation({
+    mutationFn: ({ id, fromDate, toDate }: { id: string | number; fromDate: string; toDate: string }) =>
+      apiFetch<FilteredAnalysisResponse>(
+        `/analysis/${id}/filtered?from_date=${fromDate}&to_date=${toDate}`
+      ),
+  });
+}
+
 export function useSaveJournal() {
   return useMutation({
     mutationFn: ({ journal_id, ...data }: SaveJournalInput) => {
