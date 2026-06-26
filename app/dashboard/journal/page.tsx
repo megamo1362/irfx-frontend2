@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { BookOpen, Pencil } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import { BookOpen, Pencil, CalendarRange } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,54 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { JournalModal } from './JournalModal';
 import { useLang } from '@/app/i18n/LangContext';
 import type { JournalEntry, MT5Account, Trade } from '@/types';
+
+type DatePreset = 'this_week' | 'this_month' | 'last_month' | '3_months' | '6_months' | '1_year' | 'custom' | 'all';
+
+const PRESET_LABELS: Record<DatePreset, { en: string; fa: string }> = {
+  all:        { en: 'All Time',       fa: 'همه' },
+  this_week:  { en: 'This Week',      fa: 'هفته جاری' },
+  this_month: { en: 'This Month',     fa: 'ماه جاری' },
+  last_month: { en: 'Last Month',     fa: 'ماه گذشته' },
+  '3_months': { en: 'Last 3 Months',  fa: '۳ ماه گذشته' },
+  '6_months': { en: 'Last 6 Months',  fa: '۶ ماه گذشته' },
+  '1_year':   { en: 'Last Year',      fa: 'یک سال گذشته' },
+  custom:     { en: 'Custom Range',   fa: 'بازه دلخواه' },
+};
+
+function getPresetRange(preset: DatePreset): { from: Date; to: Date } | null {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  if (preset === 'all' || preset === 'custom') return null;
+
+  if (preset === 'this_week') {
+    const day = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((day + 6) % 7));
+    return { from: monday, to: now };
+  }
+  if (preset === 'this_month') {
+    return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: now };
+  }
+  if (preset === 'last_month') {
+    const from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const to   = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+    return { from, to };
+  }
+  if (preset === '3_months') {
+    const from = new Date(now); from.setMonth(from.getMonth() - 3);
+    return { from, to: now };
+  }
+  if (preset === '6_months') {
+    const from = new Date(now); from.setMonth(from.getMonth() - 6);
+    return { from, to: now };
+  }
+  if (preset === '1_year') {
+    const from = new Date(now); from.setFullYear(from.getFullYear() - 1);
+    return { from, to: now };
+  }
+  return null;
+}
 
 export default function JournalPage() {
   const [accounts, setAccounts] = useState<MT5Account[]>([]);
@@ -19,7 +67,11 @@ export default function JournalPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
-  const { t } = useLang();
+  const [datePreset, setDatePreset] = useState<DatePreset>('all');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
+  const { t, lang } = useLang();
+  const l = lang === 'fa' ? 'fa' : 'en';
 
   useEffect(() => {
     apiFetch<{ accounts: MT5Account[] }>('/accounts/list')
@@ -59,7 +111,28 @@ export default function JournalPage() {
   const profitColor = (p: number) =>
     p >= 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-status-error)]';
 
-  const realTrades = trades.filter(t => [0, 1].includes(t.type) && t.volume > 0 && t.profit !== 0);
+  const realTrades = useMemo(() => {
+    const base = trades.filter(t => [0, 1].includes(t.type) && t.volume > 0 && t.profit !== 0);
+
+    let from: Date | null = null;
+    let to: Date | null = null;
+
+    if (datePreset === 'custom') {
+      if (customFrom) from = new Date(customFrom);
+      if (customTo)   to   = new Date(customTo + 'T23:59:59');
+    } else {
+      const range = getPresetRange(datePreset);
+      if (range) { from = range.from; to = range.to; }
+    }
+
+    if (!from && !to) return base;
+    return base.filter(trade => {
+      const d = new Date(trade.time);
+      if (from && d < from) return false;
+      if (to   && d > to)   return false;
+      return true;
+    });
+  }, [trades, datePreset, customFrom, customTo]);
 
   return (
     <div>
@@ -70,24 +143,73 @@ export default function JournalPage() {
         </div>
       </div>
 
-      <div className="mb-5 w-64">
-        <Select value={accountId} onValueChange={setAccountId}>
-          <SelectTrigger><SelectValue placeholder={t.journal_select_account} /></SelectTrigger>
-          <SelectContent>
-            {accounts.map(a => (
-              <SelectItem key={a.id} value={String(a.id)}>
-                {a.label || a.login} — {a.server}
-              </SelectItem>
+      {/* Filters row */}
+      <div className="flex flex-wrap gap-3 mb-5 items-end">
+        <div className="w-56">
+          <Select value={accountId} onValueChange={setAccountId}>
+            <SelectTrigger><SelectValue placeholder={t.journal_select_account} /></SelectTrigger>
+            <SelectContent>
+              {accounts.map(a => (
+                <SelectItem key={a.id} value={String(a.id)}>
+                  {a.label || a.login} — {a.server}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <CalendarRange className="w-4 h-4 text-[var(--color-text-muted)] flex-shrink-0" />
+          <div className="flex flex-wrap gap-1">
+            {(Object.keys(PRESET_LABELS) as DatePreset[]).map(preset => (
+              <button
+                key={preset}
+                onClick={() => setDatePreset(preset)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                  datePreset === preset
+                    ? 'bg-[var(--color-cyan-dim)] text-[var(--color-cyan)] border border-[rgba(0,212,255,0.3)]'
+                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] border border-transparent hover:border-[var(--color-border)]'
+                }`}
+              >
+                {PRESET_LABELS[preset][l]}
+              </button>
             ))}
-          </SelectContent>
-        </Select>
+          </div>
+        </div>
+
+        {datePreset === 'custom' && (
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={customFrom}
+              onChange={e => setCustomFrom(e.target.value)}
+              className="px-2.5 py-1 rounded-lg text-xs bg-[rgba(255,255,255,0.05)] border border-[var(--color-border)] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-cyan)]"
+            />
+            <span className="text-xs text-[var(--color-text-muted)]">—</span>
+            <input
+              type="date"
+              value={customTo}
+              onChange={e => setCustomTo(e.target.value)}
+              className="px-2.5 py-1 rounded-lg text-xs bg-[rgba(255,255,255,0.05)] border border-[var(--color-border)] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-cyan)]"
+            />
+          </div>
+        )}
       </div>
 
       {loading ? (
         <div className="space-y-3">{[...Array(6)].map((_, i) => <div key={i} className="skeleton h-16 rounded-2xl" />)}</div>
       ) : realTrades.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center border border-[var(--color-border)]">
-          <p className="text-[var(--color-text-muted)] text-sm">{t.journal_no_trades}</p>
+          <p className="text-[var(--color-text-muted)] text-sm">
+            {datePreset !== 'all'
+              ? (l === 'fa' ? 'معامله‌ای در این بازه زمانی یافت نشد' : 'No trades found in this date range')
+              : t.journal_no_trades}
+          </p>
+          {datePreset !== 'all' && (
+            <button onClick={() => setDatePreset('all')} className="mt-3 text-xs text-[var(--color-cyan)] hover:underline">
+              {l === 'fa' ? 'نمایش همه' : 'Show all trades'}
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-2">
