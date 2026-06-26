@@ -7,8 +7,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json* ./
 ENV NPM_CONFIG_UPDATE_NOTIFIER=false
-RUN npm install -g npm@latest --quiet && \
-    npm ci --legacy-peer-deps --no-fund --no-audit --loglevel=error
+RUN npm ci --legacy-peer-deps --no-fund --no-audit --loglevel=error
 
 # ── Stage 2: build ────────────────────────────────────────
 FROM base AS builder
