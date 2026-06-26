@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
-import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield, Settings } from 'lucide-react';
+import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield, Settings, UserCircle } from 'lucide-react';
 import { NavItem } from './nav-item';
 import { UserMenu } from './user-menu';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,7 @@ const DASHBOARD_NAV: NavEntry[] = [
   { href: '/dashboard/settings/journal-permissions', labelKey: 'nav_coach_access', icon: Shield, roles: ['client'] },
   { href: '/dashboard/coach/clients', labelKey: 'nav_my_clients', icon: Users, roles: ['coach'] },
   { href: '/dashboard/settings', labelKey: 'nav_settings', icon: Settings, exact: true },
+  { href: '/dashboard/profile', labelKey: 'nav_profile', icon: UserCircle },
 ];
 
 const ADMIN_NAV: NavEntry[] = [

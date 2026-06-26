@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart2, BookOpen, TrendingUp, Users, LayoutDashboard, KeyRound, CreditCard, UserCheck, Settings } from 'lucide-react';
+import { BarChart2, BookOpen, TrendingUp, Users, LayoutDashboard, KeyRound, CreditCard, UserCheck, Settings, UserCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLang } from '@/app/i18n/LangContext';
 import type { User } from '@/types';
@@ -22,6 +22,7 @@ const DASHBOARD_ITEMS: NavItem[] = [
   { href: '/dashboard/journal', labelKey: 'nav_journal', icon: BookOpen },
   { href: '/dashboard/coach/clients', labelKey: 'nav_my_clients', icon: Users, roles: ['coach'] },
   { href: '/dashboard/settings', labelKey: 'nav_settings', icon: Settings },
+  { href: '/dashboard/profile', labelKey: 'nav_profile', icon: UserCircle },
 ];
 
 const ADMIN_ITEMS: NavItem[] = [

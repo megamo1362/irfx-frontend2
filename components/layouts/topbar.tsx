@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Menu, Bell } from 'lucide-react';
 import { useUiStore } from '@/store/ui';
 import { getInitials } from '@/lib/utils';
@@ -54,7 +55,7 @@ export function Topbar({ user, className }: TopbarProps) {
           <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-[var(--color-cyan)] ring-2 ring-[var(--color-deep)]" />
         </button>
 
-        <div className="flex items-center gap-2.5 pl-3 border-r border-[var(--color-border)]">
+        <Link href="/dashboard/profile" className="flex items-center gap-2.5 pl-3 border-r border-[var(--color-border)] hover:opacity-80 transition-opacity">
           <div className="hidden sm:block text-left">
             <p className="text-sm font-medium text-[var(--color-text-primary)] leading-none">{displayName}</p>
             <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">{roleLabels[user.role]}</p>
@@ -62,7 +63,7 @@ export function Topbar({ user, className }: TopbarProps) {
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-purple)] via-[var(--color-blue)] to-[var(--color-cyan)] flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
             {initials}
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );

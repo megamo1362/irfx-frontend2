@@ -16,3 +16,4 @@ export * from './switch';
 export * from './progress';
 export * from './scroll-area';
 export * from './dropdown-menu';
+export * from './otp-input';
