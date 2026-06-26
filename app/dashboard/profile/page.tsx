@@ -74,11 +74,12 @@ export default function ProfilePage() {
   const phoneCountdown = useCountdown(60);
 
   // Telegram
-  const [telegramStep, setTelegramStep] = useState<'idle' | 'pending'>('idle');
+  const [telegramStep, setTelegramStep] = useState<'idle' | 'waiting_start' | 'otp_input'>('idle');
   const [telegramBotUrl, setTelegramBotUrl] = useState('');
   const [telegramGenerating, setTelegramGenerating] = useState(false);
-  const [telegramChecking, setTelegramChecking] = useState(false);
-  const [telegramCheckError, setTelegramCheckError] = useState('');
+  const [telegramFinding, setTelegramFinding] = useState(false);
+  const [telegramVerifying, setTelegramVerifying] = useState(false);
+  const [telegramError, setTelegramError] = useState('');
 
   useEffect(() => {
     apiFetch<ProfileData>('/profile/me')
@@ -195,11 +196,11 @@ export default function ProfilePage() {
   // ── Telegram connect ────────────────────────────────────
   const generateTelegramCode = async () => {
     setTelegramGenerating(true);
-    setTelegramCheckError('');
+    setTelegramError('');
     try {
-      const res = await apiFetch<{ code: string; bot_url: string }>('/profile/telegram/generate-code', { method: 'POST' });
+      const res = await apiFetch<{ token: string; bot_url: string }>('/profile/telegram/generate-code', { method: 'POST' });
       setTelegramBotUrl(res.bot_url);
-      setTelegramStep('pending');
+      setTelegramStep('waiting_start');
     } catch {
       // ignore
     } finally {
@@ -207,22 +208,35 @@ export default function ProfilePage() {
     }
   };
 
-  const checkTelegramVerification = async () => {
-    setTelegramChecking(true);
-    setTelegramCheckError('');
+  const sendOtpViaBot = async () => {
+    setTelegramFinding(true);
+    setTelegramError('');
     try {
-      const res = await apiFetch<{ chat_id: string }>('/profile/telegram/verify-from-bot', { method: 'POST' });
-      setProfile(prev => prev ? { ...prev, is_telegram_verified: true, telegram_id: res.chat_id } : prev);
-      setTelegramStep('idle');
+      await apiFetch('/profile/telegram/send-otp-via-bot', { method: 'POST' });
+      setTelegramStep('otp_input');
     } catch (err) {
       if (err instanceof ApiError && err.status === 400) {
-        setTelegramCheckError(t.profile_telegram_expired);
+        setTelegramError(t.profile_telegram_expired);
         setTelegramStep('idle');
       } else {
-        setTelegramCheckError(t.profile_telegram_not_found);
+        setTelegramError(t.profile_telegram_not_found);
       }
     } finally {
-      setTelegramChecking(false);
+      setTelegramFinding(false);
+    }
+  };
+
+  const verifyTelegramOtp = async (otp: string) => {
+    setTelegramVerifying(true);
+    setTelegramError('');
+    try {
+      const res = await apiFetch<{ chat_id: string }>('/profile/telegram/verify', { method: 'POST', body: { otp } });
+      setProfile(prev => prev ? { ...prev, is_telegram_verified: true, telegram_id: res.chat_id ?? null } : prev);
+      setTelegramStep('idle');
+    } catch (err) {
+      setTelegramError(err instanceof ApiError && err.status === 400 ? t.profile_otp_invalid : t.profile_otp_error);
+    } finally {
+      setTelegramVerifying(false);
     }
   };
 
@@ -231,7 +245,7 @@ export default function ProfilePage() {
       await apiFetch('/profile/update', { method: 'PUT', body: { telegram_username: '' } });
       setProfile(prev => prev ? { ...prev, is_telegram_verified: false, telegram_id: null, telegram_username: null } : prev);
       setTelegramStep('idle');
-      setTelegramCheckError('');
+      setTelegramError('');
     } catch {
       // ignore
     }
@@ -491,15 +505,15 @@ export default function ProfilePage() {
               <Send className="w-3.5 h-3.5" />
               {t.profile_telegram_connect_btn}
             </Button>
-            {telegramCheckError && (
-              <p className="text-xs text-[var(--color-danger)]">{telegramCheckError}</p>
+            {telegramError && (
+              <p className="text-xs text-[var(--color-danger)]">{telegramError}</p>
             )}
           </div>
-        ) : (
-          /* Step 1-3: Guide + verify */
+        ) : telegramStep === 'waiting_start' ? (
+          /* Step 1-2: Open bot + get code */
           <div className="rounded-xl border border-[var(--color-border)] bg-[rgba(0,212,255,0.04)] p-4 space-y-4">
             <ol className="space-y-2.5">
-              {[t.profile_telegram_step_open, t.profile_telegram_step_start, t.profile_telegram_step_verify].map((step, i) => (
+              {[t.profile_telegram_step_open, t.profile_telegram_step_start].map((step, i) => (
                 <li key={i} className="flex items-start gap-2.5 text-xs text-[var(--color-text-muted)]">
                   <span className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5 ${i === 0 ? 'bg-[var(--color-cyan)] text-black' : 'bg-[rgba(0,212,255,0.2)] text-[var(--color-cyan)]'}`}>
                     {i + 1}
@@ -520,19 +534,38 @@ export default function ProfilePage() {
                 {t.profile_telegram_open_bot}
                 <ExternalLink className="w-3 h-3" />
               </a>
-
-              <Button variant="primary" size="sm" loading={telegramChecking} onClick={checkTelegramVerification}>
-                {t.profile_telegram_verify_btn}
+              <Button variant="primary" size="sm" loading={telegramFinding} onClick={sendOtpViaBot}>
+                {t.profile_telegram_get_code}
               </Button>
             </div>
 
-            {telegramCheckError && (
-              <p className="text-xs text-[var(--color-danger)]">{telegramCheckError}</p>
+            {telegramError && (
+              <p className="text-xs text-[var(--color-danger)]">{telegramError}</p>
             )}
 
             <button
               type="button"
-              onClick={() => { setTelegramStep('idle'); setTelegramCheckError(''); }}
+              onClick={() => { setTelegramStep('idle'); setTelegramError(''); }}
+              className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] underline"
+            >
+              {lang === 'fa' ? 'شروع مجدد' : 'Start over'}
+            </button>
+          </div>
+        ) : (
+          /* Step 3: Enter OTP from Telegram */
+          <div className="rounded-xl border border-[var(--color-border)] bg-[rgba(0,212,255,0.04)] p-4 space-y-3">
+            <p className="text-xs text-[var(--color-cyan)]">{t.profile_telegram_otp_sent_tg}</p>
+            <OtpInput
+              onComplete={verifyTelegramOtp}
+              disabled={telegramVerifying}
+              error={!!telegramError}
+            />
+            {telegramError && (
+              <p className="text-xs text-[var(--color-danger)] text-center">{telegramError}</p>
+            )}
+            <button
+              type="button"
+              onClick={() => { setTelegramStep('idle'); setTelegramError(''); }}
               className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] underline"
             >
               {lang === 'fa' ? 'شروع مجدد' : 'Start over'}
