@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { UserCircle, Mail, Phone, Send, CheckCircle2, XCircle, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { UserCircle, Mail, Phone, Send, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
 import { apiFetch, ApiError } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,6 @@ interface ProfileData {
   telegram_username: string | null;
 }
 
-const TELEGRAM_BOT_USERNAME = 'Mindlurabot';
 
 function formatDate(dateStr: string, lang: string): string {
   try {
@@ -75,14 +74,11 @@ export default function ProfilePage() {
   const phoneCountdown = useCountdown(60);
 
   // Telegram
-  const [telegramId, setTelegramId] = useState('');
-  const [telegramHowOpen, setTelegramHowOpen] = useState(false);
-  const [telegramSending, setTelegramSending] = useState(false);
-  const [telegramVerifying, setTelegramVerifying] = useState(false);
-  const [telegramOtpVisible, setTelegramOtpVisible] = useState(false);
-  const [telegramBotError, setTelegramBotError] = useState(false);
-  const [telegramOtpError, setTelegramOtpError] = useState('');
-  const [telegramOtpSentMsg, setTelegramOtpSentMsg] = useState(false);
+  const [telegramStep, setTelegramStep] = useState<'idle' | 'pending'>('idle');
+  const [telegramBotUrl, setTelegramBotUrl] = useState('');
+  const [telegramGenerating, setTelegramGenerating] = useState(false);
+  const [telegramChecking, setTelegramChecking] = useState(false);
+  const [telegramCheckError, setTelegramCheckError] = useState('');
 
   useEffect(() => {
     apiFetch<ProfileData>('/profile/me')
@@ -93,7 +89,6 @@ export default function ProfilePage() {
         setDob(data.date_of_birth ?? '');
         setNationality(data.nationality ?? '');
         setPhone(data.phone ?? '');
-        setTelegramId(data.telegram_id ?? data.telegram_username ?? '');
       })
       .finally(() => setLoading(false));
   }, []);
@@ -197,35 +192,37 @@ export default function ProfilePage() {
     }
   };
 
-  // ── Telegram OTP ────────────────────────────────────────
-  const sendTelegramOtp = async () => {
-    setTelegramSending(true);
-    setTelegramOtpError('');
-    setTelegramBotError(false);
-    setTelegramOtpSentMsg(false);
+  // ── Telegram connect ────────────────────────────────────
+  const generateTelegramCode = async () => {
+    setTelegramGenerating(true);
+    setTelegramCheckError('');
     try {
-      await apiFetch('/profile/telegram/send-otp', { method: 'POST', body: { telegram_id: telegramId } });
-      setTelegramOtpVisible(true);
-      setTelegramOtpSentMsg(true);
+      const res = await apiFetch<{ code: string; bot_url: string }>('/profile/telegram/generate-code', { method: 'POST' });
+      setTelegramBotUrl(res.bot_url);
+      setTelegramStep('pending');
     } catch {
-      setTelegramBotError(true);
+      // ignore
     } finally {
-      setTelegramSending(false);
+      setTelegramGenerating(false);
     }
   };
 
-  const verifyTelegramOtp = async (otp: string) => {
-    setTelegramVerifying(true);
-    setTelegramOtpError('');
+  const checkTelegramVerification = async () => {
+    setTelegramChecking(true);
+    setTelegramCheckError('');
     try {
-      await apiFetch('/profile/telegram/verify', { method: 'POST', body: { otp } });
-      setProfile(prev => prev ? { ...prev, is_telegram_verified: true, telegram_id: telegramId } : prev);
-      setTelegramOtpVisible(false);
-      setTelegramOtpSentMsg(false);
+      const res = await apiFetch<{ chat_id: string }>('/profile/telegram/verify-from-bot', { method: 'POST' });
+      setProfile(prev => prev ? { ...prev, is_telegram_verified: true, telegram_id: res.chat_id } : prev);
+      setTelegramStep('idle');
     } catch (err) {
-      setTelegramOtpError(err instanceof ApiError && err.status === 400 ? t.profile_otp_invalid : t.profile_otp_error);
+      if (err instanceof ApiError && err.status === 400) {
+        setTelegramCheckError(t.profile_telegram_expired);
+        setTelegramStep('idle');
+      } else {
+        setTelegramCheckError(t.profile_telegram_not_found);
+      }
     } finally {
-      setTelegramVerifying(false);
+      setTelegramChecking(false);
     }
   };
 
@@ -487,85 +484,59 @@ export default function ProfilePage() {
               {t.profile_telegram_disconnect}
             </Button>
           </div>
+        ) : telegramStep === 'idle' ? (
+          /* Step 0: Connect button */
+          <div className="space-y-2">
+            <Button variant="outline" size="sm" loading={telegramGenerating} onClick={generateTelegramCode}>
+              <Send className="w-3.5 h-3.5" />
+              {t.profile_telegram_connect_btn}
+            </Button>
+            {telegramCheckError && (
+              <p className="text-xs text-[var(--color-danger)]">{telegramCheckError}</p>
+            )}
+          </div>
         ) : (
-          /* Not connected state */
-          <div className="space-y-3">
-            <Input
-              label={t.profile_telegram_id_label}
-              value={telegramId}
-              onChange={e => {
-                setTelegramId(e.target.value);
-                setTelegramBotError(false);
-                setTelegramOtpVisible(false);
-              }}
-              placeholder={t.profile_telegram_id_placeholder}
-            />
+          /* Step 1-3: Guide + verify */
+          <div className="rounded-xl border border-[var(--color-border)] bg-[rgba(0,212,255,0.04)] p-4 space-y-4">
+            <ol className="space-y-2.5">
+              {[t.profile_telegram_step_open, t.profile_telegram_step_start, t.profile_telegram_step_verify].map((step, i) => (
+                <li key={i} className="flex items-start gap-2.5 text-xs text-[var(--color-text-muted)]">
+                  <span className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5 ${i === 0 ? 'bg-[var(--color-cyan)] text-black' : 'bg-[rgba(0,212,255,0.2)] text-[var(--color-cyan)]'}`}>
+                    {i + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
+            </ol>
 
-            {/* Collapsible help */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <a
+                href={telegramBotUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(0,136,204,0.12)] border border-[rgba(0,136,204,0.3)] text-xs font-medium text-[var(--color-cyan)] hover:bg-[rgba(0,136,204,0.22)] transition-colors"
+              >
+                <Send className="w-3 h-3" />
+                {t.profile_telegram_open_bot}
+                <ExternalLink className="w-3 h-3" />
+              </a>
+
+              <Button variant="primary" size="sm" loading={telegramChecking} onClick={checkTelegramVerification}>
+                {t.profile_telegram_verify_btn}
+              </Button>
+            </div>
+
+            {telegramCheckError && (
+              <p className="text-xs text-[var(--color-danger)]">{telegramCheckError}</p>
+            )}
+
             <button
               type="button"
-              onClick={() => setTelegramHowOpen(v => !v)}
-              className="flex items-center gap-1.5 text-xs text-[var(--color-cyan)] hover:underline"
+              onClick={() => { setTelegramStep('idle'); setTelegramCheckError(''); }}
+              className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] underline"
             >
-              {telegramHowOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-              {t.profile_telegram_how}
+              {lang === 'fa' ? 'شروع مجدد' : 'Start over'}
             </button>
-            {telegramHowOpen && (
-              <div className="rounded-xl bg-[rgba(0,212,255,0.04)] border border-[var(--color-border)] px-4 py-3 space-y-2">
-                <p className="text-xs text-[var(--color-text-muted)]">{t.profile_telegram_how_desc}</p>
-                <a
-                  href="https://t.me/userinfobot"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-[var(--color-cyan)] hover:underline"
-                >
-                  @userinfobot <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            )}
-
-            {/* Bot error warning */}
-            {telegramBotError && (
-              <div className="rounded-xl bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.25)] px-4 py-3 flex items-center justify-between gap-3">
-                <p className="text-xs text-[var(--color-warning)]">{t.profile_telegram_bot_error}</p>
-                <a
-                  href={`https://t.me/${TELEGRAM_BOT_USERNAME}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-cyan)] hover:underline flex-shrink-0"
-                >
-                  {t.profile_telegram_bot_link} <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            )}
-
-            <Button
-              variant="outline"
-              size="sm"
-              loading={telegramSending}
-              disabled={!telegramId.trim()}
-              onClick={sendTelegramOtp}
-            >
-              <Send className="w-3.5 h-3.5" />
-              {t.profile_telegram_send_otp}
-            </Button>
-
-            {/* Telegram OTP input */}
-            {telegramOtpVisible && (
-              <div className="rounded-xl border border-[var(--color-border)] bg-[rgba(0,212,255,0.04)] p-4 space-y-3">
-                {telegramOtpSentMsg && (
-                  <p className="text-xs text-[var(--color-cyan)] text-center">{t.profile_telegram_otp_sent}</p>
-                )}
-                <OtpInput
-                  onComplete={verifyTelegramOtp}
-                  disabled={telegramVerifying}
-                  error={!!telegramOtpError}
-                />
-                {telegramOtpError && (
-                  <p className="text-xs text-[var(--color-danger)] text-center">{telegramOtpError}</p>
-                )}
-              </div>
-            )}
           </div>
         )}
       </section>
