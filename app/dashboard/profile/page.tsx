@@ -76,6 +76,7 @@ export default function ProfilePage() {
   // Telegram
   const [telegramStep, setTelegramStep] = useState<'idle' | 'waiting_start' | 'otp_input'>('idle');
   const [telegramBotUrl, setTelegramBotUrl] = useState('');
+  const [telegramCode, setTelegramCode] = useState('');
   const [telegramGenerating, setTelegramGenerating] = useState(false);
   const [telegramFinding, setTelegramFinding] = useState(false);
   const [telegramVerifying, setTelegramVerifying] = useState(false);
@@ -198,7 +199,8 @@ export default function ProfilePage() {
     setTelegramGenerating(true);
     setTelegramError('');
     try {
-      const res = await apiFetch<{ token: string; bot_url: string }>('/profile/telegram/generate-code', { method: 'POST' });
+      const res = await apiFetch<{ code: string; bot_url: string }>('/profile/telegram/generate-code', { method: 'POST' });
+      setTelegramCode(res.code);
       setTelegramBotUrl(res.bot_url);
       setTelegramStep('waiting_start');
     } catch {
@@ -510,8 +512,17 @@ export default function ProfilePage() {
             )}
           </div>
         ) : telegramStep === 'waiting_start' ? (
-          /* Step 1-2: Open bot + get code */
+          /* Step 1-2: Show code + open bot + get OTP */
           <div className="rounded-xl border border-[var(--color-border)] bg-[rgba(0,212,255,0.04)] p-4 space-y-4">
+
+            {/* Code display */}
+            <div className="rounded-xl bg-[rgba(0,212,255,0.08)] border border-[rgba(0,212,255,0.25)] px-4 py-3 text-center">
+              <p className="text-[10px] text-[var(--color-text-muted)] mb-1">
+                {lang === 'fa' ? 'این کد را برای ربات بفرستید' : 'Send this code to the bot'}
+              </p>
+              <p className="text-2xl font-mono font-bold tracking-[0.3em] text-[var(--color-cyan)]">{telegramCode}</p>
+            </div>
+
             <ol className="space-y-2.5">
               {[t.profile_telegram_step_open, t.profile_telegram_step_start].map((step, i) => (
                 <li key={i} className="flex items-start gap-2.5 text-xs text-[var(--color-text-muted)]">
