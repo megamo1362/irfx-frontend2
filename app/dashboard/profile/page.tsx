@@ -54,7 +54,6 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState('');
   const [dob, setDob] = useState('');
   const [nationality, setNationality] = useState('');
-  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
@@ -93,7 +92,6 @@ export default function ProfilePage() {
         setLastName(data.last_name ?? '');
         setDob(data.date_of_birth ?? '');
         setNationality(data.nationality ?? '');
-        setName(data.name ?? '');
         setPhone(data.phone ?? '');
         setTelegramId(data.telegram_id ?? data.telegram_username ?? '');
       })
