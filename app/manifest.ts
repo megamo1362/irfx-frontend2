@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'IRFX | Trading Psychology Platform',
-    short_name: 'IRFX',
+    name: 'Mindlura | Trading Psychology Platform',
+    short_name: 'Mindlura',
     description: 'Premium trading psychology and performance intelligence platform',
     start_url: '/dashboard',
     display: 'standalone',
