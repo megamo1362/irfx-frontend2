@@ -5,7 +5,6 @@ import { ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InlineLoader } from '@/components/shared';
 import { useMyCoaches, useConnectCoach } from '@/hooks/use-coach';
-import { useLang } from '@/app/i18n/LangContext';
 import type { AccountPermissions } from '@/types';
 
 const PERM_KEYS: Array<{ key: keyof Omit<AccountPermissions, 'account_id'>; label: string }> = [
@@ -18,7 +17,6 @@ const PERM_KEYS: Array<{ key: keyof Omit<AccountPermissions, 'account_id'>; labe
 export default function JournalPermissionsPage() {
   const { data: coaches = [], isLoading } = useMyCoaches();
   const { mutate: connectCoach, isPending } = useConnectCoach();
-  const { t } = useLang();
 
   const [perms, setPerms] = useState<Record<number, Record<number, AccountPermissions>>>({});
   const [saved, setSaved] = useState<number | null>(null);

@@ -11,12 +11,6 @@ import { ROUTES } from '@/lib/constants';
 import { useLang } from '@/app/i18n/LangContext';
 import type { CoachClient } from '@/types';
 
-function formatHours(h: number | null, t: ReturnType<typeof useLang>['t']): string {
-  if (h === null) return '—';
-  if (h < 0.1) return t.time_just_now;
-  if (h < 1) return `${Math.round(h * 60)} ${t.time_min}`;
-  return `${Math.floor(h)} ${t.time_hours}`;
-}
 
 function getDisplayName(client: CoachClient): string {
   const fallback = client.client_full_name || client.client_email;
