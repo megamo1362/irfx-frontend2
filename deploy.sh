@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-FRONTEND_DIR="/home/megamo/irfx-frontend2"
-BACKEND_DIR="/home/megamo/irfx-backend"
+FRONTEND_DIR="/home/megamo/mindlura-frontend"
+BACKEND_DIR="/home/megamo/mindlura-backend"
 
 # ── Backend ────────────────────────────────────────────────
 echo ">>> [Backend] Fixing permissions..."
@@ -16,7 +16,7 @@ echo ">>> [Backend] Installing dependencies..."
 pip3 install -r requirements.txt -q
 
 echo ">>> [Backend] Restarting..."
-pm2 startOrRestart "$FRONTEND_DIR/ecosystem.config.js" --only irfx-backend
+pm2 startOrRestart "$FRONTEND_DIR/ecosystem.config.js" --only mindlura-backend
 
 # ── Frontend ───────────────────────────────────────────────
 echo ">>> [Frontend] Fixing permissions..."
@@ -33,7 +33,7 @@ echo ">>> [Frontend] Building..."
 npm run build
 
 echo ">>> [Frontend] Restarting..."
-pm2 startOrRestart "$FRONTEND_DIR/ecosystem.config.js" --only irfx-frontend2
+pm2 startOrRestart "$FRONTEND_DIR/ecosystem.config.js" --only mindlura-frontend
 
 pm2 save
 echo ">>> Deploy complete!"
