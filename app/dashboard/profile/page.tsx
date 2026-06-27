@@ -53,9 +53,11 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState('');
   const [dob, setDob] = useState('');
   const [nationality, setNationality] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   // Email OTP
   const [emailOtpVisible, setEmailOtpVisible] = useState(false);
@@ -90,6 +92,7 @@ export default function ProfilePage() {
         setLastName(data.last_name ?? '');
         setDob(data.date_of_birth ?? '');
         setNationality(data.nationality ?? '');
+        setEmail(data.email ?? '');
         setPhone(data.phone ?? '');
       })
       .finally(() => setLoading(false));
@@ -99,6 +102,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true);
     setSavedMsg(false);
+    setSaveError('');
     try {
       await apiFetch('/profile/update', {
         method: 'PUT',
@@ -107,11 +111,13 @@ export default function ProfilePage() {
           last_name: lastName || null,
           date_of_birth: dob || null,
           nationality: nationality || null,
+          email: email || null,
           phone: phone || null,
         },
       });
       const combined = `${firstName} ${lastName}`.trim() || null;
       setSavedMsg(true);
+      const emailChanged = email !== (profile?.email ?? '');
       setProfile(prev => prev ? {
         ...prev,
         first_name: firstName || null,
@@ -119,12 +125,17 @@ export default function ProfilePage() {
         date_of_birth: dob || null,
         nationality: nationality || null,
         name: combined,
+        email: email || prev.email,
         phone: phone || null,
         is_phone_verified: phone !== (prev.phone ?? '') ? false : prev.is_phone_verified,
+        is_email_verified: emailChanged ? false : prev.is_email_verified,
       } : prev);
+      if (emailChanged) setEmailOtpVisible(false);
       setTimeout(() => setSavedMsg(false), 3000);
-    } catch {
-      // ignore, user can retry
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 400) {
+        setSaveError(t.profile_email_already_exists);
+      }
     } finally {
       setSaving(false);
     }
@@ -321,10 +332,12 @@ export default function ProfilePage() {
         <div className="space-y-2">
           <Input
             label={t.profile_email}
-            value={profile?.email ?? ''}
-            readOnly
-            className="opacity-60 cursor-not-allowed"
+            value={email}
+            onChange={profile?.is_email_verified ? undefined : e => setEmail(e.target.value)}
+            readOnly={profile?.is_email_verified}
+            className={profile?.is_email_verified ? 'opacity-60 cursor-not-allowed' : ''}
           />
+          <p className="text-[10px] text-[var(--color-text-muted)]">{t.profile_email_username_note}</p>
 
           {/* Email verification status */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -452,7 +465,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Save button */}
-        <div className="flex items-center gap-3 pt-1">
+        <div className="flex items-center gap-3 pt-1 flex-wrap">
           <Button variant="primary" size="md" loading={saving} onClick={handleSave}>
             {t.profile_save}
           </Button>
@@ -461,6 +474,9 @@ export default function ProfilePage() {
               <CheckCircle2 className="w-3.5 h-3.5" />
               {t.profile_saved}
             </span>
+          )}
+          {saveError && (
+            <span className="text-xs text-[var(--color-danger)]">{saveError}</span>
           )}
         </div>
       </section>
