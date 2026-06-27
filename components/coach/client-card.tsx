@@ -127,14 +127,28 @@ export function ClientCard({ client, index = 0 }: ClientCardProps) {
                         })}
                       </div>
 
-                      {acc.has_snapshot && acc.allow_balance ? (
-                        <div className="text-center hidden md:block">
-                          <p className="text-[10px] text-[var(--color-text-muted)]">{t.client_balance}</p>
-                          <p className="text-sm font-bold text-[var(--color-cyan)]">
-                            {acc.balance !== null ? `$${acc.balance.toFixed(2)}` : '—'}
-                          </p>
-                        </div>
-                      ) : null}
+                      {acc.has_snapshot && (
+                        <>
+                          <div className="text-center hidden sm:block">
+                            <p className="text-[10px] text-[var(--color-text-muted)]">{t.client_balance}</p>
+                            <p className="text-sm font-bold text-[var(--color-cyan)] tracking-widest">
+                              {acc.allow_balance && acc.balance !== null ? `$${acc.balance.toFixed(2)}` : '●●●●●'}
+                            </p>
+                          </div>
+                          <div className="text-center hidden sm:block">
+                            <p className="text-[10px] text-[var(--color-text-muted)]">{t.client_equity}</p>
+                            <p className="text-sm font-bold text-[var(--color-text-primary)] tracking-widest">
+                              {acc.allow_balance && acc.equity !== null ? `$${acc.equity.toFixed(2)}` : '●●●●●'}
+                            </p>
+                          </div>
+                          <div className="text-center hidden md:block">
+                            <p className="text-[10px] text-[var(--color-text-muted)]">{t.client_drawdown}</p>
+                            <p className="text-sm font-bold text-[#f97316]">
+                              {acc.max_drawdown !== null ? `${acc.max_drawdown.toFixed(1)}%` : '—'}
+                            </p>
+                          </div>
+                        </>
+                      )}
 
                       <Button variant="secondary" size="sm" asChild>
                         <Link href={ROUTES.analyze(acc.id)}>
