@@ -28,8 +28,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'MINDLURA' }],
   creator: 'MINDLURA',
   icons: {
-    icon: '/favicon.ico',
-    apple: '/icons/icon-192.png',
+    icon: '/logo.png',
+    apple: '/logo.png',
   },
 };
 
