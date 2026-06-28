@@ -71,8 +71,12 @@ export function NotificationPanel() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-12 right-0 w-80 card-surface rounded-2xl shadow-2xl overflow-hidden z-50 border border-[var(--color-border)]"
-            style={{ direction: lang === 'fa' ? 'rtl' : 'ltr' }}
+            className="absolute top-12 w-80 card-surface rounded-2xl shadow-2xl overflow-hidden z-50 border border-[var(--color-border)]"
+            style={{
+              direction: lang === 'fa' ? 'rtl' : 'ltr',
+              left: lang === 'fa' ? 0 : 'auto',
+              right: lang === 'fa' ? 'auto' : 0,
+            }}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
