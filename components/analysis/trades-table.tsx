@@ -425,29 +425,22 @@ export function TradesTable({ trades, accountId, showJournal = true }: TradesTab
                       </td>
                       {/* Spread */}
                       <td className="px-3 py-2.5 text-center text-xs tabular-nums hidden lg:table-cell">
-                        {trade.spread_pips_open != null || (trade.spread_cost != null && trade.spread_cost > 0) ? (
-                          <div
-                            className="flex flex-col items-center gap-0.5"
-                            title={
-                              trade.spread_pips_open != null
-                                ? `Open spread: ${trade.spread_pips_open}p | Close spread: ${trade.spread_pips_close}p | Cost: ${trade.spread_pips_cost}p`
-                                : undefined
-                            }
-                          >
-                            {trade.spread_pips_open != null && (
-                              <div className="text-[10px] font-mono leading-tight flex items-center gap-0.5">
-                                <span className="text-purple-300 opacity-70">O:{trade.spread_pips_open}p</span>
-                                <span className="opacity-20 mx-0.5">/</span>
-                                <span className="text-purple-300 opacity-70">C:{trade.spread_pips_close}p</span>
-                              </div>
-                            )}
-                            {trade.spread_pips_cost != null && (
-                              <div className="text-[10px] font-bold text-purple-400">{trade.spread_pips_cost}p</div>
-                            )}
+                        {trade.spread_pips_open != null ? (
+                          <div className="flex flex-col items-center gap-0.5">
+                            {/* O:Xp + C:Xp = Xp  — actual tick-based spread audit */}
+                            <div className="text-[10px] font-mono leading-tight text-purple-300">
+                              <span title="Spread at open">{trade.spread_pips_open}p</span>
+                              <span className="opacity-30 mx-0.5">+</span>
+                              <span title="Spread at close">{trade.spread_pips_close}p</span>
+                              <span className="opacity-30 mx-0.5">=</span>
+                              <span className="font-bold text-purple-400" title="Total spread charged">{trade.spread_pips_total}p</span>
+                            </div>
                             {trade.spread_cost != null && trade.spread_cost > 0 && (
                               <div className="text-[10px] text-purple-500">${trade.spread_cost.toFixed(2)}</div>
                             )}
                           </div>
+                        ) : trade.spread_cost != null && trade.spread_cost > 0 ? (
+                          <div className="text-[10px] text-purple-400">${trade.spread_cost.toFixed(2)}</div>
                         ) : (
                           <span className="opacity-30">—</span>
                         )}
