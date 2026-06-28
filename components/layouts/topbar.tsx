@@ -2,11 +2,12 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, Bell } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useUiStore } from '@/store/ui';
 import { getInitials } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useLang } from '@/app/i18n/LangContext';
+import { NotificationPanel } from './notification-panel';
 import type { User } from '@/types';
 
 interface TopbarProps {
@@ -50,10 +51,7 @@ export function Topbar({ user, className }: TopbarProps) {
 
       {/* Right side: notifications + user avatar */}
       <div className="flex items-center gap-3">
-        <button className="relative w-9 h-9 flex items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-elevated)] transition-colors">
-          <Bell className="h-4 w-4" />
-          <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-[var(--color-cyan)] ring-2 ring-[var(--color-deep)]" />
-        </button>
+        <NotificationPanel />
 
         <Link href="/dashboard/profile" className="flex items-center gap-2.5 pl-3 border-r border-[var(--color-border)] hover:opacity-80 transition-opacity">
           <div className="hidden sm:block text-left">

@@ -411,6 +411,22 @@ export interface ChartsData {
   };
 }
 
+// ── Notifications ──────────────────────────────────────────
+export interface Notification {
+  id: number;
+  category: 'system' | 'analysis';
+  level: 'info' | 'warning' | 'danger';
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface NotificationsResponse {
+  notifications: Notification[];
+  unread_count: number;
+}
+
 // ── API ────────────────────────────────────────────────────
 export interface ApiError {
   detail: string;
