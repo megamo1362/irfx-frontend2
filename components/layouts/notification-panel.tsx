@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bell, X, CheckCheck, ShieldAlert, BarChart2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotifications, useMarkRead, useMarkAllRead, useDeleteNotification } from '@/hooks/use-notifications';
+import { useLang } from '@/app/i18n/LangContext';
 import type { Notification } from '@/types';
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -18,18 +19,11 @@ const LEVEL_BG: Record<string, string> = {
   danger:  'rgba(239,68,68,0.08)',
 };
 
-function timeAgo(dateStr: string): string {
-  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
-  if (diff < 60) return 'همین الان';
-  if (diff < 3600) return `${Math.floor(diff / 60)} دقیقه پیش`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} ساعت پیش`;
-  return `${Math.floor(diff / 86400)} روز پیش`;
-}
-
 export function NotificationPanel() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<'system' | 'analysis'>('system');
   const ref = useRef<HTMLDivElement>(null);
+  const { t, lang } = useLang();
 
   const { data } = useNotifications();
   const { mutate: markRead } = useMarkRead();
@@ -39,6 +33,14 @@ export function NotificationPanel() {
   const unread = data?.unread_count ?? 0;
   const all = data?.notifications ?? [];
   const filtered = all.filter((n) => n.category === tab);
+
+  function timeAgo(dateStr: string): string {
+    const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+    if (diff < 60) return t.notif_just_now;
+    if (diff < 3600) return t.notif_min_ago(Math.floor(diff / 60));
+    if (diff < 86400) return t.notif_hours_ago(Math.floor(diff / 3600));
+    return t.notif_days_ago(Math.floor(diff / 86400));
+  }
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -69,12 +71,16 @@ export function NotificationPanel() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute left-0 top-12 w-80 card-surface rounded-2xl shadow-2xl overflow-hidden z-50 border border-[var(--color-border)]"
-            style={{ direction: 'rtl' }}
+            className="absolute top-12 w-80 card-surface rounded-2xl shadow-2xl overflow-hidden z-50 border border-[var(--color-border)]"
+            style={{
+              direction: lang === 'fa' ? 'rtl' : 'ltr',
+              left: lang === 'fa' ? 0 : undefined,
+              right: lang === 'fa' ? undefined : 0,
+            }}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
-              <span className="font-bold text-sm text-[var(--color-text-primary)]">اعلان‌ها</span>
+              <span className="font-bold text-sm text-[var(--color-text-primary)]">{t.notif_title}</span>
               <div className="flex items-center gap-2">
                 {filtered.some((n) => !n.is_read) && (
                   <button
@@ -82,7 +88,7 @@ export function NotificationPanel() {
                     className="text-[10px] text-[var(--color-cyan)] hover:opacity-70 flex items-center gap-1"
                   >
                     <CheckCheck className="h-3 w-3" />
-                    خواندن همه
+                    {t.notif_mark_all_read}
                   </button>
                 )}
                 <button onClick={() => setOpen(false)} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]">
@@ -94,8 +100,8 @@ export function NotificationPanel() {
             {/* Tabs */}
             <div className="flex border-b border-[var(--color-border)]">
               {([
-                { key: 'system',   label: 'سیستمی / امنیتی', icon: ShieldAlert },
-                { key: 'analysis', label: 'آنالیزی',           icon: BarChart2  },
+                { key: 'system',   label: t.notif_tab_system,   icon: ShieldAlert },
+                { key: 'analysis', label: t.notif_tab_analysis,  icon: BarChart2  },
               ] as const).map(({ key, label, icon: Icon }) => (
                 <button
                   key={key}
@@ -116,7 +122,7 @@ export function NotificationPanel() {
             <div className="overflow-y-auto max-h-80">
               {filtered.length === 0 ? (
                 <div className="py-10 text-center text-sm text-[var(--color-text-muted)]">
-                  اعلانی وجود ندارد
+                  {t.notif_empty}
                 </div>
               ) : (
                 filtered.map((n: Notification) => (
@@ -133,11 +139,11 @@ export function NotificationPanel() {
                             <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: LEVEL_COLOR[n.level] }} />
                           )}
                           <p className="text-xs font-bold truncate" style={{ color: LEVEL_COLOR[n.level] }}>
-                            {n.title}
+                            {n.title[lang] ?? n.title.en}
                           </p>
                         </div>
                         <p className="text-xs text-[var(--color-text-muted)] leading-relaxed whitespace-pre-line">
-                          {n.message}
+                          {n.message[lang] ?? n.message.en}
                         </p>
                         <p className="text-[10px] text-[var(--color-text-muted)] mt-1 opacity-60">
                           {timeAgo(n.created_at)}

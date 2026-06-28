@@ -416,8 +416,8 @@ export interface Notification {
   id: number;
   category: 'system' | 'analysis';
   level: 'info' | 'warning' | 'danger';
-  title: string;
-  message: string;
+  title: { fa: string; en: string };
+  message: { fa: string; en: string };
   is_read: boolean;
   created_at: string;
 }

@@ -564,6 +564,17 @@ export const translations = {
       mae:         (v: string) => `${v} trades with MAE exceeding P&L — high risk`,
       mfe:         (v: string) => `${v} trades closed early — MFE more than 2x profit`,
     },
+
+    // ── Notifications ──────────────────────────────────────
+    notif_title: 'Notifications',
+    notif_tab_system: 'System / Security',
+    notif_tab_analysis: 'Analysis',
+    notif_empty: 'No notifications',
+    notif_mark_all_read: 'Mark all read',
+    notif_just_now: 'Just now',
+    notif_min_ago: (n: number) => `${n}m ago`,
+    notif_hours_ago: (n: number) => `${n}h ago`,
+    notif_days_ago: (n: number) => `${n}d ago`,
   },
 
   fa: {
@@ -1130,6 +1141,17 @@ export const translations = {
       mae:         (v: string) => `${v} معامله با MAE بیشتر از سود — ریسک بالا`,
       mfe:         (v: string) => `${v} معامله زودتر از موعد بسته شد — MFE بیشتر از ۲ برابر سود`,
     },
+
+    // ── Notifications ──────────────────────────────────────
+    notif_title: 'اعلان‌ها',
+    notif_tab_system: 'سیستمی / امنیتی',
+    notif_tab_analysis: 'آنالیزی',
+    notif_empty: 'اعلانی وجود ندارد',
+    notif_mark_all_read: 'خواندن همه',
+    notif_just_now: 'همین الان',
+    notif_min_ago: (n: number) => `${n} دقیقه پیش`,
+    notif_hours_ago: (n: number) => `${n} ساعت پیش`,
+    notif_days_ago: (n: number) => `${n} روز پیش`,
   },
 };
 
