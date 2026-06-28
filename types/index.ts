@@ -68,7 +68,7 @@ export interface Trade {
   spread_cost?: number;
   spread_pips_open?: number | null;
   spread_pips_close?: number | null;
-  spread_pips_total?: number | null;
+  spread_pips_cost?: number | null;
   time: string;
   open_time?: string | null;
   close_time?: string | null;
