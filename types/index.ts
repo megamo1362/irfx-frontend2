@@ -66,6 +66,9 @@ export interface Trade {
   commission?: number;
   swap?: number;
   spread_cost?: number;
+  spread_pips_open?: number | null;
+  spread_pips_close?: number | null;
+  spread_pips_total?: number | null;
   time: string;
   open_time?: string | null;
   close_time?: string | null;
