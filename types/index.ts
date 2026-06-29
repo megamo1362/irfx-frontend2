@@ -78,6 +78,7 @@ export interface Trade {
   open_time?: string | null;
   close_time?: string | null;
   comment: string;
+  close_reason?: number | null;
   sl?: number;
   tp?: number;
   sl_modified?: boolean;

@@ -445,6 +445,8 @@ export function TradesTable({ trades, openPositions = [], accountId, showJournal
                   const hasTp = trade.tp && trade.tp > 0;
                   const slModCount = trade.sl_history ? trade.sl_history.length - 1 : 0;
                   const tpModCount = trade.tp_history ? trade.tp_history.length - 1 : 0;
+                  const hitSl = trade.close_reason === 4;
+                  const hitTp = trade.close_reason === 5;
                   return (
                     <motion.tr
                       key={trade.ticket}
@@ -484,7 +486,8 @@ export function TradesTable({ trades, openPositions = [], accountId, showJournal
                               ? trade.sl_history.join(' → ')
                               : undefined}
                           >
-                            <span className="text-rose-400 font-mono">{trade.sl}</span>
+                            <span className={`font-mono ${hitSl ? 'text-rose-300 font-bold' : 'text-rose-400'}`}>{trade.sl}</span>
+                            {hitSl && <span className="text-[9px] text-rose-300 opacity-70">hit</span>}
                             {slModCount > 0 && (
                               <span className="text-[9px] text-yellow-400 opacity-80">
                                 {t.trades_sl_modified(slModCount)}
@@ -504,7 +507,8 @@ export function TradesTable({ trades, openPositions = [], accountId, showJournal
                               ? trade.tp_history.join(' → ')
                               : undefined}
                           >
-                            <span className="text-emerald-400 font-mono">{trade.tp}</span>
+                            <span className={`font-mono ${hitTp ? 'text-emerald-300 font-bold' : 'text-emerald-400'}`}>{trade.tp}</span>
+                            {hitTp && <span className="text-[9px] text-emerald-300 opacity-70">hit</span>}
                             {tpModCount > 0 && (
                               <span className="text-[9px] text-yellow-400 opacity-80">
                                 {t.trades_sl_modified(tpModCount)}
