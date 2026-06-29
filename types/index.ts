@@ -54,6 +54,8 @@ export interface OpenPosition {
   open_time: string;
   sl?: number;
   tp?: number;
+  spread_pips_open?: number | null;
+  spread_cost?: number | null;
   mae?: number | null;
   mfe?: number | null;
 }

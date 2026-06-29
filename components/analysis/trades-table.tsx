@@ -377,8 +377,11 @@ export function TradesTable({ trades, openPositions = [], accountId, showJournal
                       <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums">
                         {pos.volume}
                       </td>
-                      <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums">
-                        {pos.open_price}
+                      <td className="px-4 py-2.5 text-center tabular-nums">
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span className="text-[var(--color-text-muted)] text-xs">{pos.open_price}</span>
+                          <span className="text-[10px] text-[var(--color-cyan)] font-mono">{pos.current_price}</span>
+                        </div>
                       </td>
                       <td className="px-4 py-2.5 text-center tabular-nums">
                         <div className="flex flex-col items-center gap-0.5">
@@ -406,9 +409,20 @@ export function TradesTable({ trades, openPositions = [], accountId, showJournal
                           <span className="text-[var(--color-text-muted)] opacity-40">{t.trades_sl_none}</span>
                         )}
                       </td>
-                      {/* Spread — not available for open positions */}
-                      <td className="px-3 py-2.5 text-center hidden lg:table-cell">
-                        <span className="opacity-30">—</span>
+                      {/* Spread at open only */}
+                      <td className="px-3 py-2.5 text-center text-xs tabular-nums hidden lg:table-cell">
+                        {pos.spread_pips_open != null ? (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className="text-[10px] font-mono text-purple-300">
+                              <span title="Spread at open">{pos.spread_pips_open}p</span>
+                            </div>
+                            {pos.spread_cost != null && pos.spread_cost > 0 && (
+                              <div className="text-[10px] text-purple-500">${pos.spread_cost.toFixed(2)}</div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="opacity-30">—</span>
+                        )}
                       </td>
                       <td className="px-4 py-2.5 text-center text-orange-400 text-xs tabular-nums hidden md:table-cell">
                         {pos.mae != null ? `$${pos.mae.toFixed(2)}` : '—'}
