@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/constants';
-import type { SnapshotResponse, UserFeatures, Journal, Trade, Analysis, ChartsData } from '@/types';
+import type { SnapshotResponse, UserFeatures, Journal, Trade, Analysis, ChartsData, OpenPosition } from '@/types';
 
 export function useCheckAndRun() {
   return useMutation({
@@ -17,6 +17,7 @@ export interface RealtimeResponse {
   equity: number;
   analysis: Analysis;
   trades: Trade[];
+  open_positions?: OpenPosition[];
 }
 
 export function useRealtimeAnalysis() {

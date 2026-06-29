@@ -52,6 +52,8 @@ export interface OpenPosition {
   profit: number;
   swap: number;
   open_time: string;
+  sl?: number;
+  tp?: number;
   mae?: number | null;
   mfe?: number | null;
 }

@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { apiFetch } from '@/lib/api';
 import { useSaveJournal } from '@/hooks/use-analysis';
 import { useLang } from '@/app/i18n/LangContext';
-import type { Trade, Journal, JournalEntry } from '@/types';
+import type { Trade, Journal, JournalEntry, OpenPosition } from '@/types';
 
 // ── Journal modal ──────────────────────────────────────────
 
@@ -276,13 +276,14 @@ type Filter = 'all' | 'win' | 'loss';
 
 interface TradesTableProps {
   trades: Trade[];
+  openPositions?: OpenPosition[];
   accountId: string;
   showJournal?: boolean;
 }
 
 const PAGE_SIZE = 50;
 
-export function TradesTable({ trades, accountId, showJournal = true }: TradesTableProps) {
+export function TradesTable({ trades, openPositions = [], accountId, showJournal = true }: TradesTableProps) {
   const { t } = useLang();
   const [filter, setFilter] = useState<Filter>('all');
   const [page, setPage] = useState(0);
@@ -328,7 +329,7 @@ export function TradesTable({ trades, accountId, showJournal = true }: TradesTab
 
       {/* Table */}
       <div className="card-surface rounded-2xl overflow-hidden">
-        {filtered.length === 0 ? (
+        {openPositions.length === 0 && filtered.length === 0 ? (
           <p className="text-center text-[var(--color-text-muted)] text-sm p-10">{t.trades_no_results}</p>
         ) : (
           <div className="overflow-x-auto">
@@ -350,6 +351,79 @@ export function TradesTable({ trades, accountId, showJournal = true }: TradesTab
                 </tr>
               </thead>
               <tbody>
+                {/* Open positions */}
+                {openPositions.map((pos, i) => {
+                  const isProfit = pos.profit >= 0;
+                  const hasSl = pos.sl != null && pos.sl > 0;
+                  const hasTp = pos.tp != null && pos.tp > 0;
+                  return (
+                    <motion.tr
+                      key={`open-${pos.ticket}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: i * 0.015 }}
+                      className="border-t border-[var(--color-border)] bg-[rgba(0,212,255,0.02)] hover:bg-[rgba(0,212,255,0.04)] transition-colors"
+                    >
+                      <td className="px-4 py-2.5 font-mono font-bold text-[var(--color-text-primary)]">
+                        {pos.symbol}
+                      </td>
+                      <td className="px-4 py-2.5 text-center">
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                          pos.type === 'buy' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'
+                        }`}>
+                          {pos.type === 'buy' ? 'BUY' : 'SELL'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums">
+                        {pos.volume}
+                      </td>
+                      <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums">
+                        {pos.open_price}
+                      </td>
+                      <td className="px-4 py-2.5 text-center tabular-nums">
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--color-cyan-dim)] text-[var(--color-cyan)] border border-[rgba(0,212,255,0.2)]">
+                            باز
+                          </span>
+                          <span className={`text-[10px] font-mono ${isProfit ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {isProfit ? '+' : ''}{pos.profit.toFixed(2)}$
+                          </span>
+                        </div>
+                      </td>
+                      {/* SL */}
+                      <td className="px-3 py-2.5 text-center text-xs tabular-nums hidden lg:table-cell">
+                        {hasSl ? (
+                          <span className="text-rose-400 font-mono">{pos.sl}</span>
+                        ) : (
+                          <span className="text-[var(--color-text-muted)] opacity-40">{t.trades_sl_none}</span>
+                        )}
+                      </td>
+                      {/* TP */}
+                      <td className="px-3 py-2.5 text-center text-xs tabular-nums hidden lg:table-cell">
+                        {hasTp ? (
+                          <span className="text-emerald-400 font-mono">{pos.tp}</span>
+                        ) : (
+                          <span className="text-[var(--color-text-muted)] opacity-40">{t.trades_sl_none}</span>
+                        )}
+                      </td>
+                      {/* Spread — not available for open positions */}
+                      <td className="px-3 py-2.5 text-center hidden lg:table-cell">
+                        <span className="opacity-30">—</span>
+                      </td>
+                      <td className="px-4 py-2.5 text-center text-orange-400 text-xs tabular-nums hidden md:table-cell">
+                        {pos.mae != null ? `$${pos.mae.toFixed(2)}` : '—'}
+                      </td>
+                      <td className="px-4 py-2.5 text-center text-blue-400 text-xs tabular-nums hidden md:table-cell">
+                        {pos.mfe != null ? `$${pos.mfe.toFixed(2)}` : '—'}
+                      </td>
+                      <td className="px-4 py-2.5 text-left text-[var(--color-text-muted)] text-xs tabular-nums hidden sm:table-cell">
+                        {pos.open_time.replace('T', ' ').slice(0, 16)}
+                      </td>
+                      {showJournal && <td className="px-3 py-2.5" />}
+                    </motion.tr>
+                  );
+                })}
+                {/* Closed trades */}
                 {paginated.map((trade, i) => {
                   const isProfit = trade.profit >= 0;
                   const hasSl = trade.sl && trade.sl > 0;
@@ -427,7 +501,6 @@ export function TradesTable({ trades, accountId, showJournal = true }: TradesTab
                       <td className="px-3 py-2.5 text-center text-xs tabular-nums hidden lg:table-cell">
                         {trade.spread_pips_open != null ? (
                           <div className="flex flex-col items-center gap-0.5">
-                            {/* O:Xp + C:Xp = Xp  — actual tick-based spread audit */}
                             <div className="text-[10px] font-mono leading-tight text-purple-300">
                               <span title="Spread at open">{trade.spread_pips_open}p</span>
                               <span className="opacity-30 mx-0.5">+</span>

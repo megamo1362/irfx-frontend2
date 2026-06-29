@@ -23,7 +23,7 @@ import { useCheckAndRun, useRealtimeAnalysis, useUserFeatures, useFilteredAnalys
 import { ApiError } from '@/lib/api';
 import { ROUTES } from '@/lib/constants';
 import { useLang } from '@/app/i18n/LangContext';
-import type { Analysis, Trade } from '@/types';
+import type { Analysis, Trade, OpenPosition } from '@/types';
 
 type DatePreset = 'all' | 'this_week' | 'this_month' | 'last_month' | '3_months' | '6_months' | '1_year' | 'custom';
 
@@ -70,6 +70,7 @@ interface PageData {
   equity: number | null;
   analysis: Analysis;
   trades: Trade[];
+  openPositions: OpenPosition[];
   snapshotTime: string | null;
   hoursUntilNext: number | null;
   hoursSinceUpdate: number | null;
@@ -120,6 +121,7 @@ export function AnalysisPage({ id }: { id: string }) {
             equity: snap.equity ?? null,
             analysis: snap.analysis,
             trades: snap.trades ?? [],
+            openPositions: snap.open_positions ?? [],
             snapshotTime: snap.snapshot_time ?? null,
             hoursUntilNext: snap.hours_until_next ?? null,
             hoursSinceUpdate: snap.hours_since_update ?? null,
@@ -167,6 +169,7 @@ export function AnalysisPage({ id }: { id: string }) {
             hoursSinceUpdate: prev?.hoursSinceUpdate ?? null,
             analysis: result.analysis,
             trades: result.trades,
+            openPositions: prev?.openPositions ?? [],
           }));
         },
         onError: () => {
@@ -187,6 +190,7 @@ export function AnalysisPage({ id }: { id: string }) {
           equity: result.equity ?? null,
           analysis: result.analysis,
           trades: result.trades ?? [],
+          openPositions: result.open_positions ?? [],
           snapshotTime: null,
           hoursUntilNext: null,
           hoursSinceUpdate: null,
@@ -227,10 +231,12 @@ export function AnalysisPage({ id }: { id: string }) {
 
   const canRunRealtime = !isCoachMode && (features?.realtime_analysis ?? false);
   const realTrades = (data?.trades ?? []).filter(t => [0, 1].includes(t.type) && t.volume > 0 && t.profit !== 0);
+  const openCount = data?.openPositions?.length ?? 0;
+  const tradesTabCount = realTrades.length + openCount;
 
   const tabs: { key: TabKey; label: string }[] = [
     { key: 'summary', label: t.analysis_tab_summary },
-    { key: 'trades', label: `${t.analysis_tab_trades} (${realTrades.length})` },
+    { key: 'trades', label: `${t.analysis_tab_trades} (${tradesTabCount})` },
     { key: 'time', label: t.analysis_tab_time },
     { key: 'symbols', label: t.analysis_tab_symbols },
     { key: 'equity', label: t.analysis_tab_charts },
@@ -510,6 +516,7 @@ export function AnalysisPage({ id }: { id: string }) {
                   {activeTab === 'trades' && (
                     <TradesTable
                       trades={data.trades}
+                      openPositions={data.openPositions}
                       accountId={id}
                       showJournal={!isCoachMode}
                     />
@@ -535,7 +542,7 @@ export function AnalysisPage({ id }: { id: string }) {
                   <SummaryStats summary={data.analysis.summary} analysis={data.analysis} />
                 )}
                 {printTabs.has('trades') && (
-                  <TradesTable trades={data.trades} accountId={id} showJournal={!isCoachMode} />
+                  <TradesTable trades={data.trades} openPositions={data.openPositions} accountId={id} showJournal={!isCoachMode} />
                 )}
                 {printTabs.has('time') && (
                   <TimeAnalysis data={data.analysis.time_analysis ?? []} />
