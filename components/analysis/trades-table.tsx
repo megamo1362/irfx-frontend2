@@ -387,7 +387,7 @@ export function TradesTable({ trades, openPositions = [], accountId, showJournal
                       <td className="px-4 py-2.5 text-center tabular-nums">
                         <div className="flex flex-col items-center gap-0.5">
                           <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--color-cyan-dim)] text-[var(--color-cyan)] border border-[rgba(0,212,255,0.2)]">
-                            باز
+                            {t.trades_open_badge}
                           </span>
                           <span className={`text-[10px] font-mono ${isProfit ? 'text-emerald-400' : 'text-red-400'}`}>
                             {isProfit ? '+' : ''}{pos.profit.toFixed(2)}$
