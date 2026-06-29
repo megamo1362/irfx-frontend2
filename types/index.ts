@@ -65,6 +65,7 @@ export interface Trade {
   symbol: string;
   type: number;
   volume: number;
+  open_price?: number | null;
   price: number;
   profit: number;
   commission?: number;

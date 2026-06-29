@@ -339,7 +339,8 @@ export function TradesTable({ trades, openPositions = [], accountId, showJournal
                   <th className="px-4 py-3 text-right">{t.trades_col_symbol}</th>
                   <th className="px-4 py-3 text-center">{t.trades_col_type}</th>
                   <th className="px-4 py-3 text-center">{t.trades_col_volume}</th>
-                  <th className="px-4 py-3 text-center">{t.trades_col_price}</th>
+                  <th className="px-4 py-3 text-center hidden sm:table-cell">{t.trades_col_entry}</th>
+                  <th className="px-4 py-3 text-center hidden sm:table-cell">{t.trades_col_exit}</th>
                   <th className="px-4 py-3 text-center">{t.trades_col_pnl}</th>
                   <th className="px-4 py-3 text-center text-rose-400 hidden lg:table-cell">{t.trades_col_sl}</th>
                   <th className="px-4 py-3 text-center text-emerald-400 hidden lg:table-cell">{t.trades_col_tp}</th>
@@ -377,11 +378,11 @@ export function TradesTable({ trades, openPositions = [], accountId, showJournal
                       <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums">
                         {pos.volume}
                       </td>
-                      <td className="px-4 py-2.5 text-center tabular-nums">
-                        <div className="flex flex-col items-center gap-0.5">
-                          <span className="text-[var(--color-text-muted)] text-xs">{pos.open_price}</span>
-                          <span className="text-[10px] text-[var(--color-cyan)] font-mono">{pos.current_price}</span>
-                        </div>
+                      <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums text-xs hidden sm:table-cell">
+                        {pos.open_price}
+                      </td>
+                      <td className="px-4 py-2.5 text-center text-[var(--color-cyan)] tabular-nums text-xs font-mono hidden sm:table-cell">
+                        {pos.current_price}
                       </td>
                       <td className="px-4 py-2.5 text-center tabular-nums">
                         <div className="flex flex-col items-center gap-0.5">
@@ -465,7 +466,10 @@ export function TradesTable({ trades, openPositions = [], accountId, showJournal
                       <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums">
                         {trade.volume}
                       </td>
-                      <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums">
+                      <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums text-xs hidden sm:table-cell">
+                        {trade.open_price ?? '—'}
+                      </td>
+                      <td className="px-4 py-2.5 text-center text-[var(--color-text-muted)] tabular-nums text-xs hidden sm:table-cell">
                         {trade.price}
                       </td>
                       <td className={`px-4 py-2.5 text-center font-bold tabular-nums ${isProfit ? 'text-emerald-400' : 'text-red-400'}`}>
