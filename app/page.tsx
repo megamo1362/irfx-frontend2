@@ -670,7 +670,7 @@ export default function MindluraLandingLuxury() {
               >
                 <span className="text-sm font-medium pr-8" style={{ fontFamily: displayFont, color: "#E9ECF3" }}>{item.q}</span>
                 <span className="text-lg flex-shrink-0" style={{ color: accent, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>
-                  {openFaq === i ? "â" : "+"}
+                  <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: openFaq === i ? "&#x2212;" : "&#x002B;" }} />
                 </span>
               </button>
               {openFaq === i && (
@@ -746,7 +746,9 @@ function CandlePulseMotif({ accent }: { accent: string }) {
 
 /* ---------------- Role hierarchy diagram ---------------- */
 function RoleHierarchy({ isFa }: { isFa: boolean }) {
-  const labels = isFa ? { coach: "Ú©ÙÚ", client: "Ú©ÙØ§ÛÙØª" } : { coach: "Coach", client: "Client" };
+  const labels = isFa
+    ? { coach: "کوچ", client: "کلاینت" }
+    : { coach: "Coach", client: "Client" };
   return (
     <div className="flex flex-col items-center gap-4">
       <RoleNode label={labels.coach} icon={Users} />

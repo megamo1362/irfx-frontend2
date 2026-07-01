@@ -6,10 +6,10 @@
 /* MINDLURA Brand: Deep Navy + Cyan + Purple + Metallic Silver */
 :root {
   /* Backgrounds */
-  --color-void: #03060f;
-  --color-deep: #060c1a;
-  --color-surface: #0a1326;
-  --color-elevated: #0e1b32;
+  --color-void: #0A0E17;
+  --color-deep: #12121C;
+  --color-surface: #12121C;
+  --color-elevated: #1A1A2E;
   --color-glass: rgba(8, 16, 36, 0.65);
   --color-overlay: rgba(3, 6, 15, 0.88);
 
@@ -40,16 +40,16 @@
   --color-emerald-dim: rgba(0, 200, 150, 0.12);
 
   /* Text hierarchy */
-  --color-text-primary: #e2f4ff;
-  --color-text-secondary: #8bacc0;
-  --color-text-muted: #4a6a80;
-  --color-text-disabled: #2a3a48;
+  --color-text-primary: #E9ECF3;
+  --color-text-secondary: #A8B2C4;
+  --color-text-muted: #7C8296;
+  --color-text-disabled: #3A4055;
 
   /* Borders */
-  --color-border: rgba(0, 212, 255, 0.1);
+  --color-border: #232332;
   --color-border-hover: rgba(0, 212, 255, 0.35);
   --color-border-active: rgba(0, 212, 255, 0.6);
-  --color-border-subtle: rgba(0, 212, 255, 0.05);
+  --color-border-subtle: rgba(35, 35, 50, 0.5);
 
   /* Status */
   --color-success: #22c55e;
@@ -95,8 +95,8 @@
   --header-height: 64px;
 
   /* Shadcn-compatible HSL variables */
-  --background: 222 47% 3%;
-  --foreground: 210 60% 93%;
+  --background: 228 43% 7%;
+  --foreground: 220 27% 93%;
   --card: 220 47% 6%;
   --card-foreground: 210 60% 93%;
   --popover: 220 47% 6%;

@@ -26,19 +26,19 @@ export function NavItem({ href, label, icon: Icon, exact = false, collapsed = fa
         'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
         'hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)]',
         isActive
-          ? 'bg-[var(--color-cyan-dim)] text-[var(--color-cyan)]'
+          ? 'bg-[rgba(139,124,246,0.12)] text-[#8B7CF6]'
           : 'text-[var(--color-text-secondary)]',
       )}
     >
       {/* Active indicator stripe */}
       {isActive && (
-        <span className="absolute right-0 inset-y-2 w-0.5 rounded-full bg-[var(--color-cyan)]" />
+        <span className="absolute right-0 inset-y-2 w-0.5 rounded-full bg-[#8B7CF6]" />
       )}
 
       <Icon
         className={cn(
           'flex-shrink-0 transition-colors duration-200',
-          isActive ? 'text-[var(--color-cyan)]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-text-secondary)]',
+          isActive ? 'text-[#8B7CF6]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-text-secondary)]',
           collapsed ? 'h-5 w-5' : 'h-4 w-4',
         )}
       />
