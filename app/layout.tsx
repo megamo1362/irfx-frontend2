@@ -63,6 +63,47 @@ export const viewport: Viewport = {
   themeColor: '#020510',
 };
 
+const schemaOrg = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Mindlura",
+  "url": "https://mindlura.com",
+  "logo": "https://mindlura.com/logo.png",
+  "description": "Mindlura is a forex trading psychology platform that connects to MT5 accounts and provides behavioral analytics, psychology scoring, and coach tools.",
+  "sameAs": [],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer support",
+    "email": "support@mindlura.com"
+  }
+};
+
+const schemaSoftware = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Mindlura",
+  "url": "https://mindlura.com",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "description": "A trading psychology platform for forex traders and coaches. Connects to MT5 via read-only Investor Password and provides MAE/MFE analysis, Psychology Score, emotion-aware journaling, pattern detection, session analytics, and cost analysis.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "Free trial available"
+  },
+  "featureList": [
+    "MAE/MFE Analysis",
+    "Psychology Score",
+    "Emotion-Aware Journal",
+    "Session & Time Analysis",
+    "Pattern Detection",
+    "Cost Analysis",
+    "Coach-Client Dashboard",
+    "MT5 Integration"
+  ]
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -71,6 +112,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaSoftware) }}
+        />
+      </head>
       <body className="circuit-bg antialiased">
         <ThemeProvider>
           <LangProvider>
