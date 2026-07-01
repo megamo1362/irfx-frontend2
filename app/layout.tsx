@@ -18,9 +18,9 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-const siteTitle = 'Mindlura — Trading Psychology, Quantified | MT5 Behavioral Analytics';
+const siteTitle = 'Mindlura — Trading Psychology, Quantified | Forex Behavioral Analytics';
 const siteDescription =
-  'Connect your MT5 account and discover the behavioral patterns costing you money. MAE/MFE analysis, Psychology Score, emotion-aware journaling, and coach tools — built by someone from inside a forex brokerage.';
+  'Connect your trading account and discover the behavioral patterns costing you money. MAE/MFE analysis, Psychology Score, emotion-aware journaling, and coach tools — currently supporting MT5, with cTrader coming soon.';
 const siteUrl = 'https://mindlura.com';
 const ogImage = 'https://mindlura.com/og-image.png';
 
