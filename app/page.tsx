@@ -323,6 +323,13 @@ const COPY = {
 
 const ICONS = { trend: TrendingUp, brain: Brain, journal: NotebookPen, clock: Clock, repeat: Repeat, coins: Coins, bot: Bot };
 
+// Matches the order of footer cols in COPY (Product | Company | Legal)
+const FOOTER_HREFS = [
+  ["#features", "/pricing", "#coaches", "/security"],
+  ["/about", "/contact", "/blog"],
+  ["/privacy", "/terms"],
+];
+
 export default function MindluraLandingLuxury() {
   const [lang, setLang] = useState<"en" | "fa">("en");
   const [audience, setAudience] = useState<"trader" | "coach">("trader");
@@ -371,9 +378,9 @@ export default function MindluraLandingLuxury() {
               {isFa ? "English" : "فارسی"}
             </button>
             <Link href="/login" className="text-sm ml-focus" style={{ color: "#C7CBE0" }}>{t.nav.login}</Link>
-            <a href="#" className="text-sm px-5 py-2 ml-focus" style={{ border: `1px solid ${accent}`, color: "#E9ECF3" }}>
+            <Link href="/register" className="text-sm px-5 py-2 ml-focus" style={{ border: `1px solid ${accent}`, color: "#E9ECF3" }}>
               {t.nav.start}
-            </a>
+            </Link>
           </div>
 
           <button className="md:hidden ml-focus" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
@@ -419,9 +426,9 @@ export default function MindluraLandingLuxury() {
           </p>
 
           <div className="flex flex-wrap items-center gap-8">
-            <a href="#" className="px-7 py-3 text-sm ml-focus ml-glow" style={{ backgroundColor: accent, color: "#0A0E17" }}>
+            <Link href="/register" className="px-7 py-3 text-sm ml-focus ml-glow" style={{ backgroundColor: accent, color: "#0A0E17" }}>
               {t.hero[audience].cta1}
-            </a>
+            </Link>
             <a href="#how" className="text-sm flex items-center gap-2 ml-focus" style={{ color: "#C7CBE0" }}>
               {t.hero[audience].cta2}
               <ArrowRight size={14} className={isFa ? "rotate-180" : ""} />
@@ -589,10 +596,10 @@ export default function MindluraLandingLuxury() {
             <p className="text-sm italic mb-4" style={{ color: "#38BDF8", fontFamily: displayFont }}>{t.coachSection.eyebrow}</p>
             <h2 className="text-2xl md:text-3xl mb-5 max-w-md" style={{ fontFamily: displayFont, fontWeight: 500 }}>{t.coachSection.title}</h2>
             <p className="text-sm leading-relaxed mb-8 max-w-md" style={{ color: "#7C8296" }}>{t.coachSection.sub}</p>
-            <a href="#" className="text-sm inline-flex items-center gap-2 ml-focus" style={{ color: "#38BDF8" }}>
+            <Link href="/register" className="text-sm inline-flex items-center gap-2 ml-focus" style={{ color: "#38BDF8" }}>
               {t.coachSection.cta}
               <ArrowRight size={14} className={isFa ? "rotate-180" : ""} />
-            </a>
+            </Link>
           </div>
           <div className="flex flex-col items-center justify-center gap-4">
             <RoleHierarchy isFa={isFa} />
@@ -606,7 +613,7 @@ export default function MindluraLandingLuxury() {
         <div className="hairline mb-16" />
         <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
           <h2 className="text-2xl md:text-3xl" style={{ fontFamily: displayFont, fontWeight: 500 }}>{t.blog.title}</h2>
-          <a href="#" className="text-sm ml-focus" style={{ color: accent }}>{t.blog.cta} →</a>
+          <Link href="/blog" className="text-sm ml-focus" style={{ color: accent }}>{t.blog.cta} →</Link>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {t.blog.cards.map((card, i) => (
@@ -614,7 +621,7 @@ export default function MindluraLandingLuxury() {
               <span className="text-xs mb-3 uppercase tracking-wide" style={{ color: accent, fontFamily: "'JetBrains Mono', monospace" }}>{card.category}</span>
               <h3 className="text-base mb-3 leading-snug flex-1" style={{ fontFamily: displayFont, fontWeight: 500 }}>{card.title}</h3>
               <p className="text-xs leading-relaxed mb-4" style={{ color: "#7C8296" }}>{card.desc}</p>
-              <a href="#" className="text-xs ml-focus" style={{ color: accent }}>→</a>
+              <Link href="/blog" className="text-xs ml-focus" style={{ color: accent }}>→</Link>
             </div>
           ))}
         </div>
@@ -643,7 +650,7 @@ export default function MindluraLandingLuxury() {
             </div>
           ))}
         </div>
-        <a href="#" className="text-sm underline ml-focus" style={{ color: accent }}>{t.pricing.cta}</a>
+        <Link href="/pricing" className="text-sm underline ml-focus" style={{ color: accent }}>{t.pricing.cta}</Link>
       </section>
 
       {/* ---------------- FAQ ---------------- */}
@@ -675,10 +682,10 @@ export default function MindluraLandingLuxury() {
         <div className="hairline mb-16 max-w-xs mx-auto" style={{ backgroundColor: accent, opacity: 0.5 }} />
         <h2 className="text-2xl md:text-4xl mb-3 max-w-2xl mx-auto" style={{ fontFamily: displayFont, fontWeight: 500 }}>{t.finalCta.title}</h2>
         <p className="text-base mb-10" style={{ color: "#7C8296" }}>{t.finalCta.sub}</p>
-        <a href="#" className="inline-flex items-center gap-2 px-8 py-3.5 text-sm ml-focus ml-glow" style={{ backgroundColor: accent, color: "#0A0E17" }}>
+        <Link href="/register" className="inline-flex items-center gap-2 px-8 py-3.5 text-sm ml-focus ml-glow" style={{ backgroundColor: accent, color: "#0A0E17" }}>
           {t.finalCta.button}
           <ArrowRight size={16} className={isFa ? "rotate-180" : ""} />
-        </a>
+        </Link>
       </section>
 
       {/* ---------------- FOOTER ---------------- */}
@@ -696,7 +703,11 @@ export default function MindluraLandingLuxury() {
             <div key={i}>
               <h4 className="text-xs mb-3 uppercase tracking-wide" style={{ color: "#7C8296" }}>{col.h}</h4>
               <ul className="space-y-2 text-sm" style={{ color: "#5A6178" }}>
-                {col.items.map((item, j) => <li key={j}>{item}</li>)}
+                {col.items.map((item, j) => (
+                  <li key={j}>
+                    <Link href={FOOTER_HREFS[i][j]} className="hover:text-[#C7CBE0] transition-colors">{item}</Link>
+                  </li>
+                ))}
               </ul>
             </div>
           ))}
