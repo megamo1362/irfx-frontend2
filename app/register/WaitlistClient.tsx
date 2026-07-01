@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { submitWaitlist } from './actions';
 
 const displayFont = "'Fraunces', serif";
 const accent = '#8B7CF6';
@@ -42,13 +43,8 @@ export default function WaitlistClient({ faFirst }: { faFirst: boolean }) {
     if (!email.includes('@') || !email.includes('.')) return;
     setState('loading');
     try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, lang, timestamp: new Date().toISOString() }),
-      });
-      const data = await res.json();
-      setState(data.success ? 'success' : 'error');
+      const result = await submitWaitlist(email, lang);
+      setState(result.success ? 'success' : 'error');
     } catch {
       setState('error');
     }
