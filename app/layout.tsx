@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { Providers } from '@/app/providers';
 import { LangProvider } from '@/app/i18n/LangContext';
 import { ThemeProvider } from '@/app/i18n/ThemeContext';
@@ -123,6 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="circuit-bg antialiased">
+        <GoogleAnalytics gaId="G-8G71SG54YG" />
         <ThemeProvider>
           <LangProvider>
             <ClientWrapper>
