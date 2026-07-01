@@ -32,6 +32,10 @@ npm install --legacy-peer-deps
 echo ">>> [Frontend] Building..."
 npm run build
 
+echo ">>> [Frontend] Copying static assets to standalone..."
+cp -r .next/static .next/standalone/.next/static
+cp -r public .next/standalone/public
+
 echo ">>> [Frontend] Restarting..."
 pm2 startOrRestart "$FRONTEND_DIR/ecosystem.config.js" --only mindlura-frontend
 
