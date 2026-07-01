@@ -11,10 +11,18 @@ interface PsychologyInsight {
   message: { en: string; fa: string };
 }
 
+interface PsychologyDeduction {
+  signal: string;
+  points: number;
+  count: number;
+  label: { en: string; fa: string };
+}
+
 interface PsychologyScoreData {
   overall: number;
   grade: { en: string; fa: string };
   scores: Record<string, number>;
+  deductions?: PsychologyDeduction[];
   insights: PsychologyInsight[];
   weights?: Record<string, number>;
 }
@@ -210,6 +218,29 @@ export function PsychologyScore({ data }: PsychologyScoreProps) {
           })}
         </div>
       </div>
+
+      {/* Deductions */}
+      {data.deductions && data.deductions.length > 0 && (
+        <div className="space-y-2 pt-1">
+          <div className="h-px bg-[var(--color-border)]" />
+          <p className="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider px-1">
+            {l === 'fa' ? 'کسری‌های امتیاز' : 'Score Deductions'}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {data.deductions.map((d, i) => (
+              <span
+                key={i}
+                title={d.label[l]}
+                className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full border border-red-500/20 bg-red-500/6 text-red-300 font-medium"
+              >
+                {d.points}pts
+                <span className="text-red-400/60 font-normal">·</span>
+                {d.label[l].length > 40 ? d.label[l].slice(0, 40) + '…' : d.label[l]}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Insights */}
       {data.insights.length > 0 && (

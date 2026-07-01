@@ -168,6 +168,12 @@ export interface Analysis {
     overall: number;
     grade: { en: string; fa: string };
     scores: Record<string, number>;
+    deductions?: Array<{
+      signal: string;
+      points: number;
+      count: number;
+      label: { en: string; fa: string };
+    }>;
     insights: Array<{
       type: string;
       severity: 'high' | 'medium' | 'low';
@@ -423,6 +429,23 @@ export interface JournalPermission {
   coach_id: number;
   coach_name: string;
   allow_journal_view: boolean;
+}
+
+// ── AI Psychology Analysis ─────────────────────────────────
+export interface AIPattern {
+  pattern: string;
+  severity: 'low' | 'medium' | 'high';
+  explanation: { en: string; fa: string };
+}
+
+export interface AIAnalysisResult {
+  summary: { en: string; fa: string };
+  key_patterns: AIPattern[];
+  recommendations: { en: string; fa: string }[];
+  risk_level: 'low' | 'medium' | 'high';
+  cached: boolean;
+  created_at: string | null;
+  tokens_used?: number | null;
 }
 
 // ── Charts ─────────────────────────────────────────────────

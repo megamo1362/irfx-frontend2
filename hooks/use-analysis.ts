@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/constants';
-import type { SnapshotResponse, UserFeatures, Journal, Trade, Analysis, ChartsData, OpenPosition } from '@/types';
+import type { SnapshotResponse, UserFeatures, Journal, Trade, Analysis, ChartsData, OpenPosition, AIAnalysisResult } from '@/types';
 
 export function useCheckAndRun() {
   return useMutation({
@@ -79,5 +79,21 @@ export function useSaveJournal() {
       }
       return apiFetch('/journal/create', { method: 'POST', body: data });
     },
+  });
+}
+
+export interface AIAnalysisInput {
+  accountId: string | number;
+  fromDate?: string;
+  toDate?: string;
+}
+
+export function useAIAnalysis() {
+  return useMutation({
+    mutationFn: ({ accountId, fromDate, toDate }: AIAnalysisInput) =>
+      apiFetch<AIAnalysisResult>('/analysis/ai-psychology', {
+        method: 'POST',
+        body: { account_id: Number(accountId), from_date: fromDate, to_date: toDate },
+      }),
   });
 }

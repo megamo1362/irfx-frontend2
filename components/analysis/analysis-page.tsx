@@ -19,6 +19,7 @@ import { ChartTabs } from './chart-tabs';
 import { TradesTable } from './trades-table';
 import { TimeAnalysis } from './time-analysis';
 import { SymbolAnalysis } from './symbol-analysis';
+import { AIPsychologyCard } from './ai-psychology';
 import { useCheckAndRun, useRealtimeAnalysis, useUserFeatures, useFilteredAnalysis } from '@/hooks/use-analysis';
 import { ApiError } from '@/lib/api';
 import { ROUTES } from '@/lib/constants';
@@ -446,6 +447,16 @@ export function AnalysisPage({ id }: { id: string }) {
           {data.analysis.psychology_score && (
             <PsychologyScore data={data.analysis.psychology_score} />
           )}
+
+          {/* AI Psychology Analysis */}
+          {data.analysis.has_data && !isCoachMode && (() => {
+            const aiRange = datePreset !== 'all' && datePreset !== 'custom' ? getPresetRange(datePreset) : null;
+            const aiFrom = aiRange?.from ?? (datePreset === 'custom' && customFrom ? customFrom : undefined);
+            const aiTo   = aiRange?.to   ?? (datePreset === 'custom' && customTo   ? customTo   : undefined);
+            return (
+              <AIPsychologyCard accountId={id} fromDate={aiFrom} toDate={aiTo} />
+            );
+          })()}
 
           {/* Session Analysis */}
           {data.analysis.session_analysis && (
