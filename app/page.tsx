@@ -29,7 +29,7 @@ import {
 const COPY = {
   en: {
     dir: "ltr",
-    nav: { features: "Features", how: "Process", pricing: "Pricing", coaches: "For Coaches", login: "Log in", start: "Get Started" },
+    nav: { features: "Features", how: "Process", pricing: "Pricing", coaches: "For Coaches", blog: "Blog", faq: "FAQ", login: "Log in", start: "Get Started" },
     toggle: { trader: "Trader", coach: "Coach" },
     hero: {
       trader: {
@@ -175,7 +175,7 @@ const COPY = {
   },
   fa: {
     dir: "rtl",
-    nav: { features: "ویژگی‌ها", how: "فرآیند", pricing: "قیمت‌گذاری", coaches: "برای کوچ‌ها", login: "ورود", start: "شروع کنید" },
+    nav: { features: "ویژگی‌ها", how: "فرآیند", pricing: "قیمت‌گذاری", coaches: "برای کوچ‌ها", blog: "بلاگ", faq: "سوالات متداول", login: "ورود", start: "شروع کنید" },
     toggle: { trader: "تریدر", coach: "کوچ" },
     hero: {
       trader: {
@@ -371,6 +371,8 @@ export default function MindluraLandingLuxury() {
             <a href="#how" className="hover:text-[#E9ECF3] transition-colors ml-focus">{t.nav.how}</a>
             <a href="#pricing" className="hover:text-[#E9ECF3] transition-colors ml-focus">{t.nav.pricing}</a>
             <a href="#coaches" className="hover:text-[#E9ECF3] transition-colors ml-focus">{t.nav.coaches}</a>
+            <Link href="/blog" className="hover:text-[#E9ECF3] transition-colors ml-focus">{t.nav.blog}</Link>
+            <a href="#faq" className="hover:text-[#E9ECF3] transition-colors ml-focus">{t.nav.faq}</a>
           </nav>
 
           <div className="hidden md:flex items-center gap-6">
@@ -393,6 +395,8 @@ export default function MindluraLandingLuxury() {
             <a href="#how">{t.nav.how}</a>
             <a href="#pricing">{t.nav.pricing}</a>
             <a href="#coaches">{t.nav.coaches}</a>
+            <Link href="/blog">{t.nav.blog}</Link>
+            <a href="#faq">{t.nav.faq}</a>
             <button onClick={() => setLang(isFa ? "en" : "fa")} className="text-left italic" style={{ fontFamily: displayFont }}>{isFa ? "English" : "فارسی"}</button>
           </div>
         )}
