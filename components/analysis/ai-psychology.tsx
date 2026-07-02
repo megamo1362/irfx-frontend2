@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, RefreshCw, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Sparkles, RefreshCw, AlertCircle, CheckCircle, Clock, Lock, ArrowUpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLang } from '@/app/i18n/LangContext';
-import { useAIAnalysis } from '@/hooks/use-analysis';
+import { useAIAnalysis, useAIQuota } from '@/hooks/use-analysis';
 import { ApiError } from '@/lib/api';
 import type { AIAnalysisResult, AIPattern } from '@/types';
 
@@ -53,28 +53,57 @@ function PatternCard({ pattern, lang }: { pattern: AIPattern; lang: 'en' | 'fa' 
 
 // ── Main component ────────────────────────────────────────────
 export function AIPsychologyCard({ accountId, fromDate, toDate }: Props) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const l = (lang === 'fa' ? 'fa' : 'en') as 'en' | 'fa';
   const isRTL = lang === 'fa';
 
   const { mutate, isPending } = useAIAnalysis();
+  const { data: quotaStatus, refetch: refetchQuota } = useAIQuota();
+
   const [result, setResult] = useState<AIAnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [quotaBlock, setQuotaBlock] = useState<{ code: string; message: string } | null>(null);
+
+  // Most recent quota info: prefer result.quota (post-request) over prefetched status
+  const effectiveQuota = result?.quota ?? (quotaStatus
+    ? { used: quotaStatus.used, limit: quotaStatus.limit }
+    : null);
+
+  const isNoPlan = effectiveQuota?.limit === 0 || quotaBlock?.code === 'plan_no_ai';
+  const isExhausted = !isNoPlan && (
+    (effectiveQuota?.limit != null && effectiveQuota.used >= effectiveQuota.limit)
+    || quotaBlock?.code === 'quota_exceeded'
+  );
+  const isBlocked = isNoPlan || isExhausted;
+
+  const resetDate = quotaStatus?.reset_date;
 
   const handleRequest = () => {
     setError(null);
+    setQuotaBlock(null);
     mutate(
       { accountId, fromDate, toDate },
       {
-        onSuccess: (data) => setResult(data),
+        onSuccess: (data) => {
+          setResult(data);
+          refetchQuota();
+        },
         onError: (err) => {
-          setError(
-            err instanceof ApiError
-              ? err.message
-              : l === 'fa'
-              ? 'خطا در دریافت تحلیل هوش مصنوعی'
-              : 'Failed to fetch AI analysis'
-          );
+          if (err instanceof ApiError) {
+            try {
+              const detail = JSON.parse(err.message) as { code?: string; en?: string; fa?: string };
+              if (detail.code === 'plan_no_ai' || detail.code === 'quota_exceeded') {
+                setQuotaBlock({ code: detail.code, message: detail[l] ?? err.message });
+                refetchQuota();
+                return;
+              }
+            } catch { /* plain string error */ }
+            setError(err.message);
+          } else {
+            setError(
+              l === 'fa' ? 'خطا در دریافت تحلیل هوش مصنوعی' : 'Failed to fetch AI analysis'
+            );
+          }
         },
       },
     );
@@ -110,9 +139,14 @@ export function AIPsychologyCard({ accountId, fromDate, toDate }: Props) {
             size="sm"
             onClick={handleRequest}
             loading={isPending}
-            disabled={isPending}
+            disabled={isPending || isBlocked}
           >
-            {isPending ? null : result ? (
+            {isPending ? null : isBlocked ? (
+              <>
+                <Lock className="w-3.5 h-3.5 ml-1.5" />
+                {l === 'fa' ? 'محدود' : 'Unavailable'}
+              </>
+            ) : result ? (
               <>
                 <RefreshCw className="w-3.5 h-3.5 ml-1.5" />
                 {l === 'fa' ? 'تجدید' : 'Refresh'}
@@ -127,7 +161,34 @@ export function AIPsychologyCard({ accountId, fromDate, toDate }: Props) {
         </div>
       </div>
 
-      {/* Error */}
+      {/* Quota remaining — shown below button when limit is finite */}
+      {effectiveQuota && effectiveQuota.limit != null && !isBlocked && (
+        <p className="text-xs text-[var(--color-text-muted)]">
+          {t.ai_quota_remaining(effectiveQuota.used, effectiveQuota.limit)}
+        </p>
+      )}
+
+      {/* Quota blocked banner */}
+      {isBlocked && (
+        <div className="rounded-xl px-4 py-3 border border-orange-500/20 bg-orange-500/5 space-y-2">
+          <div className="flex items-start gap-2">
+            <Lock className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-orange-300 font-medium leading-snug">
+              {isNoPlan
+                ? t.ai_quota_no_plan
+                : effectiveQuota?.limit != null && resetDate
+                  ? t.ai_quota_exhausted(effectiveQuota.used, effectiveQuota.limit, resetDate)
+                  : (quotaBlock?.message ?? (l === 'fa' ? 'سهمیه تمام شد' : 'Quota exhausted'))}
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-orange-400/70 pl-6">
+            <ArrowUpCircle className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>{t.ai_quota_upgrade_hint}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Generic error */}
       {error && (
         <div className="flex items-start gap-2 rounded-xl px-4 py-3 border border-red-500/25 bg-red-500/6">
           <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
@@ -136,7 +197,7 @@ export function AIPsychologyCard({ accountId, fromDate, toDate }: Props) {
       )}
 
       {/* Idle state */}
-      {!result && !isPending && !error && (
+      {!result && !isPending && !error && !isBlocked && !quotaBlock && (
         <p className="text-sm text-[var(--color-text-muted)] text-center py-4">
           {l === 'fa'
             ? 'برای دریافت تحلیل رفتار معاملاتی از هوش مصنوعی، دکمه بالا را بزنید.'

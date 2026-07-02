@@ -463,6 +463,16 @@ export const translations = {
     admin_ai_logs_no_data: 'No AI analysis requests yet.',
     admin_ai_logs_error_detail: 'Error detail',
 
+    // ── AI quota ───────────────────────────────────────────
+    ai_quota_remaining: (used: number, limit: number) => `${limit - used} / ${limit} remaining this month`,
+    ai_quota_exhausted: (used: number, limit: number, reset: string) =>
+      `Monthly quota reached (${used}/${limit}). Resets on ${reset}.`,
+    ai_quota_no_plan: 'AI Analysis is not available on your plan.',
+    ai_quota_upgrade_hint: 'Upgrade your plan to unlock AI analysis.',
+    admin_plans_ai_limit_label: 'AI Analyses / Month',
+    admin_plans_ai_limit_unlimited: 'Unlimited',
+    admin_plans_ai_limit_none: 'No access (0)',
+
     // ── Not found ──────────────────────────────────────────
     not_found_title: 'Page Not Found',
     not_found_desc: 'The page you are looking for does not exist or has been moved.',
@@ -1075,6 +1085,16 @@ export const translations = {
     admin_ai_logs_col_requests: 'درخواست',
     admin_ai_logs_no_data: 'هنوز هیچ درخواست تحلیل هوش مصنوعی وجود ندارد.',
     admin_ai_logs_error_detail: 'جزئیات خطا',
+
+    // ── AI quota ───────────────────────────────────────────
+    ai_quota_remaining: (used: number, limit: number) => `${limit - used} / ${limit} باقی‌مانده این ماه`,
+    ai_quota_exhausted: (used: number, limit: number, reset: string) =>
+      `سهمیه ماهانه تمام شد (${used}/${limit}). تمدید در ${reset}.`,
+    ai_quota_no_plan: 'تحلیل هوش مصنوعی در پلن شما موجود نیست.',
+    ai_quota_upgrade_hint: 'برای دسترسی به تحلیل AI، پلن خود را ارتقا دهید.',
+    admin_plans_ai_limit_label: 'تحلیل AI / ماه',
+    admin_plans_ai_limit_unlimited: 'نامحدود',
+    admin_plans_ai_limit_none: 'بدون دسترسی (۰)',
 
     // ── Not found ──────────────────────────────────────────
     not_found_title: 'صفحه یافت نشد',

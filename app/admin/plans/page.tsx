@@ -60,14 +60,17 @@ export default function AdminPlansPage() {
     if (!editPlan) return;
     setSaving(true);
     try {
-      await apiFetch(`/admin/plans/${editPlan.id}`, {
-        method: 'PATCH',
-        body: {
-          name: editPlan.name, price_usd: editPlan.price_usd,
-          duration_days: editPlan.duration_days, max_mt5_accounts: editPlan.max_mt5_accounts,
-          is_active: editPlan.is_active,
-        },
-      });
+      const body: Record<string, unknown> = {
+        name: editPlan.name, price_usd: editPlan.price_usd,
+        duration_days: editPlan.duration_days, max_mt5_accounts: editPlan.max_mt5_accounts,
+        is_active: editPlan.is_active,
+      };
+      if (editPlan.ai_monthly_limit == null) {
+        body.ai_monthly_limit_clear = true;
+      } else {
+        body.ai_monthly_limit = editPlan.ai_monthly_limit;
+      }
+      await apiFetch(`/admin/plans/${editPlan.id}`, { method: 'PATCH', body });
       setEditPlan(null);
       fetchPlans();
     } finally {
@@ -129,6 +132,16 @@ export default function AdminPlansPage() {
                   <span className="text-[var(--color-text-muted)]">{t.admin_plans_max_mt5}</span>
                   <span className="font-bold">{plan.max_mt5_accounts}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--color-text-muted)]">{t.admin_plans_ai_limit_label}</span>
+                  <span className="font-bold">
+                    {plan.ai_monthly_limit == null
+                      ? t.admin_plans_ai_limit_unlimited
+                      : plan.ai_monthly_limit === 0
+                        ? t.admin_plans_ai_limit_none
+                        : plan.ai_monthly_limit}
+                  </span>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button variant="secondary" size="sm" className="flex-1" onClick={() => setEditPlan({ ...plan })}>{t.admin_plans_edit_btn}</Button>
@@ -152,6 +165,25 @@ export default function AdminPlansPage() {
                 onChange={e => setEditPlan({ ...editPlan, duration_days: parseInt(e.target.value) || 1 })} />
               <Input label={t.admin_plans_max_mt5_label} type="number" min={1} value={editPlan.max_mt5_accounts}
                 onChange={e => setEditPlan({ ...editPlan, max_mt5_accounts: parseInt(e.target.value) || 1 })} />
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-[var(--color-text-muted)]">{t.admin_plans_ai_limit_label}</label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="number"
+                    min={0}
+                    className="flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-deep)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-cyan)]"
+                    value={editPlan.ai_monthly_limit ?? ''}
+                    placeholder={t.admin_plans_ai_limit_unlimited}
+                    onChange={e => {
+                      const v = e.target.value;
+                      setEditPlan({ ...editPlan, ai_monthly_limit: v === '' ? null : parseInt(v) || 0 });
+                    }}
+                  />
+                </div>
+                <p className="text-[10px] text-[var(--color-text-muted)]">
+                  {t.admin_plans_ai_limit_unlimited} = leave blank · 0 = {t.admin_plans_ai_limit_none}
+                </p>
+              </div>
               <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] px-4 py-3">
                 <span className="text-sm text-[var(--color-text-secondary)]">{t.admin_plans_status_label}</span>
                 <Switch checked={editPlan.is_active} onCheckedChange={v => setEditPlan({ ...editPlan, is_active: v })} />

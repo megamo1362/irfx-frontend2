@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/constants';
-import type { SnapshotResponse, UserFeatures, Journal, Trade, Analysis, ChartsData, OpenPosition, AIAnalysisResult } from '@/types';
+import type { SnapshotResponse, UserFeatures, Journal, Trade, Analysis, ChartsData, OpenPosition, AIAnalysisResult, AIQuotaStatus } from '@/types';
 
 export function useCheckAndRun() {
   return useMutation({
@@ -95,5 +95,13 @@ export function useAIAnalysis() {
         method: 'POST',
         body: { account_id: Number(accountId), from_date: fromDate, to_date: toDate },
       }),
+  });
+}
+
+export function useAIQuota() {
+  return useQuery({
+    queryKey: ['ai-quota'],
+    queryFn: () => apiFetch<AIQuotaStatus>('/analysis/ai-quota'),
+    staleTime: 60_000,
   });
 }

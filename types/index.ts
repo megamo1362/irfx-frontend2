@@ -279,6 +279,7 @@ export interface Plan {
   is_active: boolean;
   analysis_mode?: string;
   analysis_interval_hours?: number | null;
+  ai_monthly_limit?: number | null;
 }
 
 // ── Coaching ───────────────────────────────────────────────
@@ -446,6 +447,13 @@ export interface AIAnalysisResult {
   cached: boolean;
   created_at: string | null;
   tokens_used?: number | null;
+  quota?: { used: number; limit: number | null };
+}
+
+export interface AIQuotaStatus {
+  used: number;
+  limit: number | null;
+  reset_date: string;
 }
 
 // ── Charts ─────────────────────────────────────────────────
