@@ -429,7 +429,7 @@ export interface JournalPermission {
 
 // ── AI Psychology Analysis ─────────────────────────────────
 export interface AIPattern {
-  pattern: string;
+  pattern: { en: string; fa: string };
   severity: 'low' | 'medium' | 'high';
   explanation: { en: string; fa: string };
 }

@@ -42,7 +42,7 @@ function PatternCard({ pattern, lang }: { pattern: AIPattern; lang: 'en' | 'fa' 
     <div className={`rounded-xl px-4 py-3 border space-y-1 ${cfg.wrap}`}>
       <div className="flex items-center gap-2">
         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
-        <span className={`text-sm font-semibold ${cfg.text}`}>{pattern.pattern}</span>
+        <span className={`text-sm font-semibold ${cfg.text}`}>{pattern.pattern[lang]}</span>
       </div>
       <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed pl-4">
         {pattern.explanation[lang]}
