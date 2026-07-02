@@ -2,9 +2,10 @@ module.exports = {
   apps: [
     {
       name: 'mindlura-backend',
-      script: 'main.py',
-      interpreter: 'python3',
+      script: 'start.sh',
+      interpreter: '/bin/bash',
       cwd: '/home/megamo/mindlura-backend',
+      env_file: '.env',
       restart_delay: 3000,
       max_restarts: 10,
     },
