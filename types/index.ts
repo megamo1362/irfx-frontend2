@@ -376,12 +376,7 @@ export interface Journal {
   tags?: string;
 }
 
-// ── Features ───────────────────────────────────────────────
-export interface UserFeatures {
-  realtime_analysis: boolean;
-  analysis_mode: boolean;
-  [key: string]: boolean;
-}
+// UserFeatures — defined below near ProfileResponse
 
 // ── Journal ────────────────────────────────────────────────
 export interface JournalEntry {
@@ -454,6 +449,57 @@ export interface AIQuotaStatus {
   used: number;
   limit: number | null;
   reset_date: string;
+}
+
+// ── Feature flags ──────────────────────────────────────────
+export interface UserFeatures {
+  // Analysis modules
+  psychology_score: boolean;
+  mae_mfe: boolean;
+  session_analysis: boolean;
+  cost_analysis: boolean;
+  entry_exit_quality: boolean;
+  trading_style: boolean;
+  pattern_detection: boolean;
+  pdf_export: boolean;
+  realtime_analysis: boolean;
+  // AI
+  ai_psychology_analysis: boolean;
+  ai_unlimited: boolean;
+  ai_coach: boolean;
+  // Journaling
+  journal: boolean;
+  emotion_tags: boolean;
+  journal_analysis: boolean;
+  // Telegram
+  telegram_connect: boolean;
+  telegram_alerts: boolean;
+  telegram_journal_view: boolean;
+  // Notifications
+  email_notifications: boolean;
+  // Integer limits
+  mt5_accounts_limit: number | null;
+}
+
+export interface ProfileResponse {
+  id: number;
+  name: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  date_of_birth: string | null;
+  nationality: string | null;
+  email: string;
+  phone: string | null;
+  role: string;
+  plan: string | null;
+  plan_slug: string | null;
+  created_at: string;
+  is_email_verified: boolean;
+  is_phone_verified: boolean;
+  is_telegram_verified: boolean;
+  telegram_id: string | null;
+  telegram_username: string | null;
+  features: UserFeatures;
 }
 
 // ── Charts ─────────────────────────────────────────────────

@@ -9,26 +9,9 @@ import { Badge, PlanBadge } from '@/components/ui/badge';
 import { OtpInput } from '@/components/ui/otp-input';
 import { useLang } from '@/app/i18n/LangContext';
 import { useCountdown } from '@/hooks/useCountdown';
+import type { ProfileResponse } from '@/types';
 
-interface ProfileData {
-  id: number;
-  name: string | null;
-  first_name: string | null;
-  last_name: string | null;
-  date_of_birth: string | null;
-  nationality: string | null;
-  email: string;
-  phone: string | null;
-  role: string;
-  plan: string | null;
-  plan_slug: string | null;
-  created_at: string;
-  is_email_verified: boolean;
-  is_phone_verified: boolean;
-  is_telegram_verified: boolean;
-  telegram_id: string | null;
-  telegram_username: string | null;
-}
+type ProfileData = ProfileResponse;
 
 
 function formatDate(dateStr: string, lang: string): string {
