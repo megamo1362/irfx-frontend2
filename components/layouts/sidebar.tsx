@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
-import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield, Settings, UserCircle } from 'lucide-react';
+import { BarChart2, Users, LayoutDashboard, UserCheck, KeyRound, CreditCard, BookOpen, TrendingUp, Shield, Settings, UserCircle, BotMessageSquare } from 'lucide-react';
 import { NavItem } from './nav-item';
 import { UserMenu } from './user-menu';
 import { cn } from '@/lib/utils';
@@ -34,6 +34,7 @@ const ADMIN_NAV: NavEntry[] = [
   { href: '/admin/coaches', labelKey: 'nav_admin_coaches', icon: UserCheck },
   { href: '/admin/invite-codes', labelKey: 'nav_admin_invite_codes', icon: KeyRound },
   { href: '/admin/plans', labelKey: 'nav_admin_plans', icon: CreditCard },
+  { href: '/admin/ai-logs', labelKey: 'nav_admin_ai_logs', icon: BotMessageSquare },
 ];
 
 interface SidebarProps {

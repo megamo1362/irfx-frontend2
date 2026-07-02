@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart2, BookOpen, TrendingUp, Users, LayoutDashboard, KeyRound, CreditCard, UserCheck, Settings, UserCircle } from 'lucide-react';
+import { BarChart2, BookOpen, TrendingUp, Users, LayoutDashboard, KeyRound, CreditCard, UserCheck, Settings, UserCircle, BotMessageSquare } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLang } from '@/app/i18n/LangContext';
 import type { User } from '@/types';
@@ -31,6 +31,7 @@ const ADMIN_ITEMS: NavItem[] = [
   { href: '/admin/coaches', labelKey: 'nav_admin_coaches', icon: UserCheck },
   { href: '/admin/invite-codes', labelKey: 'nav_admin_codes', icon: KeyRound },
   { href: '/admin/plans', labelKey: 'nav_admin_plans', icon: CreditCard },
+  { href: '/admin/ai-logs', labelKey: 'nav_admin_ai_logs', icon: BotMessageSquare },
 ];
 
 interface BottomNavProps {
